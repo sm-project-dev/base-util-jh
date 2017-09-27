@@ -1,0 +1,23 @@
+{
+  "name": "base-util-jh",
+  "version": "1.0.0",
+  "description": "npm publish test",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyuk-jang/base-util-jh"
+  },
+  "keywords": [
+    "npm",
+    "base-util"
+  ],
+  "author": "j.hyuk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hyuk-jang/base-util-jh/issues"
+  },
+  "homepage": "https://github.com/hyuk-jang/base-util-jh#readme"
+}
