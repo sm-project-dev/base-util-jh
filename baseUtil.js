@@ -248,7 +248,7 @@ exports.CLI = CLI;
 function traceOccurPosition(target) {
   var returnObj = {};
 
-  __stack.forEach(function (stack, index) {
+  getStack().forEach(function (stack, index) {
     if (index == 2) {
       returnObj.functionName = stack.getFunctionName();
       returnObj.lineNumber = "@@@ " + stack.getLineNumber() + " @@@";
@@ -274,7 +274,7 @@ function debugConsole(maxCounter) {
   maxCounter = maxCounter == null || maxCounter === "" ? 4 : maxCounter;
   console.log("@@@@@@@@@@   debugConsole Start    @@@@@@@@@@");
 
-  __stack.forEach(function (stack, index) {
+  getStack().forEach(function (stack, index) {
     var sourceName = "";
     if (maxCounter < index || index == 0) {
       return;
@@ -1198,39 +1198,51 @@ exports.MRF = MRF;
 //*************                              Base Prototype 관련                                     *************
 /*****************************************************************************************************************/
 
-
-Object.defineProperty(global, '__stack', {
-  get: function () {
-    var orig = Error.prepareStackTrace;
-    Error.prepareStackTrace = function (_, stack) {
-      return stack;
-    };
-    var err = new Error;
-    Error.captureStackTrace(err, arguments.callee);
-    var stack = err.stack;
-    Error.prepareStackTrace = orig;
+function getStack() {
+  var orig = Error.prepareStackTrace;
+  Error.prepareStackTrace = function (_, stack) {
     return stack;
-  }
-});
+  };
+  var err = new Error;
+  Error.captureStackTrace(err, arguments.callee);
+  var stack = err.stack;
+  Error.prepareStackTrace = orig;
+  return stack;
+}
 
-Object.defineProperty(global, '__line', {
-  get: function () {
-    return __stack[2].getLineNumber();
-  }
-});
 
-Object.defineProperty(global, '__function', {
-  get: function () {
+// Object.defineProperty(global, '__stack', {
+//   get: function () {
+//     var orig = Error.prepareStackTrace;
+//     Error.prepareStackTrace = function (_, stack) {
+//       return stack;
+//     };
+//     var err = new Error;
+//     Error.captureStackTrace(err, arguments.callee);
+//     var stack = err.stack;
+//     Error.prepareStackTrace = orig;
+//     return stack;
+//   }
+// });
 
-    return __stack[2].getFunctionName();
-  }
-});
+// Object.defineProperty(global, '__line', {
+//   get: function () {
+//     return __stack[2].getLineNumber();
+//   }
+// });
 
-Object.defineProperty(global, '__filename', {
-  get: function () {
-    return __stack[2].getFileName();
-  }
-});
+// Object.defineProperty(global, '__function', {
+//   get: function () {
+
+//     return __stack[2].getFunctionName();
+//   }
+// });
+
+// Object.defineProperty(global, '__filename', {
+//   get: function () {
+//     return __stack[2].getFileName();
+//   }
+// });
 
 
 
