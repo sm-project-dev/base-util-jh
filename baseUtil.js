@@ -378,6 +378,16 @@ function searchDirectory(path, callback) {
   }
 }
 exports.searchDirectory = searchDirectory;
+
+function getDirectories (srcpath) {
+  var fs = require("fs");
+  var path = require("path");
+  return fs.readdirSync(srcpath)
+    .filter(file => fs.lstatSync(path.join(srcpath, file)).isDirectory())
+}
+exports.getDirectories = getDirectories;
+
+
 // 디렉토리 생성
 function makeDirectory(path, callback) {
   var fs = require("fs");
