@@ -1,9 +1,5 @@
-const BU = require('base-util-jh').baseUtil;
+const BU = require('./baseUtil');
 
-//replaceAll prototype 선언
-String.prototype.replaceAll = function(org, dest) {
-    return this.split(org).join(dest);
-}
 
 
 function ChainingControllers(dirName, app) {

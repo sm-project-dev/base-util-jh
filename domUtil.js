@@ -1,3 +1,5 @@
+const BU = require('./baseUtil');
+
 function locationAlertBack(message) {
     message = global.fixmeConfig.isTest ? BU.MRF(message) : "알 수 없는 오류가 발생하였습니다.";
     return '<script>alert("' + message + '");history.back(-1);</script>';

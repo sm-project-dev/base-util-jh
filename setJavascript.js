@@ -114,3 +114,9 @@ Array.prototype.findArrayElementsByBoardid = function (value) {
 Array.prototype.deleteByIndex = function (index) {
     this.splice(index, 1);
 }
+
+
+//replaceAll prototype 선언
+String.prototype.replaceAll = function(org, dest) {
+  return this.split(org).join(dest);
+}
