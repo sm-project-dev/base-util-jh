@@ -6,16 +6,16 @@
 
 
 function convertDateToText(dateTime, language, endIndex, startIndex) {
+  // console.log('convertDateToText', dateTime, language, endIndex, startIndex)
   var returnvalue = "",
     // arg 재정의
     //dateTime = dateTime,
-    language = language === undefined || language == "" ? "char" : language,
-    endIndex = endIndex === undefined || endIndex == "" ? 5 : endIndex,
-    startIndex = startIndex === undefined || startIndex == "" ? 0 : startIndex,
+    language = language === undefined || language === "" ? "char" : language,
+    endIndex = endIndex === undefined || endIndex === "" ? 5 : endIndex,
+    startIndex = startIndex === undefined || startIndex === "" ? 0 : startIndex,
     timeTable = [], // date 타임 year ~ sec 순서대로 push
     strTimeTable = [], // 적정 str로 교체
     separates = ""; // 첨가물
-
 
   timeTable.push(dateTime.getFullYear());
   timeTable.push(dateTime.getMonth() + 1);
@@ -38,14 +38,22 @@ function convertDateToText(dateTime, language, endIndex, startIndex) {
       break;
   }
 
-  strTimeTable.forEach(function (timeData, index) {
+  let hasFirst = true;
+  strTimeTable.forEach((timeData, index) => {
     if (index < startIndex || index > endIndex) return;
 
-    if (language == "char")
-      returnvalue += separates[index] + timeData;
+    if (language == "char"){
+      if(hasFirst){
+        hasFirst = false;
+      } else {
+        returnvalue += separates[index];
+      }
+      returnvalue += timeData;
+    }
     else {
-      returnvalue = returnvalue.length > 0 ? returnvalue.concat(" ") : "";
-      returnvalue += timeData + separates[index];
+      returnvalue += timeData;
+      returnvalue += separates[index];
+      returnvalue += index === endIndex ? '' : ' ';
     }
   });
   return returnvalue;
@@ -59,16 +67,40 @@ exports.convertDateToText = convertDateToText;
  */
 // (String Date) yyyy-MM-ss HH:mm:ss To Date Object  /// <returns type="Date" />
 function convertTextToDate(textDate) {
-  var strYYYYMMDD = textDate.split(" ")[0],
-    strHHMMSS = textDate.split(" ")[1],
-    year = Number(strYYYYMMDD.split("-")[0]),
-    month = Number(strYYYYMMDD.split("-")[1]) - 1,
-    day = Number(strYYYYMMDD.split("-")[2]),
-    hour = Number(strHHMMSS.split(":")[0]),
-    min = Number(strHHMMSS.split(":")[1]),
-    sec = Number(strHHMMSS.split(":")[2]);
+  let year = '';
+  let month = '';
+  let day = '';
+  let hour = '';
+  let min = '';
+  let sec = '';
+  let dateList = ['','','','','',''];
+  for(let i = 0; i < textDate.length; i++){
+    let char = textDate.charAt(i);
+    if(i < 4){
+      dateList[0] = dateList[0].concat(char);
+    } else if (i > 4 && i < 7 ){
+      dateList[1] = dateList[1].concat(char);
+    } else if (i > 7 && i < 10 ){
+      dateList[2] = dateList[2].concat(char);
+    } else if (i > 10 && i < 13 ){
+      dateList[3] = dateList[3].concat(char);
+    } else if (i > 13 && i < 16 ){
+      dateList[4] = dateList[4].concat(char);
+    } else if (i > 16 && i < 19 ){
+      dateList[5] = dateList[5].concat(char);
+    }
+  }
 
-  return new Date(year, month, day, hour, min, sec, 0);
+  dateList.forEach((ele, index) => {
+    if(ele !== '' && index === 1){
+      dateList[index] = Number(ele) - 1;
+    } else if(ele === '') {
+      dateList[index] = index === 2 ? 1 : 0;
+    } else {
+      dateList[index] = Number(dateList[index]) ;
+    }
+  })
+  return new Date(dateList[0], dateList[1], dateList[2], dateList[3], dateList[4], dateList[5], 0);
 }
 exports.convertTextToDate = convertTextToDate;
 
@@ -184,6 +216,84 @@ function splitStrDate(strDate) {
 }
 exports.splitStrDate = splitStrDate;
 
+/**
+ * strStartDate <= returnValue < strEndDate
+ * @param {String} strEndDate 
+ * @param {String} strStartDate 
+ * @param {String} searchType year, month, day, hour
+ * @return {Array}
+ */
+function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
+  // CLI('getBetweenDatePoint', strEndDate, strStartDate, searchType)
+  let returnValue = {
+    fullTxtPoint: [],
+    shortTxtPoint: [],
+  };
+  let endDate = new Date(strEndDate);
+  let currDate = new Date(strStartDate);
+  // console.time('getBetweenDatePoint')
+  if (currDate > endDate) {
+    return returnValue;
+  }
+
+
+  let spliceIndex = 0;
+
+  switch (searchType) {
+    case 'year':
+      spliceIndex = 0;
+      currDate.setMonth(0, 1);
+      currDate.setHours(0, 0, 0, 0);
+      break;
+      case 'month':
+      currDate.setDate(1);
+      currDate.setHours(0, 0, 0, 0);
+      spliceIndex = 1;
+      break;
+    case 'day':
+    currDate.setHours(0, 0, 0, 0);
+      spliceIndex = 2;
+      break;
+      case 'hour':
+      spliceIndex = 3;
+      currDate.setMinutes(0, 0, 0);
+      break;
+    default:
+      break;
+  }
+
+  let txtEndDate = convertDateToText(endDate, '', 3, 0);
+  let txtStartDate = '';
+  let txtShortStartDate = '';
+  let txtNextDate = '';
+
+  do {
+    // 종료일 txt 변환
+    let cloneTargetDate = new Date(currDate);
+    if (searchType === 'year') {
+      currDate.addYear(1);
+    } else if (searchType === 'month') {
+      currDate.addMonths(1);
+    } else if (searchType === 'day') {
+      currDate.addDays(1);
+    } else if (searchType === 'hour') {
+      currDate.addHours(1);
+    }
+    // 다음 조건 txt 변환
+    txtStartDate = convertDateToText(cloneTargetDate, '', spliceIndex, 0)
+    txtShortStartDate = convertDateToText(cloneTargetDate, '', spliceIndex, spliceIndex)
+    txtNextDate = convertDateToText(currDate, '', 3, 0)
+
+    // BU.CLIS(txtStartDate, txtNextDate, txtEndDate)
+    returnValue.fullTxtPoint.push(txtStartDate)
+    returnValue.shortTxtPoint.push(txtShortStartDate)
+
+  } while (txtNextDate < txtEndDate);
+  // console.timeEnd('getBetweenDatePoint')
+  // CLI(returnValue)
+  return returnValue;
+}
+exports.getBetweenDatePoint = getBetweenDatePoint;
 
 
 

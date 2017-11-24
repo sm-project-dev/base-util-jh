@@ -115,8 +115,20 @@ Array.prototype.deleteByIndex = function (index) {
     this.splice(index, 1);
 }
 
+Array.prototype.sum = function() {
+  return this.reduce(function(accumulator, currentValue, currentIndex, array) {
+    return Number(accumulator) + Number(currentValue) ;
+  });
+}
+
+Number.prototype.scale = function(scale, toFixed){
+  // BU.CLI('scale',scale, toFixed)
+  return (this * scale).toFixed(toFixed ? toFixed : 0);
+}
+
 
 //replaceAll prototype 선언
 String.prototype.replaceAll = function(org, dest) {
+  
   return this.split(org).join(dest);
 }
