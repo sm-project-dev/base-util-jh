@@ -48,6 +48,68 @@ function makeResObj(req, sidebarNum, pageCount) {
 }
 exports.makeResObj = makeResObj;
 
+
+/**
+ * BootStrap 용 Pagination Dom 생성
+ * @param {Array} dataList 
+ * @param {Number} page 
+ * @param {Number} totalCount
+ * @return {Dom}
+ */
+function makeBsPagination(page, totalCount, href, queryString, pageListCount){
+  let paginationDom = '';
+  let maxPage = 0;
+  // list 총 개수
+  totalCount = Number(totalCount);
+  // 선택한 pagination 번호
+  page = Number(page);
+  // 연결 href 주소
+  let _pageListCount = pageListCount ? pageListCount : 10;    // List Rows Number
+  let _paginationCount = 10; // Pagination Number
+
+  // pagination 시작 번호
+  let startPage = Math.floor((page - 1) / _paginationCount) * _paginationCount + 1;
+  // pagination 끝 번호
+  let endPage = startPage + _paginationCount - 1;
+  // pagination 최대 번호
+  maxPage = Math.floor((totalCount - 1) / _pageListCount) + 1;
+  endPage = endPage > maxPage ? maxPage : endPage;
+
+  let pageHref = href + '?';
+  _.each(queryString, (value, name) => {
+    pageHref += `${name}=${value}&`
+  })
+
+
+  let prevHref = startPage > 1 ? `href="${pageHref}page=${startPage - 1}"` : '';
+  let nextHref = maxPage > endPage ? `href="${pageHref}page=${endPage + 1}"` : '';
+
+  paginationDom += `
+  <ul class="pagination">
+    <li class="page-item ${startPage > 1 ? '' : 'disabled'}">
+      <a class="page-link" ${prevHref} tabindex="">Previous</a>
+    </li>
+    `;
+    for(let i = startPage; i <= endPage; i++ ){
+      paginationDom += `
+      <li class="page-item ${i === page ? 'active' : ''}">
+      <a class="page-link" href="${pageHref}page=${i}">${i} <span class="sr-only">(current)</span></a>
+    </li>`
+    }
+    paginationDom += `
+      <li class="page-item ${maxPage > endPage ? '' : 'disabled'}">
+        <a class="page-link" ${nextHref} tabindex="}">Next</a>
+      </li>
+    </ul>
+    `;
+
+    return {
+      page, maxPage, totalCount, href, queryString, paginationDom, pageListCount: _pageListCount
+    };
+
+}
+exports.makeBsPagination = makeBsPagination;
+
 function makePaginationHtml(resObj, queryResult) {
     resObj.list = queryResult;
     resObj.totalCount = queryResult.totalCount;
