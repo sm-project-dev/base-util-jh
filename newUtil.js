@@ -60,3 +60,16 @@ function concatArrayBuffer() {
   // return Buffer.concat(arr);
 }
 exports.concatArrayBuffer = concatArrayBuffer;
+
+
+function mochaAsync(fn) {
+  return async(done) => {
+    try {
+      await fn();
+      done();
+    } catch (err) {
+      done(err);
+    }
+  };
+}
+exports.mochaAsync = mochaAsync;
