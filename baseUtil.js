@@ -556,7 +556,11 @@ function errorLog(errType, msg, exceptionError) {
     var traceObj = traceOccurPosition(this);
     errInfo = "\t" + traceObj.fileName + " : " + traceObj.lineNumber + " : " + traceObj.functionName;
   } else { // uncaughtException 발생할 경우 exception 에서 추적
-    errInfo = exceptionError.stack.split(/\n/g)[1];
+    try {
+      errInfo = exceptionError.stack.split(/\n/g)[1];
+    } catch (error) {
+      errInfo = exceptionError;
+    }
   }
 
   message = "Info" + " : " + convertDateToText(new Date(), "char") + "\r\n";
