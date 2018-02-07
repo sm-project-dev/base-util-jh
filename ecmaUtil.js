@@ -33,9 +33,11 @@ function requireAuto(path){
 }
 exports.requireAuto = requireAuto;
 
-
-let dic = getDirectories(__dirname);
-console.log(dic);
-
-let auto = requireAuto(__dirname);
-console.log(auto);
+// if __main process
+if (require !== undefined && require.main === module) {
+  let dic = getDirectories(__dirname);
+  console.log(dic);
+  
+  let auto = requireAuto(__dirname);
+  console.log(auto);
+}
