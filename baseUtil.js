@@ -406,15 +406,11 @@ function readFile(path, encoding, callback) {
   encoding = encoding == null || encoding === '' ? 'utf8' : encoding;
   try {
     fs.readFile(path, encoding, function (err, data) {
-      console.log('@@@');
       if (err) return callback(err);
-      console.log('@@@');
       if (callback != null) return callback(err, data);
     });
   } catch (e) {
-    console.log('##');
     if (callback != null) callback(e);
-    console.log('##');
   }
 }
 exports.readFile = readFile;
@@ -466,10 +462,10 @@ function searchDirectory(path, callback) {
     fs.readdir(path, function (err, files) {
       if (err) return callback(err);
       if (callback != null) return callback(err, files);
-      console.log('여긴 안오지');
+      // console.log('여긴 안오지');
       files.forEach(function (file) {
         returnvalue.push(file);
-        console.log(path + file);
+        // console.log(path + file);
         fs.stat(path + file, function (err, stats) {
           console.log(stats);
         });
@@ -493,18 +489,20 @@ exports.getDirectories = getDirectories;
 
 // 디렉토리 생성
 function makeDirectory(path, callback) {
-  var fs = require('fs');
+  var mkdirp = require('mkdirp');
+  // CLI(path)
   try {
-    fs.mkdir(path, function (err) {
+    mkdirp(path, function (err) {
       if (err) console.error(err);
       if (callback != null) callback(err);
-      console.log('Created newdir');
+      console.log('Created newdir', path);
     });
   } catch (e) {
     if (callback != null) callback(e);
   }
 }
 exports.makeDirectory = makeDirectory;
+
 // 디렉토리 삭제
 function deleteDirectory(path, callback) {
   var fs = require('fs');

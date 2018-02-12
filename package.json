@@ -1,6 +1,6 @@
 {
   "name": "base-util-jh",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "npm publish test",
   "main": "index.js",
   "scripts": {
@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/hyuk-jang/base-util-jh/issues"
   },
-  "homepage": "https://github.com/hyuk-jang/base-util-jh#readme"
+  "homepage": "https://github.com/hyuk-jang/base-util-jh#readme",
+  "dependencies": {
+    "mkdirp": "^0.5.1"
+  }
 }
