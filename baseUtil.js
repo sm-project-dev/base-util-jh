@@ -11,7 +11,7 @@ function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
     // arg 재정의
     //dateTime = dateTime,
     language = charset === undefined || charset === '' ? 'char' : charset,
-    endIndex = endIndex === undefined || wordEndIndex === '' ? 5 : wordEndIndex,
+    endIndex = wordEndIndex === undefined || wordEndIndex === '' ? 5 : wordEndIndex,
     startIndex = wordStartIndex === undefined || wordStartIndex === '' ? 0 : wordStartIndex,
     timeTable = [], // date 타임 year ~ sec 순서대로 push
     strTimeTable = [], // 적정 str로 교체
