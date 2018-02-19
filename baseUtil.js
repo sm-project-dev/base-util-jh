@@ -218,18 +218,25 @@ exports.splitStrDate = splitStrDate;
  */
 function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
   // CLI('getBetweenDatePoint', strEndDate, strStartDate, searchType)
+  let endDate;
+  let currDate;
+  try {
+    endDate  =  new Date(strEndDate);
+  } catch (error) {
+    endDate = new Date();
+  }
+  try {
+    currDate = new Date(strStartDate);
+  } catch (error) {
+    currDate = new Date();
+  }
   let returnValue = {
     fullTxtPoint: [],
     shortTxtPoint: [],
   };
-  let endDate = new Date(strEndDate);
-  let currDate = new Date(strStartDate);
-  // console.time('getBetweenDatePoint')
   if (currDate > endDate) {
     return returnValue;
   }
-
-
   let spliceIndex = 0;
 
   switch (searchType) {
@@ -252,14 +259,14 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
     currDate.setMinutes(0, 0, 0);
     break;
   default:
+    spliceIndex = 3;
+    currDate.setMinutes(0, 0, 0);
     break;
   }
-
   let txtEndDate = convertDateToText(endDate, '', 3, 0);
   let txtStartDate = '';
   let txtShortStartDate = '';
   let txtNextDate = '';
-
   do {
     // 종료일 txt 변환
     let cloneTargetDate = new Date(currDate);
@@ -271,19 +278,19 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
       currDate.addDays(1);
     } else if (searchType === 'hour') {
       currDate.addHours(1);
+    } else {
+      return Error(`searchType 에러 : ${searchType}`);
     }
     // 다음 조건 txt 변환
     txtStartDate = convertDateToText(cloneTargetDate, '', spliceIndex, 0);
     txtShortStartDate = convertDateToText(cloneTargetDate, '', spliceIndex, spliceIndex);
     txtNextDate = convertDateToText(currDate, '', 3, 0);
 
-    // BU.CLIS(txtStartDate, txtNextDate, txtEndDate)
     returnValue.fullTxtPoint.push(txtStartDate);
     returnValue.shortTxtPoint.push(txtShortStartDate);
 
   } while (txtNextDate < txtEndDate);
   // console.timeEnd('getBetweenDatePoint')
-  // CLI(returnValue)
   return returnValue;
 }
 exports.getBetweenDatePoint = getBetweenDatePoint;
