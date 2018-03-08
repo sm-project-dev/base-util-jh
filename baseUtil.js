@@ -304,7 +304,7 @@ exports.getBetweenDatePoint = getBetweenDatePoint;
 // console.log 개발자 버젼
 function log() {
   var traceObj = traceOccurPosition(this),
-    occurInfo = '   --> ' + traceObj.fileName + ' : ' + traceObj.lineNumber;
+    occurInfo = '   -=> ' + traceObj.fileName + ' : ' + traceObj.lineNumber;
 
   for (let arg of arguments) {
     process.stdout.write(String(arg));
@@ -316,7 +316,11 @@ exports.log = log;
 // Console.Log by Option
 function CLIN(pOjbect, num) {
   var util = require('util');
+  var traceObj = traceOccurPosition(this),
+    occurInfo = '   ' + traceObj.fileName + ' : ' + traceObj.lineNumber;
+  console.log('-----   ', occurInfo, convertDateToText(new Date(), 'char', 5, 1));
   console.log(util.inspect(pOjbect, true, num));
+  console.log('=====  CLIS END  ===== ', traceObj.fileName + ' : ' + traceObj.lineNumber);
 }
 exports.CLIN = CLIN;
 
@@ -325,13 +329,13 @@ function CLIS() {
   var util = require('util');
   var traceObj = traceOccurPosition(this),
     occurInfo = '   ' + traceObj.fileName + ' : ' + traceObj.lineNumber;
-  console.log('-------------   ', occurInfo, convertDateToText(new Date(), 'char', 5, 1));
+  console.log('-----   ', occurInfo, convertDateToText(new Date(), 'char', 5, 1));
 
   for (let argNum = 0; argNum < arguments.length; argNum += 1) {
     console.log('pOjbect' + (argNum + 1), ' --> ', util.inspect(arguments[argNum], true, 10));
   }
 
-  console.log('=============  CLIS END  ============= ', traceObj.fileName + ' : ' + traceObj.lineNumber);
+  console.log('=====  CLIS END  ===== ', traceObj.fileName + ' : ' + traceObj.lineNumber);
 }
 exports.CLIS = CLIS;
 
@@ -340,7 +344,7 @@ function CLI() {
   var util = require('util');
   var traceObj = traceOccurPosition(this),
     occurInfo = '   ' + traceObj.fileName + ' : ' + traceObj.lineNumber + ' ( ' + traceObj.functionName + ' )';
-  console.log('-------------   ', occurInfo, convertDateToText(new Date(), 'char', 5, 1));
+  console.log('-----   ', occurInfo, convertDateToText(new Date(), 'char', 5, 1));
 
   for (let argNum = 0, argLength = arguments.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
@@ -350,7 +354,7 @@ function CLI() {
     }
   }
 
-  console.log('=============  CLI END  =============  ', traceObj.fileName + ' : ' + traceObj.lineNumber);
+  console.log('=====  CLI END  =====  ', traceObj.fileName + ' : ' + traceObj.lineNumber);
 }
 exports.CLI = CLI;
 
