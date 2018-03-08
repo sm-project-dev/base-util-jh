@@ -307,7 +307,7 @@ function log() {
     occurInfo = '   -=> ' + traceObj.fileName + ' : ' + traceObj.lineNumber;
 
   for (let arg of arguments) {
-    process.stdout.write(String(arg));
+    process.stdout.write(`   ${String(arg)}`);
   }
   console.log(occurInfo);
 }
@@ -317,10 +317,10 @@ exports.log = log;
 function CLIN(pOjbect, num) {
   var util = require('util');
   var traceObj = traceOccurPosition(this),
-    occurInfo = '   ' + traceObj.fileName + ' : ' + traceObj.lineNumber;
-  console.log('-----   ', occurInfo, convertDateToText(new Date(), 'char', 5, 1));
+    occurInfo = traceObj.fileName + ' : ' + traceObj.lineNumber + ' ( ' + traceObj.functionName + ' )';
+  console.log('-------   ', occurInfo);
   console.log(util.inspect(pOjbect, true, num));
-  console.log('=====  CLIS END  ===== ', traceObj.fileName + ' : ' + traceObj.lineNumber);
+  console.log('=======   ', occurInfo);
 }
 exports.CLIN = CLIN;
 
@@ -328,14 +328,14 @@ exports.CLIN = CLIN;
 function CLIS() {
   var util = require('util');
   var traceObj = traceOccurPosition(this),
-    occurInfo = '   ' + traceObj.fileName + ' : ' + traceObj.lineNumber;
-  console.log('-----   ', occurInfo, convertDateToText(new Date(), 'char', 5, 1));
+    occurInfo = traceObj.fileName + ' : ' + traceObj.lineNumber + ' ( ' + traceObj.functionName + ' )';
+  console.log('-------   ', occurInfo);
 
   for (let argNum = 0; argNum < arguments.length; argNum += 1) {
     console.log('pOjbect' + (argNum + 1), ' --> ', util.inspect(arguments[argNum], true, 10));
   }
 
-  console.log('=====  CLIS END  ===== ', traceObj.fileName + ' : ' + traceObj.lineNumber);
+  console.log('=======   ', occurInfo);
 }
 exports.CLIS = CLIS;
 
@@ -343,8 +343,8 @@ exports.CLIS = CLIS;
 function CLI() {
   var util = require('util');
   var traceObj = traceOccurPosition(this),
-    occurInfo = '   ' + traceObj.fileName + ' : ' + traceObj.lineNumber + ' ( ' + traceObj.functionName + ' )';
-  console.log('-----   ', occurInfo, convertDateToText(new Date(), 'char', 5, 1));
+    occurInfo = traceObj.fileName + ' : ' + traceObj.lineNumber + ' ( ' + traceObj.functionName + ' )';
+  console.log('-------   ', occurInfo);
 
   for (let argNum = 0, argLength = arguments.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
@@ -353,8 +353,8 @@ function CLI() {
       console.log(' --> ', util.inspect(arguments[argNum], true, 10));
     }
   }
-
-  console.log('=====  CLI END  =====  ', traceObj.fileName + ' : ' + traceObj.lineNumber);
+  console.log('=======   ', occurInfo);
+  // console.log('=======   ', traceObj.fileName + ' : ' + traceObj.lineNumber);
 }
 exports.CLI = CLI;
 
@@ -368,11 +368,15 @@ function traceOccurPosition() {
       returnObj.lineNumber = '@@@ ' + stack.getLineNumber() + ' @@@';
       returnObj.fileName = stack.getFileName();
 
-      var splitFileName = returnObj.fileName.split('\\');
-
-      index = splitFileName.length - 1;
-      var fileName = splitFileName[index - 2] + '/' + splitFileName[index - 1] + '/' + splitFileName[index];
-      returnObj.fileName = fileName;
+      try {
+        var splitFileName = returnObj.fileName.split('\\');
+  
+        index = splitFileName.length - 1;
+        var fileName = splitFileName[index - 2] + '/' + splitFileName[index - 1] + '/' + splitFileName[index];
+        returnObj.fileName = fileName;
+      } catch (error) {
+        CLIN(error);
+      }
     }
     //log(stack.getFunctionName());
     //log(stack.getLineNumber())
@@ -394,7 +398,11 @@ function debugConsole(maxCounter) {
       return;
     }
     // CLI(stack)
-    sourceName = stack.getFileName().substr(stack.getFileName().lastIndexOf('/'));
+    try {
+      sourceName = stack.getFileName().substr(stack.getFileName().lastIndexOf('/'));
+    } catch (error) {
+      sourceName = '';
+    }
     console.log('--S', sourceName, '--L', stack.getLineNumber(), '--F', stack.getFunctionName());
   });
 
