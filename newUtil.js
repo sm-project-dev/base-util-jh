@@ -100,7 +100,7 @@ class CalculateAverage {
       averageObj[key] = {
         critical: this.criticalInfo[key],
         storage: [],
-        average: 0
+        average: null
       };
     }
     return averageObj;
@@ -143,6 +143,7 @@ class CalculateAverage {
       target.storage.push(dataObj[key]);
 
       // 데이터가 최소 averageCount 보다는 높아야 계산
+      // console.log('@@@', target.storage.length , this.averageCount)
       if (target.storage.length >= this.averageCount) {
         // 데이터가 찼을 경우 평균 값 반환
         if (target.storage.length === this.averageCount) {
@@ -156,7 +157,7 @@ class CalculateAverage {
         // 이전 평균값에서 현재 평균값을 뺌
         let critical = target.average - average;
         // 지정된 임계치 값을 계산한 임계치가 넘어섰다면 데이터 변동이 있는 것으로 판단
-        if (target.critical < Math.abs(critical) || hasManualCalculation) {
+        if (target.critical < Math.abs(critical) || hasManualCalculation || hasOccurEvent) {
           hasOccurEvent = true;
           target.average = average;
         }
