@@ -9,7 +9,7 @@ function ChainingControllers(dirName, app) {
       resSearchDirectory.forEach((element) => {
         if (directoryList.includes(element)) {
           // BU.CLI('성공', `${dirName}\\${element}`)
-          require(`${dirName}\\${element}`)(app)
+          require(`${dirName}\\${element}`)(app);
         } else {
           // BU.CLI('실패', element)
           if (element === 'index.js') {
@@ -19,17 +19,17 @@ function ChainingControllers(dirName, app) {
             let eleObj = require(`${dirName}\\${element}`)(app);
 
             let routerHeaderUrl = getControllerPath(`${dirName}\\${element}`);
-          //  BU.CLI(routerHeaderUrl) 
+            //  BU.CLI(routerHeaderUrl) 
             app.use(routerHeaderUrl, eleObj);
           }
 
         }
       });
     } catch (error) {
-      BU.CLI(error)
+      BU.CLI(error);
     }
 
-  })
+  });
 }
 exports.ChainingControllers = ChainingControllers;
 
