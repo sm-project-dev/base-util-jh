@@ -256,7 +256,7 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
     break;
   case 'hour':
     spliceIndex = 3;
-    currDate.setMinutes(0, 0, 0);
+    currDate.setHours(5, 0, 0, 0);
     break;
   default:
     spliceIndex = 3;
@@ -278,6 +278,9 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
       currDate.addDays(1);
     } else if (searchType === 'hour') {
       currDate.addHours(1);
+      if(currDate.getHours() > 21){
+        break;
+      }
     } else {
       return Error(`searchType 에러 : ${searchType}`);
     }
