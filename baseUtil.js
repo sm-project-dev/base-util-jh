@@ -218,58 +218,57 @@ exports.splitStrDate = splitStrDate;
  */
 function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
   // CLI('getBetweenDatePoint', strEndDate, strStartDate, searchType)
-  let endDate;
-  let currDate;
-  try {
-    endDate  =  new Date(strEndDate);
-  } catch (error) {
-    endDate = new Date();
-  }
-  try {
-    currDate = new Date(strStartDate);
-  } catch (error) {
-    currDate = new Date();
-  }
   let returnValue = {
     fullTxtPoint: [],
     shortTxtPoint: [],
   };
+  let endDate = new Date(strEndDate);
+  let currDate = new Date(strStartDate);
+  // console.time('getBetweenDatePoint')
   if (currDate > endDate) {
     return returnValue;
   }
-  let spliceIndex = 0;
+
+
+  let spliceStartIndex = 0;
+  let spliceEndIndex = 0;
 
   switch (searchType) {
   case 'year':
-    spliceIndex = 0;
+    spliceEndIndex = spliceStartIndex = 0;
     currDate.setMonth(0, 1);
     currDate.setHours(0, 0, 0, 0);
     break;
   case 'month':
     currDate.setDate(1);
     currDate.setHours(0, 0, 0, 0);
-    spliceIndex = 1;
+    spliceEndIndex = spliceStartIndex = 1;
     break;
   case 'day':
     currDate.setHours(0, 0, 0, 0);
-    spliceIndex = 2;
+    spliceEndIndex = spliceStartIndex = 2;
     break;
   case 'hour':
-    spliceIndex = 3;
     currDate.setHours(5, 0, 0, 0);
+    spliceEndIndex = spliceStartIndex = 3;
+  case 'min10':
+    currDate.setHours(5, 0, 0, 0);
+    spliceStartIndex = 3;
+    spliceEndIndex = 4;
     break;
   default:
-    spliceIndex = 3;
-    currDate.setMinutes(0, 0, 0);
-    break;
+    return false;
   }
+
   let txtEndDate = convertDateToText(endDate, '', 3, 0);
   let txtStartDate = '';
   let txtShortStartDate = '';
   let txtNextDate = '';
+
   do {
     // 종료일 txt 변환
     let cloneTargetDate = new Date(currDate);
+    let hasBreak = false;
     if (searchType === 'year') {
       currDate.addYear(1);
     } else if (searchType === 'month') {
@@ -277,23 +276,31 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
     } else if (searchType === 'day') {
       currDate.addDays(1);
     } else if (searchType === 'hour') {
-      currDate.addHours(1);
-      if(currDate.getHours() > 21){
-        break;
+      if(currDate.getHours() > 19){
+        hasBreak = true;
       }
-    } else {
-      return Error(`searchType 에러 : ${searchType}`);
+      currDate.addHours(1);
+    } else if (searchType === 'min10') {
+      if(currDate.getHours() > 19){
+        hasBreak = true;
+      }
+      currDate.addMinutes(10);
     }
+    
     // 다음 조건 txt 변환
-    txtStartDate = convertDateToText(cloneTargetDate, '', spliceIndex, 0);
-    txtShortStartDate = convertDateToText(cloneTargetDate, '', spliceIndex, spliceIndex);
+    txtStartDate = convertDateToText(cloneTargetDate, '', spliceEndIndex, 0);
+    txtShortStartDate = convertDateToText(cloneTargetDate, '', spliceEndIndex, spliceStartIndex);
     txtNextDate = convertDateToText(currDate, '', 3, 0);
 
+    // BU.CLIS(txtStartDate, txtNextDate, txtEndDate)
     returnValue.fullTxtPoint.push(txtStartDate);
     returnValue.shortTxtPoint.push(txtShortStartDate);
-
+    if(hasBreak){
+      break;
+    }
   } while (txtNextDate < txtEndDate);
   // console.timeEnd('getBetweenDatePoint')
+  // CLI(returnValue)
   return returnValue;
 }
 exports.getBetweenDatePoint = getBetweenDatePoint;
@@ -307,10 +314,10 @@ exports.getBetweenDatePoint = getBetweenDatePoint;
 // console.log 개발자 버젼
 function log() {
   var traceObj = traceOccurPosition(this),
-    occurInfo = '   -=> ' + traceObj.fileName + ' : ' + traceObj.lineNumber;
+    occurInfo = '   --> ' + traceObj.fileName + ' : ' + traceObj.lineNumber;
 
   for (let arg of arguments) {
-    process.stdout.write(`   ${String(arg)}`);
+    process.stdout.write(String(arg));
   }
   console.log(occurInfo);
 }
@@ -319,11 +326,7 @@ exports.log = log;
 // Console.Log by Option
 function CLIN(pOjbect, num) {
   var util = require('util');
-  var traceObj = traceOccurPosition(this),
-    occurInfo = traceObj.fileName + ' : ' + traceObj.lineNumber + ' ( ' + traceObj.functionName + ' )';
-  console.log('-------   ', occurInfo);
   console.log(util.inspect(pOjbect, true, num));
-  console.log('=======   ', occurInfo);
 }
 exports.CLIN = CLIN;
 
@@ -331,14 +334,14 @@ exports.CLIN = CLIN;
 function CLIS() {
   var util = require('util');
   var traceObj = traceOccurPosition(this),
-    occurInfo = traceObj.fileName + ' : ' + traceObj.lineNumber + ' ( ' + traceObj.functionName + ' )';
-  console.log('-------   ', occurInfo);
+    occurInfo = '   ' + traceObj.fileName + ' : ' + traceObj.lineNumber;
+  console.log('-------------   ', occurInfo, convertDateToText(new Date(), 'char', 5, 1));
 
   for (let argNum = 0; argNum < arguments.length; argNum += 1) {
     console.log('pOjbect' + (argNum + 1), ' --> ', util.inspect(arguments[argNum], true, 10));
   }
 
-  console.log('=======   ', occurInfo);
+  console.log('=============  CLIS END  ============= ', traceObj.fileName + ' : ' + traceObj.lineNumber);
 }
 exports.CLIS = CLIS;
 
@@ -346,8 +349,8 @@ exports.CLIS = CLIS;
 function CLI() {
   var util = require('util');
   var traceObj = traceOccurPosition(this),
-    occurInfo = traceObj.fileName + ' : ' + traceObj.lineNumber + ' ( ' + traceObj.functionName + ' )';
-  console.log('-------   ', occurInfo);
+    occurInfo = '   ' + traceObj.fileName + ' : ' + traceObj.lineNumber + ' ( ' + traceObj.functionName + ' )';
+  console.log('-------------   ', occurInfo, convertDateToText(new Date(), 'char', 5, 1));
 
   for (let argNum = 0, argLength = arguments.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
@@ -356,8 +359,8 @@ function CLI() {
       console.log(' --> ', util.inspect(arguments[argNum], true, 10));
     }
   }
-  console.log('=======   ', occurInfo);
-  // console.log('=======   ', traceObj.fileName + ' : ' + traceObj.lineNumber);
+
+  console.log('=============  CLI END  =============  ', traceObj.fileName + ' : ' + traceObj.lineNumber);
 }
 exports.CLI = CLI;
 
@@ -371,15 +374,11 @@ function traceOccurPosition() {
       returnObj.lineNumber = '@@@ ' + stack.getLineNumber() + ' @@@';
       returnObj.fileName = stack.getFileName();
 
-      try {
-        var splitFileName = returnObj.fileName.split('\\');
-  
-        index = splitFileName.length - 1;
-        var fileName = splitFileName[index - 2] + '/' + splitFileName[index - 1] + '/' + splitFileName[index];
-        returnObj.fileName = fileName;
-      } catch (error) {
-        CLIN(error);
-      }
+      var splitFileName = returnObj.fileName.split('\\');
+
+      index = splitFileName.length - 1;
+      var fileName = splitFileName[index - 2] + '/' + splitFileName[index - 1] + '/' + splitFileName[index];
+      returnObj.fileName = fileName;
     }
     //log(stack.getFunctionName());
     //log(stack.getLineNumber())
@@ -401,11 +400,7 @@ function debugConsole(maxCounter) {
       return;
     }
     // CLI(stack)
-    try {
-      sourceName = stack.getFileName().substr(stack.getFileName().lastIndexOf('/'));
-    } catch (error) {
-      sourceName = '';
-    }
+    sourceName = stack.getFileName().substr(stack.getFileName().lastIndexOf('/'));
     console.log('--S', sourceName, '--L', stack.getLineNumber(), '--F', stack.getFunctionName());
   });
 
