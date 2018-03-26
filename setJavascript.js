@@ -170,7 +170,7 @@ Array.prototype.sum = function() {
 
 Number.prototype.scale = function(scale, toFixed){
 // BU.CLI('scale',scale, toFixed)
-  return (this * scale).toFixed(toFixed ? toFixed : 0);
+  return Number((this * scale).toFixed(toFixed ? toFixed : 0));
 };
 
 

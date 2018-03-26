@@ -251,6 +251,7 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
   case 'hour':
     currDate.setHours(5, 0, 0, 0);
     spliceEndIndex = spliceStartIndex = 3;
+    break;
   case 'min10':
     currDate.setHours(5, 0, 0, 0);
     spliceStartIndex = 3;
