@@ -29,20 +29,20 @@ function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
   });
 
   switch (language) {
-  case 'char':
-    separates = ['', '-', '-', ' ', ':', ':'];
-    break;
-  default:
-    separates = ['년', '월', '일', '시', '분', '초'];
-    break;
+    case 'char':
+      separates = ['', '-', '-', ' ', ':', ':'];
+      break;
+    default:
+      separates = ['년', '월', '일', '시', '분', '초'];
+      break;
   }
 
   let hasFirst = true;
   strTimeTable.forEach((timeData, index) => {
     if (index < startIndex || index > endIndex) return;
 
-    if (language == 'char'){
-      if(hasFirst){
+    if (language == 'char') {
+      if (hasFirst) {
         hasFirst = false;
       } else {
         returnvalue += separates[index];
@@ -66,31 +66,31 @@ exports.convertDateToText = convertDateToText;
  */
 // (String Date) yyyy-MM-ss HH:mm:ss To Date Object  /// <returns type="Date" />
 function convertTextToDate(textDate) {
-  let dateList = ['','','','','',''];
-  for(let i = 0; i < textDate.length; i++){
+  let dateList = ['', '', '', '', '', ''];
+  for (let i = 0; i < textDate.length; i++) {
     let char = textDate.charAt(i);
-    if(i < 4){
+    if (i < 4) {
       dateList[0] = dateList[0].concat(char);
-    } else if (i > 4 && i < 7 ){
+    } else if (i > 4 && i < 7) {
       dateList[1] = dateList[1].concat(char);
-    } else if (i > 7 && i < 10 ){
+    } else if (i > 7 && i < 10) {
       dateList[2] = dateList[2].concat(char);
-    } else if (i > 10 && i < 13 ){
+    } else if (i > 10 && i < 13) {
       dateList[3] = dateList[3].concat(char);
-    } else if (i > 13 && i < 16 ){
+    } else if (i > 13 && i < 16) {
       dateList[4] = dateList[4].concat(char);
-    } else if (i > 16 && i < 19 ){
+    } else if (i > 16 && i < 19) {
       dateList[5] = dateList[5].concat(char);
     }
   }
 
   dateList.forEach((ele, index) => {
-    if(ele !== '' && index === 1){
+    if (ele !== '' && index === 1) {
       dateList[index] = Number(ele) - 1;
-    } else if(ele === '') {
+    } else if (ele === '') {
       dateList[index] = index === 2 ? 1 : 0;
     } else {
-      dateList[index] = Number(dateList[index]) ;
+      dateList[index] = Number(dateList[index]);
     }
   });
   return new Date(dateList[0], dateList[1], dateList[2], dateList[3], dateList[4], dateList[5], 0);
@@ -172,7 +172,7 @@ exports.convertDateFormat = convertDateFormat;
 
 // 두 날짜 사이의 간격 비교 /// <returns type="Object" /> 
 function calcDateInterval(baseDate, nextDate) {
-  var firstDate = baseDate instanceof Date ? baseDate :  convertTextToDate(baseDate),
+  var firstDate = baseDate instanceof Date ? baseDate : convertTextToDate(baseDate),
     secondDate = nextDate instanceof Date ? nextDate : convertTextToDate(nextDate),
     storage = parseInt(firstDate - secondDate) / 1000,
 
@@ -234,31 +234,32 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
   let spliceEndIndex = 0;
 
   switch (searchType) {
-  case 'year':
-    spliceEndIndex = spliceStartIndex = 0;
-    currDate.setMonth(0, 1);
-    currDate.setHours(0, 0, 0, 0);
-    break;
-  case 'month':
-    currDate.setDate(1);
-    currDate.setHours(0, 0, 0, 0);
-    spliceEndIndex = spliceStartIndex = 1;
-    break;
-  case 'day':
-    currDate.setHours(0, 0, 0, 0);
-    spliceEndIndex = spliceStartIndex = 2;
-    break;
-  case 'hour':
-    currDate.setHours(5, 0, 0, 0);
-    spliceEndIndex = spliceStartIndex = 3;
-    break;
-  case 'min10':
-    currDate.setHours(5, 0, 0, 0);
-    spliceStartIndex = 3;
-    spliceEndIndex = 4;
-    break;
-  default:
-    return false;
+    case 'year':
+      spliceEndIndex = spliceStartIndex = 0;
+      currDate.setMonth(0, 1);
+      currDate.setHours(0, 0, 0, 0);
+      break;
+    case 'month':
+      currDate.setDate(1);
+      currDate.setHours(0, 0, 0, 0);
+      spliceEndIndex = spliceStartIndex = 1;
+      break;
+    case 'day':
+      currDate.setHours(0, 0, 0, 0);
+      spliceEndIndex = spliceStartIndex = 2;
+      break;
+    case 'hour':
+      currDate.setHours(5, 0, 0, 0);
+      spliceEndIndex = spliceStartIndex = 3;
+      break;
+    case 'min10':
+    case 'min':
+      currDate.setHours(5, 0, 0, 0);
+      spliceStartIndex = 3;
+      spliceEndIndex = 4;
+      break;
+    default:
+      return false;
   }
 
   let txtEndDate = convertDateToText(endDate, '', 3, 0);
@@ -276,18 +277,19 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
       currDate.addMonths(1);
     } else if (searchType === 'day') {
       currDate.addDays(1);
-    } else if (searchType === 'hour') {
-      if(currDate.getHours() > 19){
+    } else {
+      if (currDate.getHours() > 19) {
         hasBreak = true;
       }
-      currDate.addHours(1);
-    } else if (searchType === 'min10') {
-      if(currDate.getHours() > 19){
-        hasBreak = true;
+      if (searchType === 'hour') {
+        currDate.addHours(1);
+      } else if (searchType === 'min10') {
+        currDate.addMinutes(10);
+      } else if (searchType === 'min') {
+        currDate.addMinutes(1);
       }
-      currDate.addMinutes(10);
     }
-    
+
     // 다음 조건 txt 변환
     txtStartDate = convertDateToText(cloneTargetDate, '', spliceEndIndex, 0);
     txtShortStartDate = convertDateToText(cloneTargetDate, '', spliceEndIndex, spliceStartIndex);
@@ -296,7 +298,7 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
     // BU.CLIS(txtStartDate, txtNextDate, txtEndDate)
     returnValue.fullTxtPoint.push(txtStartDate);
     returnValue.shortTxtPoint.push(txtShortStartDate);
-    if(hasBreak){
+    if (hasBreak) {
       break;
     }
   } while (txtNextDate < txtEndDate);
@@ -496,7 +498,7 @@ function searchDirectory(path, callback) {
 }
 exports.searchDirectory = searchDirectory;
 
-function getDirectories (srcpath) {
+function getDirectories(srcpath) {
   var fs = require('fs');
   var path = require('path');
   return fs.readdirSync(srcpath)
@@ -732,32 +734,32 @@ function removeBOM(str, encoding) {
   encoding = encoding == null || encoding == '' ? 'UTF-16BE' : encoding;
 
   switch (encoding) {
-  case 'UTF-8':
-    str.replace(/^\uEFBBBF/, '');
-    break;
-  case 'UTF-16BE':
-    str.replace(/^\uFEFF/, '');
-    break;
-  case 'UTF-16LE':
-    str.replace(/^\uFFFE/, '');
-    break;
-  case 'UTF-32BE':
-    str.replace(/^\u0000FEFF/, '');
-    break;
-  case 'UTF-32LE':
-    str.replace(/^\uFFFE0000/, '');
-    break;
-  case 'SCSU':
-    str.replace(/^\u0EFEFF/, '');
-    break;
-  case 'UTF-EBCDIC':
-    str.replace(/^\uDD736673/, '');
-    break;
-  case 'BOCU-1':
-    str.replace(/^\uFBEE28/, '');
-    break;
-  default:
-    break;
+    case 'UTF-8':
+      str.replace(/^\uEFBBBF/, '');
+      break;
+    case 'UTF-16BE':
+      str.replace(/^\uFEFF/, '');
+      break;
+    case 'UTF-16LE':
+      str.replace(/^\uFFFE/, '');
+      break;
+    case 'UTF-32BE':
+      str.replace(/^\u0000FEFF/, '');
+      break;
+    case 'UTF-32LE':
+      str.replace(/^\uFFFE0000/, '');
+      break;
+    case 'SCSU':
+      str.replace(/^\u0EFEFF/, '');
+      break;
+    case 'UTF-EBCDIC':
+      str.replace(/^\uDD736673/, '');
+      break;
+    case 'BOCU-1':
+      str.replace(/^\uFBEE28/, '');
+      break;
+    default:
+      break;
   }
 
   return returnvalue;
@@ -986,26 +988,26 @@ exports.Converter = Converter;
 function convertSpecialChar2String(str) {
   return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%\_]/g, function (char) {
     switch (char) {
-    case '\0':
-      return '\\0';
-    case '\x08':
-      return '\\b';
-    case '\x09':
-      return '\\t';
-    case '\x1a':
-      return '\\z';
-    case '\n':
-      return '\\n';
-    case '\r':
-      return '\\r';
-    case '"':
-    case '\'':
-    case '\\':
-    case '%':
-      return '\\' + char; // prepends a backslash to backslash, percent,
-    case '_':
-      return '\\' + char; // prepends a backslash to backslash, percent,
-        // and double/single quotes
+      case '\0':
+        return '\\0';
+      case '\x08':
+        return '\\b';
+      case '\x09':
+        return '\\t';
+      case '\x1a':
+        return '\\z';
+      case '\n':
+        return '\\n';
+      case '\r':
+        return '\\r';
+      case '"':
+      case '\'':
+      case '\\':
+      case '%':
+        return '\\' + char; // prepends a backslash to backslash, percent,
+      case '_':
+        return '\\' + char; // prepends a backslash to backslash, percent,
+      // and double/single quotes
     }
   });
 }
@@ -1036,17 +1038,17 @@ function roundUp(val, precision, option) {
   //option = option == null || option == "" ? "round" : option;
   var p = Math.pow(10, precision);
   switch (option) {
-  case 'ceil':
-    returnvalue = Math.ceil(val * p);
-    break;
-  case 'round':
-    returnvalue = Math.round(val * p);
-    break;
-  case 'floor':
-    returnvalue = Math.floor(val * p);
-    break;
-  default:
-    returnvalue = Math.round(val * p);
+    case 'ceil':
+      returnvalue = Math.ceil(val * p);
+      break;
+    case 'round':
+      returnvalue = Math.round(val * p);
+      break;
+    case 'floor':
+      returnvalue = Math.floor(val * p);
+      break;
+    default:
+      returnvalue = Math.round(val * p);
   }
 
   return returnvalue / p;
