@@ -1,5 +1,14 @@
-
+const util = require('util');
 const _ = require('underscore');
+const chalk = require('chalk');
+
+const colorTxt = chalk.bold.keyword('purple');
+const colorStart = chalk.bold.green;
+const colorEnd = chalk.bold.hex('#506dff');
+const colorFn = chalk.bold.red;
+const colorHighlight = chalk.bold.yellow;
+const colorError = chalk.bold.red;
+const colorWarning = chalk.keyword('orange');
 
 /*****************************************************************************************************************/
 //*************                                    Date 관련                                         *************
@@ -317,10 +326,22 @@ exports.getBetweenDatePoint = getBetweenDatePoint;
 //*************                                    Debuging 관련                                     *************
 /*****************************************************************************************************************/
 
+function logHeader(traceObj){
+  const occurInfo = `${colorHighlight(traceObj.fileName)}:${colorHighlight(traceObj.lineNumber)} ( ${colorFn(traceObj.functionName)} )`;
+  const loggerTxt = `${colorStart('-------------')}\t${occurInfo} ${colorStart(convertDateToText(new Date(), 'char', 5, 1))}`;
+  console.log(loggerTxt);
+}
+
+function logTails(traceObj){
+  const occurInfo = `${colorHighlight(traceObj.fileName)}:${colorHighlight(traceObj.lineNumber)} ( ${colorFn(traceObj.functionName)} )`;
+  const loggerTxt = `${colorEnd('=============')}\t${occurInfo} ${colorEnd(convertDateToText(new Date(), 'char', 5, 1))} `;
+  console.log(loggerTxt);
+}
+
 // console.log 개발자 버젼
 function log() {
-  var traceObj = traceOccurPosition(this),
-    occurInfo = '   --> ' + traceObj.fileName + ' : ' + traceObj.lineNumber;
+  var traceObj = traceOccurPosition(this);
+  var occurInfo = `\t${colorStart('-->')} ${colorHighlight(traceObj.fileName)} : ${colorHighlight(traceObj.lineNumber)}`;
 
   for (let arg of arguments) {
     process.stdout.write(String(arg));
@@ -331,64 +352,83 @@ exports.log = log;
 
 // Console.Log by Option
 function CLIN(pOjbect, num) {
-  var util = require('util');
+  var traceObj = traceOccurPosition();
+  logHeader(traceObj);
   console.log(util.inspect(pOjbect, true, num));
+  logTails(traceObj);
 }
 exports.CLIN = CLIN;
 
 // Console.Log InspectS
 function CLIS() {
-  var util = require('util');
-  var traceObj = traceOccurPosition(this),
-    occurInfo = '   ' + traceObj.fileName + ' : ' + traceObj.lineNumber;
-  console.log('-------------   ', occurInfo, convertDateToText(new Date(), 'char', 5, 1));
+  var traceObj = traceOccurPosition();
+  logHeader(traceObj);
 
   for (let argNum = 0; argNum < arguments.length; argNum += 1) {
-    console.log('pOjbect' + (argNum + 1), ' --> ', util.inspect(arguments[argNum], true, 10));
+    console.log(`${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(arguments[argNum], true, 10)}`);
   }
-
-  console.log('=============  CLIS END  ============= ', traceObj.fileName + ' : ' + traceObj.lineNumber);
+  logTails(traceObj);
 }
 exports.CLIS = CLIS;
 
+
+
 // Console.Log Inspect
 function CLI() {
-  var util = require('util');
-  var traceObj = traceOccurPosition(this),
-    occurInfo = '   ' + traceObj.fileName + ' : ' + traceObj.lineNumber + ' ( ' + traceObj.functionName + ' )';
-  console.log('-------------   ', occurInfo, convertDateToText(new Date(), 'char', 5, 1));
-
+  var traceObj = traceOccurPosition();
+  logHeader(traceObj);
   for (let argNum = 0, argLength = arguments.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
       argNum === argLength ? console.log(util.inspect(arguments[argNum], true, 10)) : process.stdout.write(String(arguments[argNum]));
     } else {
-      console.log(' --> ', util.inspect(arguments[argNum], true, 10));
+      console.log(colorTxt(' --> ') + util.inspect(arguments[argNum], true, 10));
     }
   }
-
-  console.log('=============  CLI END  =============  ', traceObj.fileName + ' : ' + traceObj.lineNumber);
+  logTails(traceObj);
 }
 exports.CLI = CLI;
 
+
+function CLIF() {
+  var traceObj = traceOccurPosition(true);
+  logHeader(traceObj);
+  for (let argNum = 0, argLength = arguments.length - 1; argNum <= argLength; argNum += 1) {
+    if (argNum % 2 === 0) {
+      argNum === argLength ? console.log(util.inspect(arguments[argNum], true, 10)) : process.stdout.write(String(arguments[argNum]));
+    } else {
+      console.log(colorTxt(' --> ') + util.inspect(arguments[argNum], true, 10));
+    }
+  }
+  logTails(traceObj);
+}
+exports.CLIF = CLIF;
+
+
 // 호출 위치(this)의 파일명, 라인번호, func /// <returns type="Object" />
-function traceOccurPosition() {
+/**
+ * @param {boolean} hasFileNameFull 파일 이름을 전부 출력할지
+ * @return {{functionName: string, lineNumber: string, fileName: string}}
+ */
+function traceOccurPosition(hasFileNameFull) {
   var returnObj = {};
 
   getStack().forEach(function (stack, index) {
     if (index == 2) {
       returnObj.functionName = stack.getFunctionName();
-      returnObj.lineNumber = '@@@ ' + stack.getLineNumber() + ' @@@';
+      returnObj.lineNumber = `${stack.getLineNumber()}:${stack.getColumnNumber()}`;
+      
       returnObj.fileName = stack.getFileName();
 
       var splitFileName = returnObj.fileName.split('\\');
 
       index = splitFileName.length - 1;
-      var fileName = splitFileName[index - 2] + '/' + splitFileName[index - 1] + '/' + splitFileName[index];
+      var fileName = hasFileNameFull ? returnObj.fileName : splitFileName[index - 2] + '/' + splitFileName[index - 1] + '/' + splitFileName[index];
       returnObj.fileName = fileName;
     }
     //log(stack.getFunctionName());
     //log(stack.getLineNumber())
-    //log(stack.getFileName())
+    // console.log(stack.getFileName())
+    // console.log(stack.getColumnNumber())
   });
   return returnObj;
 }
