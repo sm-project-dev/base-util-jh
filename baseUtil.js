@@ -1,3 +1,6 @@
+
+const _ = require('underscore');
+
 /*****************************************************************************************************************/
 //*************                                    Date 관련                                         *************
 /*****************************************************************************************************************/
@@ -29,12 +32,12 @@ function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
   });
 
   switch (language) {
-    case 'char':
-      separates = ['', '-', '-', ' ', ':', ':'];
-      break;
-    default:
-      separates = ['년', '월', '일', '시', '분', '초'];
-      break;
+  case 'char':
+    separates = ['', '-', '-', ' ', ':', ':'];
+    break;
+  default:
+    separates = ['년', '월', '일', '시', '분', '초'];
+    break;
   }
 
   let hasFirst = true;
@@ -234,32 +237,32 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
   let spliceEndIndex = 0;
 
   switch (searchType) {
-    case 'year':
-      spliceEndIndex = spliceStartIndex = 0;
-      currDate.setMonth(0, 1);
-      currDate.setHours(0, 0, 0, 0);
-      break;
-    case 'month':
-      currDate.setDate(1);
-      currDate.setHours(0, 0, 0, 0);
-      spliceEndIndex = spliceStartIndex = 1;
-      break;
-    case 'day':
-      currDate.setHours(0, 0, 0, 0);
-      spliceEndIndex = spliceStartIndex = 2;
-      break;
-    case 'hour':
-      currDate.setHours(5, 0, 0, 0);
-      spliceEndIndex = spliceStartIndex = 3;
-      break;
-    case 'min10':
-    case 'min':
-      currDate.setHours(5, 0, 0, 0);
-      spliceStartIndex = 3;
-      spliceEndIndex = 4;
-      break;
-    default:
-      return false;
+  case 'year':
+    spliceEndIndex = spliceStartIndex = 0;
+    currDate.setMonth(0, 1);
+    currDate.setHours(0, 0, 0, 0);
+    break;
+  case 'month':
+    currDate.setDate(1);
+    currDate.setHours(0, 0, 0, 0);
+    spliceEndIndex = spliceStartIndex = 1;
+    break;
+  case 'day':
+    currDate.setHours(0, 0, 0, 0);
+    spliceEndIndex = spliceStartIndex = 2;
+    break;
+  case 'hour':
+    currDate.setHours(5, 0, 0, 0);
+    spliceEndIndex = spliceStartIndex = 3;
+    break;
+  case 'min10':
+  case 'min':
+    currDate.setHours(5, 0, 0, 0);
+    spliceStartIndex = 3;
+    spliceEndIndex = 4;
+    break;
+  default:
+    return false;
   }
 
   let txtEndDate = convertDateToText(endDate, '', 3, 0);
@@ -591,7 +594,6 @@ function makePagination({
   pageCount,
   totalCount
 }) {
-  var _ = require('underscore');
   var returnvalue = '',
     _paginationMaxCount = 10,
     firstpage = ((parseInt((page - 1) / _paginationMaxCount))) * _paginationMaxCount + 1,
@@ -734,32 +736,32 @@ function removeBOM(str, encoding) {
   encoding = encoding == null || encoding == '' ? 'UTF-16BE' : encoding;
 
   switch (encoding) {
-    case 'UTF-8':
-      str.replace(/^\uEFBBBF/, '');
-      break;
-    case 'UTF-16BE':
-      str.replace(/^\uFEFF/, '');
-      break;
-    case 'UTF-16LE':
-      str.replace(/^\uFFFE/, '');
-      break;
-    case 'UTF-32BE':
-      str.replace(/^\u0000FEFF/, '');
-      break;
-    case 'UTF-32LE':
-      str.replace(/^\uFFFE0000/, '');
-      break;
-    case 'SCSU':
-      str.replace(/^\u0EFEFF/, '');
-      break;
-    case 'UTF-EBCDIC':
-      str.replace(/^\uDD736673/, '');
-      break;
-    case 'BOCU-1':
-      str.replace(/^\uFBEE28/, '');
-      break;
-    default:
-      break;
+  case 'UTF-8':
+    str.replace(/^\uEFBBBF/, '');
+    break;
+  case 'UTF-16BE':
+    str.replace(/^\uFEFF/, '');
+    break;
+  case 'UTF-16LE':
+    str.replace(/^\uFFFE/, '');
+    break;
+  case 'UTF-32BE':
+    str.replace(/^\u0000FEFF/, '');
+    break;
+  case 'UTF-32LE':
+    str.replace(/^\uFFFE0000/, '');
+    break;
+  case 'SCSU':
+    str.replace(/^\u0EFEFF/, '');
+    break;
+  case 'UTF-EBCDIC':
+    str.replace(/^\uDD736673/, '');
+    break;
+  case 'BOCU-1':
+    str.replace(/^\uFBEE28/, '');
+    break;
+  default:
+    break;
   }
 
   return returnvalue;
@@ -988,25 +990,25 @@ exports.Converter = Converter;
 function convertSpecialChar2String(str) {
   return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%\_]/g, function (char) {
     switch (char) {
-      case '\0':
-        return '\\0';
-      case '\x08':
-        return '\\b';
-      case '\x09':
-        return '\\t';
-      case '\x1a':
-        return '\\z';
-      case '\n':
-        return '\\n';
-      case '\r':
-        return '\\r';
-      case '"':
-      case '\'':
-      case '\\':
-      case '%':
-        return '\\' + char; // prepends a backslash to backslash, percent,
-      case '_':
-        return '\\' + char; // prepends a backslash to backslash, percent,
+    case '\0':
+      return '\\0';
+    case '\x08':
+      return '\\b';
+    case '\x09':
+      return '\\t';
+    case '\x1a':
+      return '\\z';
+    case '\n':
+      return '\\n';
+    case '\r':
+      return '\\r';
+    case '"':
+    case '\'':
+    case '\\':
+    case '%':
+      return '\\' + char; // prepends a backslash to backslash, percent,
+    case '_':
+      return '\\' + char; // prepends a backslash to backslash, percent,
       // and double/single quotes
     }
   });
@@ -1038,17 +1040,17 @@ function roundUp(val, precision, option) {
   //option = option == null || option == "" ? "round" : option;
   var p = Math.pow(10, precision);
   switch (option) {
-    case 'ceil':
-      returnvalue = Math.ceil(val * p);
-      break;
-    case 'round':
-      returnvalue = Math.round(val * p);
-      break;
-    case 'floor':
-      returnvalue = Math.floor(val * p);
-      break;
-    default:
-      returnvalue = Math.round(val * p);
+  case 'ceil':
+    returnvalue = Math.ceil(val * p);
+    break;
+  case 'round':
+    returnvalue = Math.round(val * p);
+    break;
+  case 'floor':
+    returnvalue = Math.floor(val * p);
+    break;
+  default:
+    returnvalue = Math.round(val * p);
   }
 
   return returnvalue / p;

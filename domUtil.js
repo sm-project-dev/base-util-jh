@@ -1,19 +1,20 @@
+const _ = require('underscore');
 const BU = require('./baseUtil');
 
 function locationAlertBack(message) {
-    message = global.fixmeConfig.isTest ? BU.MRF(message) : "알 수 없는 오류가 발생하였습니다.";
-    return '<script>alert("' + message + '");history.back(-1);</script>';
+  message = global.fixmeConfig.isTest ? BU.MRF(message) : '알 수 없는 오류가 발생하였습니다.';
+  return '<script>alert("' + message + '");history.back(-1);</script>';
 }
 exports.locationAlertBack = locationAlertBack;
 
 function locationAlertGo(message, page) {
-    message = global.fixmeConfig.isTest ? BU.MRF(message) : "알 수 없는 오류가 발생하였습니다.";
-    return '<script>alert("' + message + '");location.href ="' + page + '";</script>';
+  message = global.fixmeConfig.isTest ? BU.MRF(message) : '알 수 없는 오류가 발생하였습니다.';
+  return '<script>alert("' + message + '");location.href ="' + page + '";</script>';
 }
 exports.locationAlertGo = locationAlertGo;
 
 function locationJustGo(page) {
-    return '<script>location.href ="' + page + '";</script>';
+  return '<script>location.href ="' + page + '";</script>';
 }
 exports.locationJustGo = locationJustGo;
 
@@ -23,28 +24,28 @@ exports.locationJustGo = locationJustGo;
  * @param {*} menuNum 
  */
 function makeBaseHtml(req, menuNum) {
-    return {
-        menuNum
-    };
+  return {
+    menuNum
+  };
 }
 exports.makeBaseHtml = makeBaseHtml;
 
 
 function makeResObj(req, sidebarNum, pageCount) {
-    var page = BU.checkIntStr(req.query.page) ? req.query.page : 1;
-    var search = req.query.search || "";
-    var querystring = "search=" + encodeURIComponent(search) + "";
-    // BU.CLI(req._parsedOriginalUrl);
-    makeBaseHtml()
-    return {
-        page: page,
-        search: search,
-        pageCount: pageCount || 10,
-        pathName: req._parsedOriginalUrl.pathname,
-        querystring: querystring,
-        sidebarNum: sidebarNum,
-        err: null
-    };
+  var page = BU.checkIntStr(req.query.page) ? req.query.page : 1;
+  var search = req.query.search || '';
+  var querystring = 'search=' + encodeURIComponent(search) + '';
+  // BU.CLI(req._parsedOriginalUrl);
+  makeBaseHtml();
+  return {
+    page: page,
+    search: search,
+    pageCount: pageCount || 10,
+    pathName: req._parsedOriginalUrl.pathname,
+    querystring: querystring,
+    sidebarNum: sidebarNum,
+    err: null
+  };
 }
 exports.makeResObj = makeResObj;
 
@@ -77,8 +78,8 @@ function makeBsPagination(page, totalCount, href, queryString, pageListCount){
 
   let pageHref = href + '?';
   _.each(queryString, (value, name) => {
-    pageHref += `${name}=${value}&`
-  })
+    pageHref += `${name}=${value}&`;
+  });
 
 
   let prevHref = startPage > 1 ? `href="${pageHref}page=${startPage - 1}"` : '';
@@ -90,31 +91,31 @@ function makeBsPagination(page, totalCount, href, queryString, pageListCount){
       <a class="page-link" ${prevHref} tabindex="">Previous</a>
     </li>
     `;
-    for(let i = startPage; i <= endPage; i++ ){
-      paginationDom += `
+  for(let i = startPage; i <= endPage; i++ ){
+    paginationDom += `
       <li class="page-item ${i === page ? 'active' : ''}">
       <a class="page-link" href="${pageHref}page=${i}">${i} <span class="sr-only">(current)</span></a>
-    </li>`
-    }
-    paginationDom += `
+    </li>`;
+  }
+  paginationDom += `
       <li class="page-item ${maxPage > endPage ? '' : 'disabled'}">
         <a class="page-link" ${nextHref} tabindex="}">Next</a>
       </li>
     </ul>
     `;
 
-    return {
-      page, maxPage, totalCount, href, queryString, paginationDom, pageListCount: _pageListCount
-    };
+  return {
+    page, maxPage, totalCount, href, queryString, paginationDom, pageListCount: _pageListCount
+  };
 
 }
 exports.makeBsPagination = makeBsPagination;
 
 function makePaginationHtml(resObj, queryResult) {
-    resObj.list = queryResult;
-    resObj.totalCount = queryResult.totalCount;
-    resObj.pagination = BU.makePagination(resObj);
-    return resObj;
+  resObj.list = queryResult;
+  resObj.totalCount = queryResult.totalCount;
+  resObj.pagination = BU.makePagination(resObj);
+  return resObj;
 }
 exports.makePaginationHtml = makePaginationHtml;
 
@@ -148,7 +149,7 @@ exports.makeMainHtml=makeMainHtml;
 function makeInverterHtml(resObj,queryResult) {
   resObj.ivtTableList=queryResult.ivtTableList;
   resObj.chartList=JSON.stringify(queryResult.chartList);
-return resObj;
+  return resObj;
 }
 exports.makeInverterHtml=makeInverterHtml;
 

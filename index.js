@@ -8,11 +8,14 @@ const EU = require('./ecmaUtil');
 require('./setJavascript');
 
 module.exports = {
-  BU: baseUtil,
   baseUtil,
+  BU: baseUtil,
   CU,
   newUtil,
+  NU: newUtil,
   domUtil,
+  DU: domUtil,
   salternUtil,
+  SU: salternUtil,
   EU
 };
