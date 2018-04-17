@@ -37,9 +37,13 @@ class AverageStorage {
    * @param {number} data 실제 데이터
    */
   addData(key, data) {
-    this.dataStorage[key].push(data);
-    this.dataStorage[key].length > this.maxStorageNumber && this.dataStorage[key].shift();
-    return this;
+    if(data == null || data === ''){
+      return this;
+    } else {
+      this.dataStorage[key].push(data);
+      this.dataStorage[key].length > this.maxStorageNumber && this.dataStorage[key].shift();
+      return this;
+    }
   }
 
   /**
