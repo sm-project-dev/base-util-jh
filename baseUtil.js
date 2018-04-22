@@ -327,23 +327,23 @@ exports.getBetweenDatePoint = getBetweenDatePoint;
 /*****************************************************************************************************************/
 
 function logHeader(traceObj){
-  const occurInfo = `${colorHighlight(traceObj.fileName)}:${colorHighlight(traceObj.lineNumber)} ( ${colorFn(traceObj.functionName)} )`;
+  const occurInfo = `${colorStart(traceObj.fileName)}:${colorHighlight(traceObj.lineNumber)} ( ${colorFn(traceObj.functionName)} )`;
   const loggerTxt = `${colorStart('-------------')}\t${occurInfo} ${colorStart(convertDateToText(new Date(), 'char', 5, 1))}`;
   console.log(loggerTxt);
 }
 
 function logTails(traceObj){
-  const occurInfo = `${colorHighlight(traceObj.fileName)}:${colorHighlight(traceObj.lineNumber)} ( ${colorFn(traceObj.functionName)} )`;
+  const occurInfo = `${colorEnd(traceObj.fileName)}:${colorHighlight(traceObj.lineNumber)} ( ${colorFn(traceObj.functionName)} )`;
   const loggerTxt = `${colorEnd('=============')}\t${occurInfo} ${colorEnd(convertDateToText(new Date(), 'char', 5, 1))} `;
   console.log(loggerTxt);
 }
 
 // console.log 개발자 버젼
-function log() {
+function log(...args) {
   var traceObj = traceOccurPosition(this);
   var occurInfo = `\t${colorStart('-->')} ${colorHighlight(traceObj.fileName)} : ${colorHighlight(traceObj.lineNumber)}`;
 
-  for (let arg of arguments) {
+  for (let arg of args) {
     process.stdout.write(String(arg));
   }
   console.log(occurInfo);
@@ -360,12 +360,12 @@ function CLIN(pOjbect, num) {
 exports.CLIN = CLIN;
 
 // Console.Log InspectS
-function CLIS() {
+function CLIS(...args) {
   var traceObj = traceOccurPosition();
   logHeader(traceObj);
 
-  for (let argNum = 0; argNum < arguments.length; argNum += 1) {
-    console.log(`${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(arguments[argNum], true, 10)}`);
+  for (let argNum = 0; argNum < args.length; argNum += 1) {
+    console.log(`${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, 10)}`);
   }
   logTails(traceObj);
 }
@@ -374,14 +374,14 @@ exports.CLIS = CLIS;
 
 
 // Console.Log Inspect
-function CLI() {
+function CLI(...args) {
   var traceObj = traceOccurPosition();
   logHeader(traceObj);
-  for (let argNum = 0, argLength = arguments.length - 1; argNum <= argLength; argNum += 1) {
+  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
-      argNum === argLength ? console.log(util.inspect(arguments[argNum], true, 10)) : process.stdout.write(String(arguments[argNum]));
+      argNum === argLength ? console.log(util.inspect(args[argNum], true, 10)) : process.stdout.write(String(args[argNum]));
     } else {
-      console.log(colorTxt(' --> ') + util.inspect(arguments[argNum], true, 10));
+      console.log(colorTxt(' --> ') + util.inspect(args[argNum], true, 10));
     }
   }
   logTails(traceObj);
@@ -389,14 +389,14 @@ function CLI() {
 exports.CLI = CLI;
 
 
-function CLIF() {
+function CLIF(...args) {
   var traceObj = traceOccurPosition(true);
   logHeader(traceObj);
-  for (let argNum = 0, argLength = arguments.length - 1; argNum <= argLength; argNum += 1) {
+  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
-      argNum === argLength ? console.log(util.inspect(arguments[argNum], true, 10)) : process.stdout.write(String(arguments[argNum]));
+      argNum === argLength ? console.log(util.inspect(args[argNum], true, 10)) : process.stdout.write(String(args[argNum]));
     } else {
-      console.log(colorTxt(' --> ') + util.inspect(arguments[argNum], true, 10));
+      console.log(colorTxt(' --> ') + util.inspect(args[argNum], true, 10));
     }
   }
   logTails(traceObj);
