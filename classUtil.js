@@ -1,4 +1,4 @@
-
+'use strict';
 /**
  * 데이터의 평균 값을 산출해주는 클래스
  */
@@ -74,3 +74,52 @@ class AverageStorage {
 
 }
 exports.AverageStorage = AverageStorage;
+
+/**
+ * @class
+ * @classdesc setTimeout을 사용하는 형식과 비슷하나, 요청 callback 수행까지의 남은 시간 반환, 일시 정지, 동작 상태 지원
+ */
+function Timer(callback, delay) {
+  var id, started, remaining = delay, running;
+
+  /** setTimeout 재개 (setTimeout 처리함)*/
+  this.start = function() {
+    if(running !== true){
+      running = true;
+      started = new Date();
+      id = setTimeout(callback, remaining);
+    }
+  };
+
+  /** setTimeout 정지 (clearTimeout 처리함) */
+  this.pause = function() {
+    if(running){
+      running = false;
+      clearTimeout(id);
+      remaining -= new Date() - started;
+    }
+  };
+
+  /**
+   * 요청 명령 실행까지의 남은 시간 반환
+   * @return {number} Remained Millisecond
+   */
+  this.getTimeLeft = function() {
+    if (running) {
+      this.pause();
+      this.start();
+    }
+    return remaining;
+  };
+
+  /**
+   * Timer의 동작 유무 확인
+   * @return {boolean} true: Running, false: Pause
+   */
+  this.getStateRunning = function() {
+    return running;
+  };
+
+  this.start();
+}
+exports.Timer = Timer;

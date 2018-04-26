@@ -340,7 +340,7 @@ function logTails(traceObj){
 
 // console.log 개발자 버젼
 function log(...args) {
-  var traceObj = traceOccurPosition(this);
+  var traceObj = traceOccurPosition();
   var occurInfo = `\t${colorStart('-->')} ${colorHighlight(traceObj.fileName)} : ${colorHighlight(traceObj.lineNumber)}`;
 
   for (let arg of args) {
@@ -359,6 +359,18 @@ function CLIN(pOjbect, num) {
 }
 exports.CLIN = CLIN;
 
+// Console Log Inspect by Number Multi
+function CLINS(inspectDepth, ...args) {
+  var traceObj = traceOccurPosition();
+  logHeader(traceObj);
+  
+  for (let argNum = 0; argNum < args.length; argNum += 1) {
+    console.log(`${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, inspectDepth)}`);
+  }
+  logTails(traceObj);
+}
+exports.CLINS = CLINS;
+
 // Console.Log InspectS
 function CLIS(...args) {
   var traceObj = traceOccurPosition();
@@ -371,9 +383,7 @@ function CLIS(...args) {
 }
 exports.CLIS = CLIS;
 
-
-
-// Console.Log Inspect
+/** Console.Log: (Default) Inspect Depth 10 */
 function CLI(...args) {
   var traceObj = traceOccurPosition();
   logHeader(traceObj);
@@ -388,7 +398,7 @@ function CLI(...args) {
 }
 exports.CLI = CLI;
 
-
+/** Console Log: Full File Path */
 function CLIF(...args) {
   var traceObj = traceOccurPosition(true);
   logHeader(traceObj);
