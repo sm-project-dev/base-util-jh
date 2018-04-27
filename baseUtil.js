@@ -456,7 +456,9 @@ function debugConsole(maxCounter) {
       return;
     }
     // CLI(stack)
-    sourceName = stack.getFileName().substr(stack.getFileName().lastIndexOf('/'));
+    var fileName = typeof stack.getFileName() === 'string' ? stack.getFileName() : '';
+    // console.trace(fileName);
+    sourceName = fileName.substr(fileName.lastIndexOf('/'));
     console.log('--S', sourceName, '--L', stack.getLineNumber(), '--F', stack.getFunctionName());
   });
 
