@@ -1,4 +1,6 @@
 'use strict';
+const _ = require('lodash');
+
 /**
  * 데이터의 평균 값을 산출해주는 클래스
  */
@@ -24,6 +26,14 @@ class AverageStorage {
   }
 
   /**
+   * @param {string} key
+   * @return {Array} key 
+   */
+  findDataStorage(key){
+    return _.get(this.dataStorage, key, undefined);
+  }
+
+  /**
    * Object Key가 추적 대상인지 체크
    * @param {string} key 
    */
@@ -35,13 +45,19 @@ class AverageStorage {
    * 저장소에 관리 중인 Key에 data를 추가
    * @param {string} key Object Key
    * @param {number} data 실제 데이터
+   * data가 undefined, '' 일 경우 평균 값 리스트 1개 제거
+   * data가 null일 경우 아무런 행동 취하지 않음
+   * data의 길이가 평균 값 분포군 최대길이에 도달하면 가장 먼저 들어온 리스트 1개 제거
    */
   addData(key, data) {
-    if(data == null || data === ''){
+    if(data === undefined || data === ''){
+      this.findDataStorage(key).shift();
+      return this;
+    } else if (data === null){
       return this;
     } else {
       this.dataStorage[key].push(data);
-      this.dataStorage[key].length > this.maxStorageNumber && this.dataStorage[key].shift();
+      this.dataStorage[key].length > this.maxStorageNumber && this.findDataStorage(key).shift();
       return this;
     }
   }
@@ -51,12 +67,14 @@ class AverageStorage {
    * @param {string} key 
    */
   getAverage(key) {
-    let sum = this.dataStorage[key].reduce((prev, next) => Number(prev) + Number(next));
-    return isNaN(sum) ? '' : sum / this.dataStorage[key].length;
+    let dataStorage = this.findDataStorage(key);
+    let aver = _.meanBy(dataStorage);
+    // let sum = this.dataStorage[key].reduce((prev, next) => Number(prev) + Number(next));
+    return isNaN(aver) ? '' : aver;
   }
 
   getStorage(key){
-    return this.hasTarget(key) ? this.dataStorage[key] : undefined;
+    return this.hasTarget(key) ? this.findDataStorage(key) : undefined;
   }
 
   /**
@@ -72,6 +90,38 @@ class AverageStorage {
     return dataObj;
   }
 
+  /**
+   * 저장소에 저장된 데이터의 평균 값을 도출하여 반환
+   */
+  getAverageStorage(){
+    const returnValue = {};
+    _.forEach(this.dataStorage, (data, key) => {
+      returnValue[key] = this.getAverage(key);
+    });
+    return returnValue;
+  }
+
+  /**
+   * 데이터에 에러가 발생하여 평균값의 배열 최후의 데이터 1개 삭제
+   * @param {Object=} dataObj 해당 값이 있을 경우 해당값의 키가 추적 대상 키인지 판별하고 맞다면 해당 평균 값 그룹에서 1개 제거
+   * {a: [1,2,3], b: [3,4,5]} --> {a: [2,3], b: [4,5]}
+   */
+  shiftDataStorage(dataObj){
+    if(_.isEmpty(dataObj)){
+      _.forEach(this.dataStorage, dataList => {
+        dataList.shift();
+      });
+      return this.getAverageStorage();
+    } else {
+      for (const key in dataObj) {
+        if (dataObj.hasOwnProperty(key) && this.hasTarget(key)) {
+          let dataStorage = this.findDataStorage(key);
+          dataStorage !== undefined && dataStorage.shift();
+        }
+      }
+      return this.getAverageStorage();
+    }
+  }
 }
 exports.AverageStorage = AverageStorage;
 
