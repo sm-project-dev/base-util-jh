@@ -50,13 +50,16 @@ class AverageStorage {
    * data의 길이가 평균 값 분포군 최대길이에 도달하면 가장 먼저 들어온 리스트 1개 제거
    */
   addData(key, data) {
+    
+
     if(data === undefined || data === ''){
       this.findDataStorage(key).shift();
       return this;
     } else if (data === null){
       return this;
     } else {
-      this.dataStorage[key].push(data);
+      let numData = _.toNumber(data);
+      this.dataStorage[key].push(numData);
       this.dataStorage[key].length > this.maxStorageNumber && this.findDataStorage(key).shift();
       return this;
     }
