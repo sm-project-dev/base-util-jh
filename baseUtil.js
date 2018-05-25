@@ -332,9 +332,20 @@ function logHeader(traceObj){
   console.log(loggerTxt);
 }
 
+function logOriginalHeader(traceObj){
+  const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${traceObj.functionName} )`;
+  const loggerTxt = `${'-------------'}\t${occurInfo} ${convertDateToText(new Date(), 'char', 5, 1)}`;
+  console.log(loggerTxt);
+}
+
 function logTails(traceObj){
   const occurInfo = `${colorEnd(traceObj.fileName)}:${colorHighlight(traceObj.lineNumber)} ( ${colorFn(traceObj.functionName)} )`;
   const loggerTxt = `${colorEnd('=============')}\t${occurInfo} ${colorEnd(convertDateToText(new Date(), 'char', 5, 1))} `;
+  console.log(loggerTxt);
+}
+function logOriginalTails(traceObj){
+  const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${traceObj.functionName} )`;
+  const loggerTxt = `${'============='}\t${occurInfo} ${convertDateToText(new Date(), 'char', 5, 1)} `;
   console.log(loggerTxt);
 }
 
@@ -350,6 +361,18 @@ function log(...args) {
 }
 exports.log = log;
 
+// console.log 개발자 버젼
+function logO(...args) {
+  var traceObj = traceOccurPosition();
+  var occurInfo = `\t${'-->'} ${traceObj.fileName} : ${traceObj.lineNumber}`;
+
+  for (let arg of args) {
+    process.stdout.write(String(arg));
+  }
+  console.log(occurInfo);
+}
+exports.logO = logO;
+
 // Console.Log by Option
 function CLIN(pOjbect, num) {
   var traceObj = traceOccurPosition();
@@ -358,6 +381,15 @@ function CLIN(pOjbect, num) {
   logTails(traceObj);
 }
 exports.CLIN = CLIN;
+
+// Console.Log by Option
+function CLINO(pOjbect, num) {
+  var traceObj = traceOccurPosition();
+  logOriginalHeader(traceObj);
+  console.log(util.inspect(pOjbect, true, num));
+  logOriginalTails(traceObj);
+}
+exports.CLINO = CLINO;
 
 // Console Log Inspect by Number Multi
 function CLINS(inspectDepth, ...args) {
@@ -371,6 +403,19 @@ function CLINS(inspectDepth, ...args) {
 }
 exports.CLINS = CLINS;
 
+// Console Log Inspect by Number Multi
+function CLINSO(inspectDepth, ...args) {
+  var traceObj = traceOccurPosition();
+  logOriginalHeader(traceObj);
+  
+  for (let argNum = 0; argNum < args.length; argNum += 1) {
+    console.log(`${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, inspectDepth)}`);
+  }
+  logOriginalTails(traceObj);
+}
+exports.CLINSO = CLINSO;
+
+
 // Console.Log InspectS
 function CLIS(...args) {
   var traceObj = traceOccurPosition();
@@ -382,6 +427,17 @@ function CLIS(...args) {
   logTails(traceObj);
 }
 exports.CLIS = CLIS;
+
+/** Console.Log Original: (Default) Inspect Depth 10 */
+function CLISO(...args) {
+  var traceObj = traceOccurPosition();
+  logOriginalHeader(traceObj);
+  for (let argNum = 0; argNum < args.length; argNum += 1) {
+    console.log(`${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, 10)}`);
+  }
+  logOriginalTails(traceObj);
+}
+exports.CLISO = CLISO;
 
 /** Console.Log: (Default) Inspect Depth 10 */
 function CLI(...args) {
@@ -398,6 +454,21 @@ function CLI(...args) {
 }
 exports.CLI = CLI;
 
+/** Console.Log Original: (Default) Inspect Depth 10 */
+function CLIO(...args) {
+  var traceObj = traceOccurPosition();
+  logOriginalHeader(traceObj);
+  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
+    if (argNum % 2 === 0) {
+      argNum === argLength ? console.log(util.inspect(args[argNum], true, 10)) : process.stdout.write(String(args[argNum]));
+    } else {
+      console.log(' --> ' + util.inspect(args[argNum], true, 10));
+    }
+  }
+  logOriginalTails(traceObj);
+}
+exports.CLIO = CLIO;
+
 /** Console Log: Full File Path */
 function CLIF(...args) {
   var traceObj = traceOccurPosition(true);
@@ -412,6 +483,21 @@ function CLIF(...args) {
   logTails(traceObj);
 }
 exports.CLIF = CLIF;
+
+/** Console Log: Full File Path */
+function CLIFO(...args) {
+  var traceObj = traceOccurPosition(true);
+  logOriginalHeader(traceObj);
+  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
+    if (argNum % 2 === 0) {
+      argNum === argLength ? console.log(util.inspect(args[argNum], true, 10)) : process.stdout.write(String(args[argNum]));
+    } else {
+      console.log(colorTxt(' --> ') + util.inspect(args[argNum], true, 10));
+    }
+  }
+  logOriginalTails(traceObj);
+}
+exports.CLIFO = CLIFO;
 
 
 // 호출 위치(this)의 파일명, 라인번호, func /// <returns type="Object" />
