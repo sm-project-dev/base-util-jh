@@ -45,17 +45,12 @@ class AverageStorage {
    * 저장소에 관리 중인 Key에 data를 추가
    * @param {string} key Object Key
    * @param {number} data 실제 데이터
-   * data가 undefined, '' 일 경우 평균 값 리스트 1개 제거
-   * data가 null일 경우 아무런 행동 취하지 않음
+   * data가 undefined, null, '' 일 경우 추가하지 않음
    * data의 길이가 평균 값 분포군 최대길이에 도달하면 가장 먼저 들어온 리스트 1개 제거
    */
   addData(key, data) {
-    
-
-    if(data === undefined || data === ''){
-      this.findDataStorage(key).shift();
-      return this;
-    } else if (data === null){
+    if(data === undefined || data === null || data === ''){
+      // this.findDataStorage(key).shift();
       return this;
     } else {
       let numData = _.toNumber(data);
@@ -73,7 +68,7 @@ class AverageStorage {
     let dataStorage = this.findDataStorage(key);
     let aver = _.meanBy(dataStorage);
     // let sum = this.dataStorage[key].reduce((prev, next) => Number(prev) + Number(next));
-    return isNaN(aver) ? '' : aver;
+    return isNaN(aver) ? null : aver;
   }
 
   getStorage(key){
@@ -101,7 +96,7 @@ class AverageStorage {
     _.forEach(this.dataStorage, (data, key) => {
       returnValue[key] = this.getAverage(key);
     });
-    return returnValue;
+    return _.clone(returnValue) ;
   }
 
   /**
