@@ -18,7 +18,7 @@ const colorWarning = chalk.keyword('orange');
 
 
 function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
-  // console.log('convertDateToText', dateTime, language, endIndex, startIndex)
+  console.log('convertDateToText', dateTime, language, endIndex, startIndex);
   var returnvalue = '',
     // arg 재정의
     //dateTime = dateTime,
