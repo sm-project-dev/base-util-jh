@@ -1,4 +1,4 @@
-const _ = require('underscore');
+const _ = require('lodash');
 const BU = require('./baseUtil');
 
 function locationAlertBack(message) {
@@ -77,7 +77,7 @@ function makeBsPagination(page, totalCount, href, queryString, pageListCount){
   endPage = endPage > maxPage ? maxPage : endPage;
 
   let pageHref = href + '?';
-  _.each(queryString, (value, name) => {
+  _.forEach(queryString, (value, name) => {
     pageHref += `${name}=${value}&`;
   });
 

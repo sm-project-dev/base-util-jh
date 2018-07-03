@@ -1,5 +1,5 @@
 const util = require('util');
-const _ = require('underscore');
+const _ = require('lodash');
 const chalk = require('chalk');
 
 const colorTxt = chalk.bold.keyword('purple');
@@ -1014,12 +1014,11 @@ exports.getArrBoundary = getArrBoundary;
 
 //순수 숫자로 구성된 JSON인가
 function checkJSONArrNumber(arrData) {
-  var _ = require('underscore');
   var returnvalue = true;
   if (!_.isArray(arrData) || _.isEmpty(arrData)) {
     return false;
   }
-  _.each(arrData, function (data) {
+  _.forEach(arrData, function (data) {
     if (!_.isNumber(data)) {
       returnvalue = false;
     }
@@ -1592,9 +1591,8 @@ exports.makeMessage = makeMessage;
 // 염전 Map.js SETINFO에서 ID와 일치하는 Name값 추출 ### setJavascript.js 필요  /// <returns type="String" />
 function getFindName(storage, propertyValue) {
   require('./setJavascript.js');
-  var _ = require('underscore');
   var returnvalue = '';
-  _.each(storage, function (property) {
+  _.forEach(storage, function (property) {
     if ((property instanceof Array) && (typeof property !== 'object')) {
       var Target = property.findArrayElementById(propertyValue);
       //log(Target)

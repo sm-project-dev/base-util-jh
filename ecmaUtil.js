@@ -6,7 +6,6 @@ const fs = require('fs');
  * @return {string[]} 폴더 이름
  */
 function getDirectories(dirName){
-  const fs = require('fs');
   const path = require('path');
   return fs.readdirSync(dirName).filter(file => fs.lstatSync(path.join(dirName, file)).isDirectory());
 }
