@@ -18,7 +18,8 @@ const colorWarning = chalk.keyword('orange');
 
 
 function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
-  console.log('convertDateToText', dateTime, language, endIndex, startIndex);
+  // debugConsole();
+  // console.log('convertDateToText', dateTime, language, endIndex, startIndex);
   var returnvalue = '',
     // arg 재정의
     //dateTime = dateTime,
@@ -67,6 +68,7 @@ function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
       returnvalue += index === endIndex ? '' : ' ';
     }
   });
+  // console.log(returnvalue);
   return returnvalue;
 }
 exports.convertDateToText = convertDateToText;
