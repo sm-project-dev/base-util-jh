@@ -1077,6 +1077,22 @@ exports.findObjListByKeyAndValue = findObjListByKeyAndValue;
 /*****************************************************************************************************************/
 //*************                               Type Conversion 관련                                   *************
 /*****************************************************************************************************************/
+
+/**
+ * @param {string} str 
+ * @return {boolean}
+ */
+function IsJsonString(str) {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+exports.IsJsonString = IsJsonString;
+
+
 var Converter = (function () {
 
   var ConvertBase = function (num) {
