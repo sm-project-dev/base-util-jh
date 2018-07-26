@@ -81,6 +81,10 @@ async function schemeToJsdoc(path) {
 
   let splitStrCreateTableCodes = _.split(strCreateTableCodes, ';');
 
+  // await setTimeout(() => {
+  //   console.log('wtf');
+  // }, 1000);
+
 
   const typedefList = [];
 
@@ -88,7 +92,7 @@ async function schemeToJsdoc(path) {
   splitStrCreateTableCodes.forEach(sqlStr => {
     let typedef = '\n/**\n';
     let splitCreateScheme = _.split(sqlStr, '\n');
-    const findCommentStr = 'COMMENT=\'';
+    const findCommentStr = 'COMMENT';
     
     if(!sqlStr.includes('CREATE TABLE')){
       return;
@@ -96,14 +100,19 @@ async function schemeToJsdoc(path) {
   
     // \n으로 Split된 array의 정보를 순회하며 typedef 개요를 설정
     _.forEach(splitCreateScheme, str  => {
+      // console.log(str);
       // typedef 제목 설정
       if(str.includes('CREATE TABLE')){
         let firstIndex =  str.indexOf('`') + 1;
         let lastIndex =  str.lastIndexOf('`');
         typedef += ` * @typedef {Object} ${_.toUpper(str.slice(firstIndex, lastIndex))}`;
       }
-      if(str.includes(findCommentStr)){
-        let comment = str.slice(findCommentStr.length, str.length - 2);
+
+      if(str.includes(findCommentStr) && str.indexOf(findCommentStr) === 0){
+        // console.log('!!!', findCommentStr);
+
+        let firstIndex = str.indexOf('\'');
+        let comment =  str.slice(firstIndex);
         typedef += ` ${comment}`;
       }
     });
@@ -112,9 +121,16 @@ async function schemeToJsdoc(path) {
     // property를 가져오기 위하여 \t 분리 배열 생성
     splitCreateScheme = _.split(sqlStr, '\t');
     splitCreateScheme.forEach(currentItem => {
+      // currentItem = _.replace(currentItem, /\s/g, ' ');
+
+      currentItem = _.head(currentItem.split('\n')); 
+
+
+      currentItem = currentItem.trim().replace(/ +/g, ' ');
       // comment를 가져옴
       const firstCommentIndexStr = 'COMMENT \'';
       let firstIndex =  currentItem.indexOf(firstCommentIndexStr);
+      // console.log('??????', firstIndex);
       let lastIndex =  currentItem.lastIndexOf('\'');
       // 코멘트를 짜름
       let propertyComment = firstIndex < lastIndex ? currentItem.slice(firstIndex + firstCommentIndexStr.length, lastIndex) : '';
@@ -128,7 +144,7 @@ async function schemeToJsdoc(path) {
         let propertyType = convertSqlTypeToJavascriptType(_.nth(splitList, 1)); 
         // 백탭 삭제
         const propertyName = _.trim(columnName, '`');
-        // propertyComment = propertyComment === null ? '' : propertyComment;
+        propertyComment = propertyComment === null ? '' : _.trim(propertyComment, '\'');
   
         typedef += ` * @property {${propertyType}} ${propertyName} ${propertyComment} \n`;
       }
