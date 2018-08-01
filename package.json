@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/hyuk-jang/base-util-jh#readme",
   "dependencies": {
+    "bluebird": "^3.5.1",
     "chalk": "^2.4.1",
     "lodash": "^4.17.10",
     "mkdirp": "^0.5.1"
