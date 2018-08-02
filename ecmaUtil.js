@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const fs = require('fs');
-
+const mkdirp = require('mkdirp');
+const crypto = require('crypto');
 const BU = require('./baseUtil');
 const Promise = require('bluebird');
 
@@ -228,6 +229,100 @@ function convertSqlTypeToJavascriptType(sqlType) {
   return returnValue;
 }
 
+
+
+
+/*****************************************************************************************************************/
+//*************                                     File 관련                                        *************
+/*****************************************************************************************************************/
+
+/**
+ * @param {string} path
+ * @param {string} encoding
+ */
+async function readFile(path, encoding) {
+  encoding = encoding == null || encoding === '' ? 'utf8' : encoding;
+
+  const readFile = Promise.promisify(fs.readFile);
+
+  return await readFile(path, encoding);
+}
+exports.readFile = readFile;
+
+/**
+ * 파일 쓰기. 경로에 폴더가 없다면 생성
+ * @param {string} path 
+ * @param {*} message 
+ * @param {string=} option default: 'a'
+ * @example
+ * 'r' - 읽기로 열기. 파일이 존재하지 않으면 에러발생.
+ * 'r+' - 읽기/쓰기로 열기. 파일이 존재하지 않으면 에러발생.
+ * 'w' - 쓰기로 열기. 파일이 존재하지 않으면 만들어지고, 파일이 존재하면 지우고 처음부터 씀.
+ * 'w+' - 읽기/쓰기로 열기. 파일이 존재하지 않으면 만들어지고, 파일이 존재하면 처음부터 씀.
+ * 'a' - 추가 쓰기로 열기. 파일이 존재하지 않으면 만들어짐.
+ * 'a+' - 파일을 읽고/추가쓰기모드로 열기. 파일이 존재하지 않으면 만들어짐.
+ */
+async function writeFile(path, message, option) {
+  try {
+    option = option === '' || option == null ? 'a' : option; // 기본 옵션 '이어 쓰기'
+    message = typeof message === 'object' ? JSON.stringify(message) : message;
+    const writeFile = Promise.promisify(fs.writeFile);
+
+    return await writeFile(path, message, {
+      flag: option
+    });
+  }
+  catch(err) {
+    if (err.errno === -4058) {
+      const targetDir = err.path.substr(0, err.path.lastIndexOf('\\'));
+      await makeDirectory(targetDir);
+      return writeFile(arguments);
+    }
+    throw err;
+  }
+}
+exports.writeFile = writeFile;
+
+// 디렉토리 읽기
+async function searchDirectory(path) {
+  var returnvalue = [];
+
+  const readdir = Promise.promisify(fs.readdir);
+
+  const files = await readdir(path);
+  files.forEach(function (file) {
+    returnvalue.push(file);
+    // console.log(path + file);
+    fs.stat(path + file, function (err, stats) {
+      console.log(stats);
+    });
+  });
+
+  return returnvalue;
+}
+exports.searchDirectory = searchDirectory;
+
+
+// 디렉토리 생성
+async function makeDirectory(path) {
+  const mkdirp = Promise.promisify(fs.mkdirp);
+
+  return await mkdirp(path);
+}
+exports.makeDirectory = makeDirectory;
+
+// 디렉토리 삭제
+async function deleteDirectory(path) {
+  const rmdir = Promise.promisify(fs.rmdir);
+  return await rmdir(path);
+}
+exports.deleteDirectory = deleteDirectory;
+
+
+
+
+
+
 /*****************************************************************************************************************/
 //*************                                  Security 관련                                       *************
 /*****************************************************************************************************************/
@@ -240,8 +335,8 @@ function convertSqlTypeToJavascriptType(sqlType) {
  * @param {function(String)} cb 완성된 암호화 해시 Password를 callback을 통해 반환
  */
 async function encryptPbkdf2(password, salt) {
-  BU.CLIS(password, salt)
-  const crypto = require('crypto');
+  // BU.CLIS(password, salt);
+  
   password = password == null ? '' : password;
 
   const pbkdf2 = Promise.promisify(crypto.pbkdf2);

@@ -353,7 +353,8 @@ function logOriginalTails(traceObj){
 
 // console.log 개발자 버젼
 function log(...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   var occurInfo = `\t${colorStart('-->')} ${colorHighlight(traceObj.fileName)} : ${colorHighlight(traceObj.lineNumber)}`;
 
   for (let arg of args) {
@@ -365,7 +366,8 @@ exports.log = log;
 
 // console.log 개발자 버젼
 function logO(...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   var occurInfo = `\t${'-->'} ${traceObj.fileName} : ${traceObj.lineNumber}`;
 
   for (let arg of args) {
@@ -377,7 +379,8 @@ exports.logO = logO;
 
 // Console.Log by Option
 function CLIN(pOjbect, num) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
   console.log(util.inspect(pOjbect, true, num));
   logTails(traceObj);
@@ -386,7 +389,8 @@ exports.CLIN = CLIN;
 
 // Console.Log by Option
 function CLINO(pOjbect, num) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   console.log(util.inspect(pOjbect, true, num));
   logOriginalTails(traceObj);
@@ -395,7 +399,8 @@ exports.CLINO = CLINO;
 
 // Console Log Inspect by Number Multi
 function CLINS(inspectDepth, ...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
   
   for (let argNum = 0; argNum < args.length; argNum += 1) {
@@ -407,7 +412,8 @@ exports.CLINS = CLINS;
 
 // Console Log Inspect by Number Multi
 function CLINSO(inspectDepth, ...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   
   for (let argNum = 0; argNum < args.length; argNum += 1) {
@@ -420,7 +426,8 @@ exports.CLINSO = CLINSO;
 
 // Console.Log InspectS
 function CLIS(...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
 
   for (let argNum = 0; argNum < args.length; argNum += 1) {
@@ -432,7 +439,8 @@ exports.CLIS = CLIS;
 
 /** Console.Log Original: (Default) Inspect Depth 10 */
 function CLISO(...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   for (let argNum = 0; argNum < args.length; argNum += 1) {
     console.log(`${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, 10)}`);
@@ -443,7 +451,8 @@ exports.CLISO = CLISO;
 
 /** Console.Log: (Default) Inspect Depth 10 */
 function CLI(...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
   for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
@@ -458,7 +467,8 @@ exports.CLI = CLI;
 
 /** Console.Log Original: (Default) Inspect Depth 10 */
 function CLIO(...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
