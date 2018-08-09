@@ -1039,6 +1039,22 @@ function checkJSONArrNumber(arrData) {
 }
 exports.checkJSONArrNumber = checkJSONArrNumber;
 
+/**
+ * 객체 안에서 특정 키를 새로운 키로 교체
+ * @param {Object} obj 객체
+ * @param {string} key 기존 키
+ * @param {string} newKey 변경 키
+ */
+function renameObj(obj, key, newKey) {
+    if (_.includes(_.keys(obj), key)) {
+      obj[newKey] = _.clone(obj[key], true);
+  
+      delete obj[key];
+    }
+  
+    return obj;
+  };
+exports.renameObj = renameObj;
 
 
 /*****************************************************************************************************************/
