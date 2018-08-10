@@ -1,5 +1,5 @@
 const util = require('util');
-const _ = require('underscore');
+const _ = require('lodash');
 const chalk = require('chalk');
 
 const colorTxt = chalk.bold.keyword('purple');
@@ -18,7 +18,8 @@ const colorWarning = chalk.keyword('orange');
 
 
 function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
-  console.log('convertDateToText', dateTime, language, endIndex, startIndex);
+  // debugConsole();
+  // console.log('convertDateToText', dateTime, language, endIndex, startIndex);
   var returnvalue = '',
     // arg 재정의
     //dateTime = dateTime,
@@ -67,6 +68,7 @@ function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
       returnvalue += index === endIndex ? '' : ' ';
     }
   });
+  // console.log(returnvalue);
   return returnvalue;
 }
 exports.convertDateToText = convertDateToText;
@@ -351,7 +353,8 @@ function logOriginalTails(traceObj){
 
 // console.log 개발자 버젼
 function log(...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   var occurInfo = `\t${colorStart('-->')} ${colorHighlight(traceObj.fileName)} : ${colorHighlight(traceObj.lineNumber)}`;
 
   for (let arg of args) {
@@ -363,7 +366,8 @@ exports.log = log;
 
 // console.log 개발자 버젼
 function logO(...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   var occurInfo = `\t${'-->'} ${traceObj.fileName} : ${traceObj.lineNumber}`;
 
   for (let arg of args) {
@@ -375,7 +379,8 @@ exports.logO = logO;
 
 // Console.Log by Option
 function CLIN(pOjbect, num) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
   console.log(util.inspect(pOjbect, true, num));
   logTails(traceObj);
@@ -384,7 +389,8 @@ exports.CLIN = CLIN;
 
 // Console.Log by Option
 function CLINO(pOjbect, num) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   console.log(util.inspect(pOjbect, true, num));
   logOriginalTails(traceObj);
@@ -393,7 +399,8 @@ exports.CLINO = CLINO;
 
 // Console Log Inspect by Number Multi
 function CLINS(inspectDepth, ...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
   
   for (let argNum = 0; argNum < args.length; argNum += 1) {
@@ -405,7 +412,8 @@ exports.CLINS = CLINS;
 
 // Console Log Inspect by Number Multi
 function CLINSO(inspectDepth, ...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   
   for (let argNum = 0; argNum < args.length; argNum += 1) {
@@ -418,7 +426,8 @@ exports.CLINSO = CLINSO;
 
 // Console.Log InspectS
 function CLIS(...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
 
   for (let argNum = 0; argNum < args.length; argNum += 1) {
@@ -430,7 +439,8 @@ exports.CLIS = CLIS;
 
 /** Console.Log Original: (Default) Inspect Depth 10 */
 function CLISO(...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   for (let argNum = 0; argNum < args.length; argNum += 1) {
     console.log(`${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, 10)}`);
@@ -441,7 +451,8 @@ exports.CLISO = CLISO;
 
 /** Console.Log: (Default) Inspect Depth 10 */
 function CLI(...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
   for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
@@ -456,7 +467,8 @@ exports.CLI = CLI;
 
 /** Console.Log Original: (Default) Inspect Depth 10 */
 function CLIO(...args) {
-  var traceObj = traceOccurPosition();
+  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
@@ -1014,12 +1026,11 @@ exports.getArrBoundary = getArrBoundary;
 
 //순수 숫자로 구성된 JSON인가
 function checkJSONArrNumber(arrData) {
-  var _ = require('underscore');
   var returnvalue = true;
   if (!_.isArray(arrData) || _.isEmpty(arrData)) {
     return false;
   }
-  _.each(arrData, function (data) {
+  _.forEach(arrData, function (data) {
     if (!_.isNumber(data)) {
       returnvalue = false;
     }
@@ -1028,6 +1039,22 @@ function checkJSONArrNumber(arrData) {
 }
 exports.checkJSONArrNumber = checkJSONArrNumber;
 
+/**
+ * 객체 안에서 특정 키를 새로운 키로 교체
+ * @param {Object} obj 객체
+ * @param {string} key 기존 키
+ * @param {string} newKey 변경 키
+ */
+function renameObj(obj, key, newKey) {
+  if (_.includes(_.keys(obj), key)) {
+    obj[newKey] = _.clone(obj[key], true);
+  
+    delete obj[key];
+  }
+  
+  return obj;
+}
+exports.renameObj = renameObj;
 
 
 /*****************************************************************************************************************/
@@ -1076,6 +1103,22 @@ exports.findObjListByKeyAndValue = findObjListByKeyAndValue;
 /*****************************************************************************************************************/
 //*************                               Type Conversion 관련                                   *************
 /*****************************************************************************************************************/
+
+/**
+ * @param {string} str 
+ * @return {boolean}
+ */
+function IsJsonString(str) {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+exports.IsJsonString = IsJsonString;
+
+
 var Converter = (function () {
 
   var ConvertBase = function (num) {
@@ -1159,12 +1202,12 @@ function d2bin8Byte(number) {
   var TempValue = ['0', '0', '0', '0', '0', '0', '0', '0'];
   var TempNumber = number.toString(2);
   var ccount = 7;
-  for (var i = TempNumber.length - 1; i >= 0; i--) {
+  for (let i = TempNumber.length - 1; i >= 0; i--) {
     TempValue[ccount] = TempNumber.charAt(i);
 
     ccount = ccount - 1;
   }
-  for (var i = 0; i < TempValue.length; i++) {
+  for (let i = 0; i < TempValue.length; i++) {
     returnvalue = returnvalue + TempValue[i];
   }
   return returnvalue;
@@ -1592,9 +1635,8 @@ exports.makeMessage = makeMessage;
 // 염전 Map.js SETINFO에서 ID와 일치하는 Name값 추출 ### setJavascript.js 필요  /// <returns type="String" />
 function getFindName(storage, propertyValue) {
   require('./setJavascript.js');
-  var _ = require('underscore');
   var returnvalue = '';
-  _.each(storage, function (property) {
+  _.forEach(storage, function (property) {
     if ((property instanceof Array) && (typeof property !== 'object')) {
       var Target = property.findArrayElementById(propertyValue);
       //log(Target)

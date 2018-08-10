@@ -1,4 +1,4 @@
-const _ = require('underscore');
+const _ = require('lodash');
 
 /**
  * 단일 값 Sacle 적용. 소수점 절삭
@@ -17,7 +17,7 @@ exports.multiplyScale2Value = multiplyScale2Value;
  */
 function multiplyScale2Obj(obj, scale, toFixed) {
   let returnValue = {};
-  _.each(obj, (value, key) => {
+  _.forEach(obj, (value, key) => {
     let addObj = {
       [key]: typeof value === 'number' ? Number((parseFloat(value) * scale).toFixed(typeof toFixed === 'number' ? toFixed : 1)) : value
     };
@@ -31,7 +31,7 @@ exports.multiplyScale2Obj = multiplyScale2Obj;
 
 function toFixedAll(obj, toFixed) {
   let returnValue = {};
-  _.each(obj, (value, key) => {
+  _.forEach(obj, (value, key) => {
     let addObj = {
       [key]: typeof value === 'number' ? Number(value.toFixed(toFixed)) : value
     };
@@ -173,7 +173,7 @@ class CalculateAverage {
    */
   getData() {
     let returnValue = {};
-    _.each(this.averageStorage, (currItem, key) => {
+    _.forEach(this.averageStorage, (currItem, key) => {
       returnValue[key] = currItem.average;
     });
     return returnValue;
