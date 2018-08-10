@@ -12,7 +12,7 @@ class AverageStorage {
     this.keyList = averConfig.keyList;
     this.maxStorageNumber = averConfig.maxStorageNumber;
     this.dataStorage = {};
-    
+
     this.init();
   }
 
@@ -27,15 +27,15 @@ class AverageStorage {
 
   /**
    * @param {string} key
-   * @return {Array} key 
+   * @return {Array} key
    */
-  findDataStorage(key){
+  findDataStorage(key) {
     return _.get(this.dataStorage, key, undefined);
   }
 
   /**
    * Object Key가 추적 대상인지 체크
-   * @param {string} key 
+   * @param {string} key
    */
   hasTarget(key) {
     return this.dataStorage.hasOwnProperty(key);
@@ -49,35 +49,39 @@ class AverageStorage {
    * data의 길이가 평균 값 분포군 최대길이에 도달하면 가장 먼저 들어온 리스트 1개 제거
    */
   addData(key, data) {
-    if(data === undefined || data === null || data === ''){
+    if (data === undefined || data === null || data === '') {
       // this.findDataStorage(key).shift();
       return this;
     } else {
       let numData = _.toNumber(data);
       this.dataStorage[key].push(numData);
-      this.dataStorage[key].length > this.maxStorageNumber && this.findDataStorage(key).shift();
+      this.dataStorage[key].length > this.maxStorageNumber &&
+        this.findDataStorage(key).shift();
       return this;
     }
   }
 
   /**
    * dataStroage에서 관리 중인 Object의 평균 값을 산출
-   * @param {string} key 
+   * @param {string} key
+   * @param {number=} 소수 점 이하 자리 수, default: 1
    */
-  getAverage(key) {
+  getAverage(key, positionNum) {
     let dataStorage = this.findDataStorage(key);
-    let aver = _.meanBy(dataStorage);
+
+    positionNum = _.isNumber(positionNum) ? positionNum : 1;
+    let aver = _.round(_.meanBy(dataStorage), positionNum);
     // let sum = this.dataStorage[key].reduce((prev, next) => Number(prev) + Number(next));
     return isNaN(aver) ? null : aver;
   }
 
-  getStorage(key){
+  getStorage(key) {
     return this.hasTarget(key) ? this.findDataStorage(key) : undefined;
   }
 
   /**
    * Object 형태로 데이터를 한꺼번에 처리하고자 할 경우. 이 경우 기존 데이터를 덮어씀.
-   * @param {Object} dataObj 
+   * @param {Object} dataObj
    */
   onData(dataObj) {
     for (const key in dataObj) {
@@ -91,12 +95,12 @@ class AverageStorage {
   /**
    * 저장소에 저장된 데이터의 평균 값을 도출하여 반환
    */
-  getAverageStorage(){
+  getAverageStorage() {
     const returnValue = {};
     _.forEach(this.dataStorage, (data, key) => {
       returnValue[key] = this.getAverage(key);
     });
-    return _.clone(returnValue) ;
+    return _.clone(returnValue);
   }
 
   /**
@@ -104,8 +108,8 @@ class AverageStorage {
    * @param {Object=} dataObj 해당 값이 있을 경우 해당값의 키가 추적 대상 키인지 판별하고 맞다면 해당 평균 값 그룹에서 1개 제거
    * {a: [1,2,3], b: [3,4,5]} --> {a: [2,3], b: [4,5]}
    */
-  shiftDataStorage(dataObj){
-    if(_.isEmpty(dataObj)){
+  shiftDataStorage(dataObj) {
+    if (_.isEmpty(dataObj)) {
       _.forEach(this.dataStorage, dataList => {
         dataList.shift();
       });
@@ -123,22 +127,22 @@ class AverageStorage {
 }
 exports.AverageStorage = AverageStorage;
 
-
-
-
 /**
  * @class
  * @classdesc setTimeout을 사용하는 형식과 비슷하나, 요청 callback 수행까지의 남은 시간 반환, 일시 정지, 동작 상태 지원
  */
 function Timer(callback, delay) {
-  var id, started, remaining = delay, running;
+  var id,
+    started,
+    remaining = delay,
+    running;
 
   /** setTimeout 재개 (setTimeout 처리함)*/
   this.start = () => {
-    if(running !== true){
+    if (running !== true) {
       started = new Date();
       running = true;
-      if(remaining > 0){
+      if (remaining > 0) {
         id = setTimeout(() => {
           callback();
         }, remaining);
@@ -150,7 +154,7 @@ function Timer(callback, delay) {
 
   /** setTimeout 정지 (clearTimeout 처리함) */
   this.pause = () => {
-    if(running){
+    if (running) {
       running = false;
       clearTimeout(id);
       remaining -= new Date() - started;

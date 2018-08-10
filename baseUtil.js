@@ -1046,14 +1046,14 @@ exports.checkJSONArrNumber = checkJSONArrNumber;
  * @param {string} newKey 변경 키
  */
 function renameObj(obj, key, newKey) {
-    if (_.includes(_.keys(obj), key)) {
-      obj[newKey] = _.clone(obj[key], true);
+  if (_.includes(_.keys(obj), key)) {
+    obj[newKey] = _.clone(obj[key], true);
   
-      delete obj[key];
-    }
+    delete obj[key];
+  }
   
-    return obj;
-  };
+  return obj;
+}
 exports.renameObj = renameObj;
 
 
@@ -1202,12 +1202,12 @@ function d2bin8Byte(number) {
   var TempValue = ['0', '0', '0', '0', '0', '0', '0', '0'];
   var TempNumber = number.toString(2);
   var ccount = 7;
-  for (var i = TempNumber.length - 1; i >= 0; i--) {
+  for (let i = TempNumber.length - 1; i >= 0; i--) {
     TempValue[ccount] = TempNumber.charAt(i);
 
     ccount = ccount - 1;
   }
-  for (var i = 0; i < TempValue.length; i++) {
+  for (let i = 0; i < TempValue.length; i++) {
     returnvalue = returnvalue + TempValue[i];
   }
   return returnvalue;
