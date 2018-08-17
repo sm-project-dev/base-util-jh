@@ -1057,6 +1057,21 @@ function renameObj(obj, key, newKey) {
 exports.renameObj = renameObj;
 
 
+/**
+ * 현재 값이 숫자형으로 변환 가능한지 여부
+ * @param {*} targetValue 
+ */
+function isNumberic(targetValue) {
+  if (
+    (typeof targetValue === 'number' || typeof targetValue === 'string') &&
+    !Number.isNaN(Number(targetValue))
+  ) {
+    return true;
+  }
+  else false;
+}
+exports.isNumberic = isNumberic;
+
 /*****************************************************************************************************************/
 //*************                                 Search or Find 관련                                  *************
 /*****************************************************************************************************************/
