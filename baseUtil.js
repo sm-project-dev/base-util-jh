@@ -16,7 +16,6 @@ const colorWarning = chalk.keyword('orange');
 
 // (Date) Date To yyyy-MM-ss HH:mm:ss /// <returns type="String" />
 
-
 function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
   // debugConsole();
   // console.log('convertDateToText', dateTime, language, endIndex, startIndex);
@@ -24,8 +23,12 @@ function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
     // arg 재정의
     //dateTime = dateTime,
     language = charset === undefined || charset === '' ? 'char' : charset,
-    endIndex = wordEndIndex === undefined || wordEndIndex === '' ? 5 : wordEndIndex,
-    startIndex = wordStartIndex === undefined || wordStartIndex === '' ? 0 : wordStartIndex,
+    endIndex =
+      wordEndIndex === undefined || wordEndIndex === '' ? 5 : wordEndIndex,
+    startIndex =
+      wordStartIndex === undefined || wordStartIndex === ''
+        ? 0
+        : wordStartIndex,
     timeTable = [], // date 타임 year ~ sec 순서대로 push
     strTimeTable = [], // 적정 str로 교체
     separates = ''; // 첨가물
@@ -37,8 +40,10 @@ function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
   timeTable.push(dateTime.getMinutes());
   timeTable.push(dateTime.getSeconds());
 
-  timeTable.forEach(function (time) {
-    String(time).length == 1 ? strTimeTable.push('0' + String(time)) : strTimeTable.push(String(time));
+  timeTable.forEach(function(time) {
+    String(time).length == 1
+      ? strTimeTable.push('0' + String(time))
+      : strTimeTable.push(String(time));
   });
 
   switch (language) {
@@ -61,8 +66,7 @@ function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
         returnvalue += separates[index];
       }
       returnvalue += timeData;
-    }
-    else {
+    } else {
       returnvalue += timeData;
       returnvalue += separates[index];
       returnvalue += index === endIndex ? '' : ' ';
@@ -75,7 +79,7 @@ exports.convertDateToText = convertDateToText;
 
 /**
  * @description text 형식의 날짜를 Date Obj 반환
- * @param {String} textDate 
+ * @param {String} textDate
  * @return {Date} description
  */
 // (String Date) yyyy-MM-ss HH:mm:ss To Date Object  /// <returns type="Date" />
@@ -107,7 +111,15 @@ function convertTextToDate(textDate) {
       dateList[index] = Number(dateList[index]);
     }
   });
-  return new Date(dateList[0], dateList[1], dateList[2], dateList[3], dateList[4], dateList[5], 0);
+  return new Date(
+    dateList[0],
+    dateList[1],
+    dateList[2],
+    dateList[3],
+    dateList[4],
+    dateList[5],
+    0
+  );
 }
 exports.convertTextToDate = convertTextToDate;
 
@@ -127,7 +139,7 @@ function convert8601TextToDate(textDate) {
       day = new Date(Date.UTC.apply(Date, day));
       if (!day.getDate()) return NaN;
       if (p[5]) {
-        tz = (parseInt(p[5], 10) * 60);
+        tz = parseInt(p[5], 10) * 60;
         if (p[6]) tz += parseInt(p[6], 10);
         if (p[4] == '+') tz *= -1;
         if (tz) day.setUTCMinutes(day.getUTCMinutes() + tz);
@@ -142,17 +154,27 @@ function convert8601TextToDate(textDate) {
 }
 exports.convert8601TextToDate = convert8601TextToDate;
 
-// yyyy-mm-dd, yyyy-mmdd, yyyymmdd, yyyymm-dd To yyyy-mm-dd  /// <returns type="String" /> 
+// yyyy-mm-dd, yyyy-mmdd, yyyymmdd, yyyymm-dd To yyyy-mm-dd  /// <returns type="String" />
 function convertDateFormat(textDate) {
   try {
-    var frontDate = textDate.split(' ').length === 2 ? textDate.split(' ')[0] : textDate,
+    var frontDate =
+        textDate.split(' ').length === 2 ? textDate.split(' ')[0] : textDate,
       rearDate = textDate.split(' ').length === 2 ? textDate.split(' ')[1] : '',
       year = 0,
       month = 0,
       day = 0,
-      hour = rearDate.split(':')[0] === undefined ? 0 : Number(rearDate.split(':')[0]),
-      min = rearDate.split(':')[1] === undefined ? 0 : Number(rearDate.split(':')[1]),
-      sec = rearDate.split(':')[2] === undefined ? 0 : Number(rearDate.split(':')[2]),
+      hour =
+        rearDate.split(':')[0] === undefined
+          ? 0
+          : Number(rearDate.split(':')[0]),
+      min =
+        rearDate.split(':')[1] === undefined
+          ? 0
+          : Number(rearDate.split(':')[1]),
+      sec =
+        rearDate.split(':')[2] === undefined
+          ? 0
+          : Number(rearDate.split(':')[2]),
       maxDay = 0;
 
     frontDate = frontDate.replace(/-/g, '');
@@ -168,7 +190,8 @@ function convertDateFormat(textDate) {
 
     if (month < 1 || month > 12) return '';
 
-    if (month == 2 && (year % 4 == 0 && year % 100 != 0 || year % 400 == 0)) // 윤년 체크
+    if (month == 2 && ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0))
+      // 윤년 체크
       maxDay = 29;
 
     if (day <= 0 || day > maxDay) return '';
@@ -177,19 +200,19 @@ function convertDateFormat(textDate) {
     if (sec < 0 || sec >= 60) return '';
 
     return convertDateToText(new Date(year, month, day, hour, min, sec, 0));
-
   } catch (err) {
     return '';
   }
 }
 exports.convertDateFormat = convertDateFormat;
 
-// 두 날짜 사이의 간격 비교 /// <returns type="Object" /> 
+// 두 날짜 사이의 간격 비교 /// <returns type="Object" />
 function calcDateInterval(baseDate, nextDate) {
-  var firstDate = baseDate instanceof Date ? baseDate : convertTextToDate(baseDate),
-    secondDate = nextDate instanceof Date ? nextDate : convertTextToDate(nextDate),
+  var firstDate =
+      baseDate instanceof Date ? baseDate : convertTextToDate(baseDate),
+    secondDate =
+      nextDate instanceof Date ? nextDate : convertTextToDate(nextDate),
     storage = parseInt(firstDate - secondDate) / 1000,
-
     returnvalue = {
       remainDay: 0,
       remainHour: 0,
@@ -202,12 +225,11 @@ function calcDateInterval(baseDate, nextDate) {
   returnvalue.remainHour = parseInt(storage / 60 / 60);
   storage -= returnvalue.remainHour * 60 * 60;
   returnvalue.remainMin = parseInt(storage / 60);
-  returnvalue.remainSec = parseInt(storage - (returnvalue.remainMin * 60));
+  returnvalue.remainSec = parseInt(storage - returnvalue.remainMin * 60);
 
   return returnvalue;
 }
 exports.calcDateInterval = calcDateInterval;
-
 
 function splitStrDate(strDate) {
   // console.log(typeof strDate )
@@ -225,8 +247,8 @@ exports.splitStrDate = splitStrDate;
 
 /**
  * strStartDate <= returnValue < strEndDate
- * @param {String} strEndDate 
- * @param {String} strStartDate 
+ * @param {String} strEndDate
+ * @param {String} strStartDate
  * @param {String} searchType year, month, day, hour
  * @return {Array}
  */
@@ -234,7 +256,7 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
   // CLI('getBetweenDatePoint', strEndDate, strStartDate, searchType)
   let returnValue = {
     fullTxtPoint: [],
-    shortTxtPoint: [],
+    shortTxtPoint: []
   };
   let endDate = new Date(strEndDate);
   let currDate = new Date(strStartDate);
@@ -242,7 +264,6 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
   if (currDate > endDate) {
     return returnValue;
   }
-
 
   let spliceStartIndex = 0;
   let spliceEndIndex = 0;
@@ -306,7 +327,12 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
 
     // 다음 조건 txt 변환
     txtStartDate = convertDateToText(cloneTargetDate, '', spliceEndIndex, 0);
-    txtShortStartDate = convertDateToText(cloneTargetDate, '', spliceEndIndex, spliceStartIndex);
+    txtShortStartDate = convertDateToText(
+      cloneTargetDate,
+      '',
+      spliceEndIndex,
+      spliceStartIndex
+    );
     txtNextDate = convertDateToText(currDate, '', 3, 0);
 
     // BU.CLIS(txtStartDate, txtNextDate, txtEndDate)
@@ -322,32 +348,52 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
 }
 exports.getBetweenDatePoint = getBetweenDatePoint;
 
-
-
 /*****************************************************************************************************************/
 //*************                                    Debuging 관련                                     *************
 /*****************************************************************************************************************/
 
-function logHeader(traceObj){
-  const occurInfo = `${colorStart(traceObj.fileName)}:${colorHighlight(traceObj.lineNumber)} ( ${colorFn(traceObj.functionName)} )`;
-  const loggerTxt = `${colorStart('-------------')}\t${occurInfo} ${colorStart(convertDateToText(new Date(), 'char', 5, 1))}`;
+function logHeader(traceObj) {
+  const occurInfo = `${colorStart(traceObj.fileName)}:${colorHighlight(
+    traceObj.lineNumber
+  )} ( ${colorFn(traceObj.functionName)} )`;
+  const loggerTxt = `${colorStart('-------------')}\t${occurInfo} ${colorStart(
+    convertDateToText(new Date(), 'char', 5, 1)
+  )}`;
   console.log(loggerTxt);
 }
 
-function logOriginalHeader(traceObj){
-  const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${traceObj.functionName} )`;
-  const loggerTxt = `${'-------------'}\t${occurInfo} ${convertDateToText(new Date(), 'char', 5, 1)}`;
+function logOriginalHeader(traceObj) {
+  const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${
+    traceObj.functionName
+  } )`;
+  const loggerTxt = `${'-------------'}\t${occurInfo} ${convertDateToText(
+    new Date(),
+    'char',
+    5,
+    1
+  )}`;
   console.log(loggerTxt);
 }
 
-function logTails(traceObj){
-  const occurInfo = `${colorEnd(traceObj.fileName)}:${colorHighlight(traceObj.lineNumber)} ( ${colorFn(traceObj.functionName)} )`;
-  const loggerTxt = `${colorEnd('=============')}\t${occurInfo} ${colorEnd(convertDateToText(new Date(), 'char', 5, 1))} `;
+function logTails(traceObj) {
+  const occurInfo = `${colorEnd(traceObj.fileName)}:${colorHighlight(
+    traceObj.lineNumber
+  )} ( ${colorFn(traceObj.functionName)} )`;
+  const loggerTxt = `${colorEnd('=============')}\t${occurInfo} ${colorEnd(
+    convertDateToText(new Date(), 'char', 5, 1)
+  )} `;
   console.log(loggerTxt);
 }
-function logOriginalTails(traceObj){
-  const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${traceObj.functionName} )`;
-  const loggerTxt = `${'============='}\t${occurInfo} ${convertDateToText(new Date(), 'char', 5, 1)} `;
+function logOriginalTails(traceObj) {
+  const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${
+    traceObj.functionName
+  } )`;
+  const loggerTxt = `${'============='}\t${occurInfo} ${convertDateToText(
+    new Date(),
+    'char',
+    5,
+    1
+  )} `;
   console.log(loggerTxt);
 }
 
@@ -355,7 +401,9 @@ function logOriginalTails(traceObj){
 function log(...args) {
   var hasFull = process.env.NODE_ENV === 'production' ? false : true;
   var traceObj = traceOccurPosition(hasFull);
-  var occurInfo = `\t${colorStart('-->')} ${colorHighlight(traceObj.fileName)} : ${colorHighlight(traceObj.lineNumber)}`;
+  var occurInfo = `\t${colorStart('-->')} ${colorHighlight(
+    traceObj.fileName
+  )} : ${colorHighlight(traceObj.lineNumber)}`;
 
   for (let arg of args) {
     process.stdout.write(String(arg));
@@ -402,9 +450,15 @@ function CLINS(inspectDepth, ...args) {
   var hasFull = process.env.NODE_ENV === 'production' ? false : true;
   var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
-  
+
   for (let argNum = 0; argNum < args.length; argNum += 1) {
-    console.log(`${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, inspectDepth)}`);
+    console.log(
+      `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(
+        args[argNum],
+        true,
+        inspectDepth
+      )}`
+    );
   }
   logTails(traceObj);
 }
@@ -415,14 +469,19 @@ function CLINSO(inspectDepth, ...args) {
   var hasFull = process.env.NODE_ENV === 'production' ? false : true;
   var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
-  
+
   for (let argNum = 0; argNum < args.length; argNum += 1) {
-    console.log(`${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, inspectDepth)}`);
+    console.log(
+      `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(
+        args[argNum],
+        true,
+        inspectDepth
+      )}`
+    );
   }
   logOriginalTails(traceObj);
 }
 exports.CLINSO = CLINSO;
-
 
 // Console.Log InspectS
 function CLIS(...args) {
@@ -431,7 +490,13 @@ function CLIS(...args) {
   logHeader(traceObj);
 
   for (let argNum = 0; argNum < args.length; argNum += 1) {
-    console.log(`${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, 10)}`);
+    console.log(
+      `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(
+        args[argNum],
+        true,
+        10
+      )}`
+    );
   }
   logTails(traceObj);
 }
@@ -443,7 +508,13 @@ function CLISO(...args) {
   var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   for (let argNum = 0; argNum < args.length; argNum += 1) {
-    console.log(`${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, 10)}`);
+    console.log(
+      `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(
+        args[argNum],
+        true,
+        10
+      )}`
+    );
   }
   logOriginalTails(traceObj);
 }
@@ -454,9 +525,15 @@ function CLI(...args) {
   var hasFull = process.env.NODE_ENV === 'production' ? false : true;
   var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
-  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
+  for (
+    let argNum = 0, argLength = args.length - 1;
+    argNum <= argLength;
+    argNum += 1
+  ) {
     if (argNum % 2 === 0) {
-      argNum === argLength ? console.log(util.inspect(args[argNum], true, 10)) : process.stdout.write(String(args[argNum]));
+      argNum === argLength
+        ? console.log(util.inspect(args[argNum], true, 10))
+        : process.stdout.write(String(args[argNum]));
     } else {
       console.log(colorTxt(' --> ') + util.inspect(args[argNum], true, 10));
     }
@@ -470,9 +547,15 @@ function CLIO(...args) {
   var hasFull = process.env.NODE_ENV === 'production' ? false : true;
   var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
-  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
+  for (
+    let argNum = 0, argLength = args.length - 1;
+    argNum <= argLength;
+    argNum += 1
+  ) {
     if (argNum % 2 === 0) {
-      argNum === argLength ? console.log(util.inspect(args[argNum], true, 10)) : process.stdout.write(String(args[argNum]));
+      argNum === argLength
+        ? console.log(util.inspect(args[argNum], true, 10))
+        : process.stdout.write(String(args[argNum]));
     } else {
       console.log(' --> ' + util.inspect(args[argNum], true, 10));
     }
@@ -485,9 +568,15 @@ exports.CLIO = CLIO;
 function CLIF(...args) {
   var traceObj = traceOccurPosition(true);
   logHeader(traceObj);
-  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
+  for (
+    let argNum = 0, argLength = args.length - 1;
+    argNum <= argLength;
+    argNum += 1
+  ) {
     if (argNum % 2 === 0) {
-      argNum === argLength ? console.log(util.inspect(args[argNum], true, 10)) : process.stdout.write(String(args[argNum]));
+      argNum === argLength
+        ? console.log(util.inspect(args[argNum], true, 10))
+        : process.stdout.write(String(args[argNum]));
     } else {
       console.log(colorTxt(' --> ') + util.inspect(args[argNum], true, 10));
     }
@@ -500,9 +589,15 @@ exports.CLIF = CLIF;
 function CLIFO(...args) {
   var traceObj = traceOccurPosition(true);
   logOriginalHeader(traceObj);
-  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
+  for (
+    let argNum = 0, argLength = args.length - 1;
+    argNum <= argLength;
+    argNum += 1
+  ) {
     if (argNum % 2 === 0) {
-      argNum === argLength ? console.log(util.inspect(args[argNum], true, 10)) : process.stdout.write(String(args[argNum]));
+      argNum === argLength
+        ? console.log(util.inspect(args[argNum], true, 10))
+        : process.stdout.write(String(args[argNum]));
     } else {
       console.log(colorTxt(' --> ') + util.inspect(args[argNum], true, 10));
     }
@@ -510,7 +605,6 @@ function CLIFO(...args) {
   logOriginalTails(traceObj);
 }
 exports.CLIFO = CLIFO;
-
 
 // 호출 위치(this)의 파일명, 라인번호, func /// <returns type="Object" />
 /**
@@ -520,17 +614,23 @@ exports.CLIFO = CLIFO;
 function traceOccurPosition(hasFileNameFull) {
   var returnObj = {};
 
-  getStack().forEach(function (stack, index) {
+  getStack().forEach(function(stack, index) {
     if (index == 2) {
       returnObj.functionName = stack.getFunctionName();
       returnObj.lineNumber = `${stack.getLineNumber()}:${stack.getColumnNumber()}`;
-      
+
       returnObj.fileName = stack.getFileName();
 
       var splitFileName = returnObj.fileName.split('\\');
 
       index = splitFileName.length - 1;
-      var fileName = hasFileNameFull ? returnObj.fileName : splitFileName[index - 2] + '/' + splitFileName[index - 1] + '/' + splitFileName[index];
+      var fileName = hasFileNameFull
+        ? returnObj.fileName
+        : splitFileName[index - 2] +
+          '/' +
+          splitFileName[index - 1] +
+          '/' +
+          splitFileName[index];
       returnObj.fileName = fileName;
     }
     //log(stack.getFunctionName());
@@ -542,32 +642,39 @@ function traceOccurPosition(hasFileNameFull) {
 }
 exports.traceOccurPosition = traceOccurPosition;
 
-
 // 호출된 위치에서 상위 call Function List 출력. maxCounter Level 이상이 되면 출력하지 않음
 function debugConsole(maxCounter) {
-  maxCounter = maxCounter == null || maxCounter === '' ? 4 : maxCounter;
-  console.log('@@@@@@@@@@   debugConsole Start    @@@@@@@@@@');
+  maxCounter = isNumberic(maxCounter) ? Number(maxCounter) : 4;
+  console.log(
+    `${colorStart('@@@@@@@@@@')}   debugConsole Start    ${colorStart(
+      '@@@@@@@@@@'
+    )}`
+  );
 
-  getStack().forEach(function (stack, index) {
+  getStack().forEach(function(stack, index) {
     var sourceName = '';
     if (maxCounter < index || index == 0) {
       return;
     }
     // CLI(stack)
-    var fileName = typeof stack.getFileName() === 'string' ? stack.getFileName() : '';
-    // console.trace(fileName);
+    var fileName =
+      typeof stack.getFileName() === 'string' ? stack.getFileName() : '';
+    // console.log(fileName);
     sourceName = fileName.substr(fileName.lastIndexOf('/'));
-    console.log('--S', sourceName, '--L', stack.getLineNumber(), '--F', stack.getFunctionName());
+    console.log(
+      `(${colorFn(stack.getFunctionName())}) ${fileName}:${colorHighlight(
+        stack.getLineNumber()
+      )}`
+    );
   });
 
-  console.log('@@@@@@@@@@   debugConsole End      @@@@@@@@@@');
+  console.log(
+    `${colorEnd('@@@@@@@@@@')}   debugConsole End      ${colorEnd(
+      '@@@@@@@@@@'
+    )}`
+  );
 }
 exports.debugConsole = debugConsole;
-
-
-
-
-
 
 /*****************************************************************************************************************/
 //*************                                     File 관련                                        *************
@@ -578,7 +685,7 @@ function readFile(path, encoding, callback) {
   var fs = require('fs');
   encoding = encoding == null || encoding === '' ? 'utf8' : encoding;
   try {
-    fs.readFile(path, encoding, function (err, data) {
+    fs.readFile(path, encoding, function(err, data) {
       if (err) return callback(err);
       if (callback != null) return callback(err, data);
     });
@@ -607,20 +714,25 @@ function writeFile(path, message, option, callback) {
     // console.log("message",typeof message)
     message = typeof message === 'object' ? JSON.stringify(message) : message;
     // CLI(message);
-    fs.writeFile(path, message, {
-      flag: option
-    }, (err) => {
-      if (err) {
-        if (err.errno === -4058) {
-          let targetDir = err.path.substr(0, err.path.lastIndexOf('\\'));
-          makeDirectory(targetDir, () => {
-            console.error(err);
-            return writeFile(path, message, option, callback);
-          });
+    fs.writeFile(
+      path,
+      message,
+      {
+        flag: option
+      },
+      err => {
+        if (err) {
+          if (err.errno === -4058) {
+            let targetDir = err.path.substr(0, err.path.lastIndexOf('\\'));
+            makeDirectory(targetDir, () => {
+              console.error(err);
+              return writeFile(path, message, option, callback);
+            });
+          }
         }
+        if (callback != null) callback(err);
       }
-      if (callback != null) callback(err);
-    });
+    );
   } catch (e) {
     if (callback != null) callback(e);
   }
@@ -632,14 +744,14 @@ function searchDirectory(path, callback) {
   var fs = require('fs');
   try {
     var returnvalue = [];
-    fs.readdir(path, function (err, files) {
+    fs.readdir(path, function(err, files) {
       if (err) return callback(err);
       if (callback != null) return callback(err, files);
       // console.log('여긴 안오지');
-      files.forEach(function (file) {
+      files.forEach(function(file) {
         returnvalue.push(file);
         // console.log(path + file);
-        fs.stat(path + file, function (err, stats) {
+        fs.stat(path + file, function(err, stats) {
           console.log(stats);
         });
       });
@@ -654,18 +766,18 @@ exports.searchDirectory = searchDirectory;
 function getDirectories(srcpath) {
   var fs = require('fs');
   var path = require('path');
-  return fs.readdirSync(srcpath)
+  return fs
+    .readdirSync(srcpath)
     .filter(file => fs.lstatSync(path.join(srcpath, file)).isDirectory());
 }
 exports.getDirectories = getDirectories;
-
 
 // 디렉토리 생성
 function makeDirectory(path, callback) {
   var mkdirp = require('mkdirp');
   // CLI(path)
   try {
-    mkdirp(path, function (err) {
+    mkdirp(path, function(err) {
       if (err) console.error(err);
       if (callback != null) callback(err);
       console.log('Created newdir', path);
@@ -680,7 +792,7 @@ exports.makeDirectory = makeDirectory;
 function deleteDirectory(path, callback) {
   var fs = require('fs');
   try {
-    fs.rmdir(path, function (err) {
+    fs.rmdir(path, function(err) {
       if (err) console.error(err);
       if (callback != null) callback(err);
       console.log('Removed newdir');
@@ -691,12 +803,12 @@ function deleteDirectory(path, callback) {
 }
 exports.deleteDirectory = deleteDirectory;
 
-
 // 기본 File Function 사용한 버전
 
 // 파일 이어쓰기
 function appendFile(path, message) {
-  var convertMessage = '\r\n\r\n' + convertDateToText(new Date()) + '\r\n' + message + '\r\n';
+  var convertMessage =
+    '\r\n\r\n' + convertDateToText(new Date()) + '\r\n' + message + '\r\n';
   writeFile(path, convertMessage, 'a');
 }
 exports.appendFile = appendFile;
@@ -705,7 +817,8 @@ exports.appendFile = appendFile;
 function logFile(message) {
   // CLI(message);
   var path = process.cwd() + '/log/log.txt';
-  var convertMessage = '\r\n\r\n' + convertDateToText(new Date()) + '\r\n' + message + '\r\n';
+  var convertMessage =
+    '\r\n\r\n' + convertDateToText(new Date()) + '\r\n' + message + '\r\n';
   writeFile(path, convertMessage, 'a');
 }
 exports.logFile = logFile;
@@ -718,8 +831,15 @@ function errorLog(errType, msg, exceptionError) {
   // uncaughtException 예외 발생이 아닐 경우. function 추적 가능
   if (exceptionError == null) {
     var traceObj = traceOccurPosition(this);
-    errInfo = '\t' + traceObj.fileName + ' : ' + traceObj.lineNumber + ' : ' + traceObj.functionName;
-  } else { // uncaughtException 발생할 경우 exception 에서 추적
+    errInfo =
+      '\t' +
+      traceObj.fileName +
+      ' : ' +
+      traceObj.lineNumber +
+      ' : ' +
+      traceObj.functionName;
+  } else {
+    // uncaughtException 발생할 경우 exception 에서 추적
     errInfo = exceptionError.stack.split(/\n/g)[1];
   }
 
@@ -730,7 +850,6 @@ function errorLog(errType, msg, exceptionError) {
   writeFile(errFullPath, message, 'a');
 }
 exports.errorLog = errorLog;
-
 
 /*****************************************************************************************************************/
 //*************                                     Dom 관련                                         *************
@@ -746,8 +865,9 @@ function makePagination({
 }) {
   var returnvalue = '',
     _paginationMaxCount = 10,
-    firstpage = ((parseInt((page - 1) / _paginationMaxCount))) * _paginationMaxCount + 1,
-    finalpage = parseInt(((totalCount - 1) / pageCount + 1)),
+    firstpage =
+      parseInt((page - 1) / _paginationMaxCount) * _paginationMaxCount + 1,
+    finalpage = parseInt((totalCount - 1) / pageCount + 1),
     // endpage = (firstpage + _paginationMaxCount - 1) > finalpage ? finalpage : firstpage + _paginationMaxCount - 1;
     endpage = firstpage + _paginationMaxCount - 1;
 
@@ -755,46 +875,56 @@ function makePagination({
     endpage = finalpage;
   }
 
-
   if (firstpage > 1) {
-    var template = _.template('<a href="<%= pathName %>?page=<%= firstpage-1 %>&<%= querystring %>"><img src="/images/icon3.jpg" width="17px" height="17px" alt="이전" title="이전" /></a>');
+    var template = _.template(
+      '<a href="<%= pathName %>?page=<%= firstpage-1 %>&<%= querystring %>"><img src="/images/icon3.jpg" width="17px" height="17px" alt="이전" title="이전" /></a>'
+    );
     returnvalue += template({
-      'pathName': pathName,
-      'firstpage': firstpage,
-      'querystring': querystring
+      pathName: pathName,
+      firstpage: firstpage,
+      querystring: querystring
     });
   } else {
-    returnvalue += '<a><img src="/images/icon.jpg" width="17px" height="17px"  alt="이전" /></a>';
+    returnvalue +=
+      '<a><img src="/images/icon.jpg" width="17px" height="17px"  alt="이전" /></a>';
   }
 
   for (var i = firstpage; i <= endpage; i++) {
     if (i == page) {
       returnvalue += '<strong><span>' + i + '</span></strong>';
     } else {
-      returnvalue += '<a href=\'' + pathName + '?page=' + i + '&' + querystring + '\'><span>' + i + '</span></a>';
+      returnvalue +=
+        '<a href=\'' +
+        pathName +
+        '?page=' +
+        i +
+        '&' +
+        querystring +
+        '\'><span>' +
+        i +
+        '</span></a>';
     }
   }
 
-
   if (endpage < finalpage) {
-    var template = _.template('<a href="<%= pathName %>?page=<%= endpage + 1 %>&<%= querystring %>"><img src="/images/icon4.jpg" width="17px" height="17px"  alt="다음" /></a>');
+    var template = _.template(
+      '<a href="<%= pathName %>?page=<%= endpage + 1 %>&<%= querystring %>"><img src="/images/icon4.jpg" width="17px" height="17px"  alt="다음" /></a>'
+    );
     returnvalue += template({
-      'pathName': pathName,
-      'endpage': endpage,
-      'querystring': querystring
+      pathName: pathName,
+      endpage: endpage,
+      querystring: querystring
     });
   } else {
-    returnvalue += '<a><img class="page_lst" src="/images/icon2.jpg" width="17px" height="17px" alt="다음" /></a>';
-
+    returnvalue +=
+      '<a><img class="page_lst" src="/images/icon2.jpg" width="17px" height="17px" alt="다음" /></a>';
   }
 
   return returnvalue;
-
 }
 exports.makePagination = makePagination;
 
 function pageNation(page, totalCount, listCount, url, pageField) {
-
   var returnvalue = '';
 
   var _page = parseInt(page);
@@ -806,55 +936,68 @@ function pageNation(page, totalCount, listCount, url, pageField) {
 
   returnvalue += '<div id="pagenation">';
 
-  var firstpage = ((parseInt((_page - 1) / _paginationMaxCount))) * _paginationMaxCount + 1;
+  var firstpage =
+    parseInt((_page - 1) / _paginationMaxCount) * _paginationMaxCount + 1;
   var endpage = firstpage + _paginationMaxCount - 1;
-  var finalpage = ((_totalCount - 1) / _listCount + 1);
+  var finalpage = (_totalCount - 1) / _listCount + 1;
 
-  if (endpage > finalpage)
-    endpage = finalpage;
+  if (endpage > finalpage) endpage = finalpage;
 
   log('pageNation');
 
-
-
   if (firstpage > 1) {
-    returnvalue += '<a href="' + _url + '?page=' + (firstpage - 1) + '&' + _pageField + '"><img src="/images/pn_prev.gif" alt="이전" title="이전" /></a>';
+    returnvalue +=
+      '<a href="' +
+      _url +
+      '?page=' +
+      (firstpage - 1) +
+      '&' +
+      _pageField +
+      '"><img src="/images/pn_prev.gif" alt="이전" title="이전" /></a>';
   } else {
     returnvalue += '<a><img src="/images/pn_prev_off.gif" alt="이전" /></a>';
   }
 
   for (var i = firstpage; i <= endpage; i++) {
-    if (i == _page)
-      returnvalue += '<strong><span>' + i + '</span></strong>';
+    if (i == _page) returnvalue += '<strong><span>' + i + '</span></strong>';
     else
-      returnvalue += '<a href=\'' + _url + '?page=' + i + '&' + _pageField + '\'><span>' + i + '</span></a>';
+      returnvalue +=
+        '<a href=\'' +
+        _url +
+        '?page=' +
+        i +
+        '&' +
+        _pageField +
+        '\'><span>' +
+        i +
+        '</span></a>';
   }
 
   if (endpage < finalpage) {
-    returnvalue += '<a href="' + _url + '?page=' + (endpage + 1) + '&' + _pageField + '"><img src="/images/pn_next.gif" alt="다음" /></a>';
+    returnvalue +=
+      '<a href="' +
+      _url +
+      '?page=' +
+      (endpage + 1) +
+      '&' +
+      _pageField +
+      '"><img src="/images/pn_next.gif" alt="다음" /></a>';
   } else {
-    returnvalue += '<a><img class="page_lst" src="/images/pn_next_off.gif" alt="다음" /></a>';
+    returnvalue +=
+      '<a><img class="page_lst" src="/images/pn_next_off.gif" alt="다음" /></a>';
   }
   returnvalue += '</div>';
 
   return returnvalue;
-
-
 }
 exports.pageNation = pageNation;
 
-
 function getSelected(pvalue, basevalue) {
+  if (pvalue == undefined) pvalue = '';
+  if (basevalue == undefined) basevalue = '';
 
-  if (pvalue == undefined)
-    pvalue = '';
-  if (basevalue == undefined)
-    basevalue = '';
-
-  if (pvalue == null)
-    pvalue = '';
-  if (basevalue == null)
-    basevalue = '';
+  if (pvalue == null) pvalue = '';
+  if (basevalue == null) basevalue = '';
 
   var returnvalue = '';
 
@@ -864,10 +1007,6 @@ function getSelected(pvalue, basevalue) {
   return returnvalue;
 }
 exports.getSelected = getSelected;
-
-
-
-
 
 /*****************************************************************************************************************/
 //*************                                 Common Util 관련                                     *************
@@ -923,19 +1062,16 @@ function transPosition(value, trueValue, falseValue) {
   value = value == null ? '' : value;
   if (typeof value === 'number')
     trueValue = trueValue == null || trueValue == '' ? 0 : trueValue;
-  else
-    trueValue = trueValue == null || trueValue == '' ? '' : trueValue;
+  else trueValue = trueValue == null || trueValue == '' ? '' : trueValue;
 
   falseValue = falseValue == null || falseValue == '' ? value : falseValue;
 
-  if (typeof value == 'boolean')
-    return value ? trueValue : falseValue;
+  if (typeof value == 'boolean') return value ? trueValue : falseValue;
 
-  return (value == trueValue) || value === '' ? trueValue : falseValue;
+  return value == trueValue || value === '' ? trueValue : falseValue;
 }
 exports.transPosition = transPosition;
 // true: !0, str, true    false: [], {}, null, undefined, false, 0, ""
-
 
 // 문자열 자동 채움    /// <returns type="String" />
 /* option(start:앞부분, end:뒷부분) */
@@ -951,19 +1087,17 @@ function autoFillString(str, char, length, option) {
     repeatCount--;
   }
 
-  return transPosition(option, 'start', 'end') === 'start' ? inputChar.concat(str) : str.concat(inputChar);
+  return transPosition(option, 'start', 'end') === 'start'
+    ? inputChar.concat(str)
+    : str.concat(inputChar);
 }
 exports.autoFillString = autoFillString;
-
-
 
 // ReplaceAll   /// <returns type="String" />
 function replaceAll(sValue, param1, param2) {
   return sValue.split(param1).join(param2);
 }
 exports.replaceAll = replaceAll;
-
-
 
 // [], {}, "", undefined, null To true  /// <returns type="Boolean" />
 function isEmpty(obj) {
@@ -993,7 +1127,6 @@ function isEmail(str_value) {
   } else {
     return true;
   }
-
 }
 exports.isEmail = isEmail;
 
@@ -1002,8 +1135,6 @@ function checkIntStr(n) {
   return n >>> 0 === parseFloat(n);
 }
 exports.checkIntStr = checkIntStr;
-
-
 
 // 정해진 배열 크기만큼 유지하면서 Queue 구조로 처리함  /// <returns type="Array" />
 function getArrBoundary(prevArr, newData, arrLength) {
@@ -1022,15 +1153,13 @@ function getArrBoundary(prevArr, newData, arrLength) {
 }
 exports.getArrBoundary = getArrBoundary;
 
-
-
 //순수 숫자로 구성된 JSON인가
 function checkJSONArrNumber(arrData) {
   var returnvalue = true;
   if (!_.isArray(arrData) || _.isEmpty(arrData)) {
     return false;
   }
-  _.forEach(arrData, function (data) {
+  _.forEach(arrData, function(data) {
     if (!_.isNumber(data)) {
       returnvalue = false;
     }
@@ -1048,18 +1177,17 @@ exports.checkJSONArrNumber = checkJSONArrNumber;
 function renameObj(obj, key, newKey) {
   if (_.includes(_.keys(obj), key)) {
     obj[newKey] = _.clone(obj[key], true);
-  
+
     delete obj[key];
   }
-  
+
   return obj;
 }
 exports.renameObj = renameObj;
 
-
 /**
  * 현재 값이 숫자형으로 변환 가능한지 여부
- * @param {*} targetValue 
+ * @param {*} targetValue
  */
 function isNumberic(targetValue) {
   if (
@@ -1067,8 +1195,7 @@ function isNumberic(targetValue) {
     !Number.isNaN(Number(targetValue))
   ) {
     return true;
-  }
-  else false;
+  } else false;
 }
 exports.isNumberic = isNumberic;
 
@@ -1076,14 +1203,17 @@ exports.isNumberic = isNumberic;
 //*************                                 Search or Find 관련                                  *************
 /*****************************************************************************************************************/
 
-
-
 // Array, Object 리스트를 순회하면서 Property가 동일한 Parents 반환
-function findObjListByKeyAndValue(returnArray, object, key, value, isFindArray) {
+function findObjListByKeyAndValue(
+  returnArray,
+  object,
+  key,
+  value,
+  isFindArray
+) {
   isFindArray = isFindArray == '1' ? '1' : '0';
   // 자료형이 배열(Object 포함)이 아닐 경우 종료
-  if (!(object instanceof Array))
-    return;
+  if (!(object instanceof Array)) return;
   // 현재 부모의 Key값 순회
   for (var variable in object) {
     var propertyValue = object[variable];
@@ -1094,8 +1224,7 @@ function findObjListByKeyAndValue(returnArray, object, key, value, isFindArray) 
     if (propertyValue instanceof Array) {
       // Key값이 매칭되고 배열안에 value가 존재할 경우
       if (key === variable && propertyValue.indexOf(value) !== -1) {
-        if (isFindArray === '0')
-          continue;
+        if (isFindArray === '0') continue;
         else if (isFindArray === '1') {
           returnArray.push(object);
           continue;
@@ -1105,22 +1234,26 @@ function findObjListByKeyAndValue(returnArray, object, key, value, isFindArray) 
       returnArray.push(object);
     }
 
-    if ((propertyValue instanceof Array) || (typeof propertyValue === 'object')) {
-      findObjListByKeyAndValue(returnArray, propertyValue, key, value, isFindArray);
+    if (propertyValue instanceof Array || typeof propertyValue === 'object') {
+      findObjListByKeyAndValue(
+        returnArray,
+        propertyValue,
+        key,
+        value,
+        isFindArray
+      );
     }
   }
   return returnArray;
 }
 exports.findObjListByKeyAndValue = findObjListByKeyAndValue;
 
-
-
 /*****************************************************************************************************************/
 //*************                               Type Conversion 관련                                   *************
 /*****************************************************************************************************************/
 
 /**
- * @param {string} str 
+ * @param {string} str
  * @return {boolean}
  */
 function IsJsonString(str) {
@@ -1133,14 +1266,12 @@ function IsJsonString(str) {
 }
 exports.IsJsonString = IsJsonString;
 
-
-var Converter = (function () {
-
-  var ConvertBase = function (num) {
+var Converter = (function() {
+  var ConvertBase = function(num) {
     return {
-      from: function (baseFrom) {
+      from: function(baseFrom) {
         return {
-          to: function (baseTo) {
+          to: function(baseTo) {
             return parseInt(num, baseFrom).toString(baseTo);
           }
         };
@@ -1149,33 +1280,45 @@ var Converter = (function () {
   };
 
   // binary to decimal
-  ConvertBase.bin2dec = function (num) {
-    return ConvertBase(num).from(2).to(10);
+  ConvertBase.bin2dec = function(num) {
+    return ConvertBase(num)
+      .from(2)
+      .to(10);
   };
 
   // binary to hexadecimal
-  ConvertBase.bin2hex = function (num) {
-    return ConvertBase(num).from(2).to(16);
+  ConvertBase.bin2hex = function(num) {
+    return ConvertBase(num)
+      .from(2)
+      .to(16);
   };
 
   // decimal to binary
-  ConvertBase.dec2bin = function (num) {
-    return ConvertBase(num).from(10).to(2);
+  ConvertBase.dec2bin = function(num) {
+    return ConvertBase(num)
+      .from(10)
+      .to(2);
   };
 
   // decimal to hexadecimal
-  ConvertBase.dec2hex = function (num) {
-    return ConvertBase(num).from(10).to(16);
+  ConvertBase.dec2hex = function(num) {
+    return ConvertBase(num)
+      .from(10)
+      .to(16);
   };
 
   // hexadecimal to binary
-  ConvertBase.hex2bin = function (num) {
-    return ConvertBase(num).from(16).to(2);
+  ConvertBase.hex2bin = function(num) {
+    return ConvertBase(num)
+      .from(16)
+      .to(2);
   };
 
   // hexadecimal to decimal
-  ConvertBase.hex2dec = function (num) {
-    return ConvertBase(num).from(16).to(10);
+  ConvertBase.hex2dec = function(num) {
+    return ConvertBase(num)
+      .from(16)
+      .to(10);
   };
 
   //this.ConvertBase = ConvertBase;
@@ -1184,7 +1327,7 @@ var Converter = (function () {
 exports.Converter = Converter;
 
 function convertSpecialChar2String(str) {
-  return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%\_]/g, function (char) {
+  return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%\_]/g, function(char) {
     switch (char) {
     case '\0':
       return '\\0';
@@ -1253,8 +1396,6 @@ function roundUp(val, precision, option) {
 }
 exports.roundUp = roundUp;
 
-
-
 function d2h(d) {
   var returnvalue = d.toString(16);
   if (returnvalue.length == 1) {
@@ -1264,13 +1405,10 @@ function d2h(d) {
 }
 exports.d2h = d2h;
 
-
-
 function h2d(h) {
   return parseInt(h, 16);
 }
 exports.h2d = h2d;
-
 
 //바이너리 파일을 hex 코드로 바꾸어줌
 function bin2hex(s) {
@@ -1284,7 +1422,9 @@ function bin2hex(s) {
   // *     example 2: bin2hex(String.fromCharCode(0x00));
   // *     returns 2: '00'
 
-  var i, l, o = '',
+  var i,
+    l,
+    o = '',
     n;
 
   s += '';
@@ -1297,11 +1437,10 @@ function bin2hex(s) {
 }
 exports.bin2hex = bin2hex;
 
-
 // 10진수(Decimal) To 16진수(Hex) /// <returns type="String" />
 function number2Hex(number) {
   if (number < 0) {
-    number = 0xFFFFFFFF + number + 1;
+    number = 0xffffffff + number + 1;
   }
   return number.toString(16).toUpperCase();
 }
@@ -1317,12 +1456,10 @@ function param2Lowercase(req) {
 }
 exports.param2Lowercase = param2Lowercase;
 
-
 /*****************************************************************************************************************/
 //*************                                  Security 관련                                       *************
 /*****************************************************************************************************************/
 // Make Globally Unique Identifier  /// <returns type="String" />
-
 
 function GUID() {
   // http://www.ietf.org/rfc/rfc4122.txt
@@ -1344,7 +1481,8 @@ exports.GUID = GUID;
 function encryptSha256(text, key) {
   const crypto = require('crypto');
   const secret = key == null || key === '' ? text : key;
-  const hash = crypto.createHmac('sha256', secret)
+  const hash = crypto
+    .createHmac('sha256', secret)
     .update(text)
     .digest('hex');
   return hash;
@@ -1353,7 +1491,7 @@ exports.encryptSha256 = encryptSha256;
 
 /**
  * @description password를 암호화하여 반환. pbkdf2 알고리즘에 의하여 Sha512 알고리즘 사용한 3단계 암호화 기본.
- * @param {String} password 
+ * @param {String} password
  * @param {String} salt
  * @param {function(String)} cb 완성된 암호화 해시 Password를 callback을 통해 반환
  */
@@ -1411,14 +1549,8 @@ function decryptAes(text, key) {
   } catch (error) {
     throw error;
   }
-
 }
 exports.decryptAes = decryptAes;
-
-
-
-
-
 
 ///////////////////////////////////// 이전 버전에서 사용.
 
@@ -1427,7 +1559,6 @@ function Sha256En(value) {
   var signer = crypto.createHash('sha256', new Buffer(value, 'utf8'));
   var result = signer.update(new Buffer(value, 'utf8')).digest('hex');
   return result;
-
 }
 exports.Sha256En = Sha256En;
 
@@ -1455,8 +1586,6 @@ function AESDe(text, Password) {
 }
 exports.AESDe = AESDe;
 
-
-
 /*****************************************************************************************************************/
 //*************                                     db 관련                                        *************
 /*****************************************************************************************************************/
@@ -1469,42 +1598,47 @@ function connectMysqlContinue(dbinfo, callback) {
   returnvalue = mysql.createConnection(dbinfo); // Recreate the connection, since
   // the old one cannot be reused.
 
-  returnvalue.connect(function (err) { // The server is either down
-    if (err) { // or restarting (takes a while sometimes).
+  returnvalue.connect(function(err) {
+    // The server is either down
+    if (err) {
+      // or restarting (takes a while sometimes).
       log('error when connecting to db:', err);
       setTimeout(connectMysqlContinue, 2000); // We introduce a delay before attempting to reconnect,
     } // to avoid a hot loop, and to allow our node script to
     callback(null, returnvalue);
   }); // process asynchronous requests in the meantime.
   // If you're also serving http, display a 503 error.
-  returnvalue.on('error', function (err) {
+  returnvalue.on('error', function(err) {
     log('db error', err);
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      // Connection to the MySQL server is usually
       connectMysqlContinue(dbinfo); // lost due to either server restart, or a
-    } else { // connnection idle timeout (the wait_timeout
+    } else {
+      // connnection idle timeout (the wait_timeout
       throw err; // server variable configures this)
     }
   });
 }
 exports.connectMysqlContinue = connectMysqlContinue;
 
-
 // 특수문자 str 화 /// <returns type="String" />
 function makeSearchField(str) {
-  if (isEmpty(str))
-    return '';
+  if (isEmpty(str)) return '';
   //console.log(convertSpecialChar2String(str));
 
   return convertSpecialChar2String(str);
 }
 exports.makeSearchField = makeSearchField;
 
-
 //DB makeReplaceF
 function MRF(value) {
   var returnvalue = '';
   // console.log("value",value)
-  if ((typeof value !== 'string' && typeof value !== 'number') && isEmpty(value)) {
+  if (
+    typeof value !== 'string' &&
+    typeof value !== 'number' &&
+    isEmpty(value)
+  ) {
     return returnvalue;
   }
   try {
@@ -1517,28 +1651,21 @@ function MRF(value) {
 }
 exports.MRF = MRF;
 
-
-
-
-
-
-
 /*****************************************************************************************************************/
 //*************                              Base Prototype 관련                                     *************
 /*****************************************************************************************************************/
 
 function getStack() {
   var orig = Error.prepareStackTrace;
-  Error.prepareStackTrace = function (_, stack) {
+  Error.prepareStackTrace = function(_, stack) {
     return stack;
   };
-  var err = new Error;
+  var err = new Error();
   Error.captureStackTrace(err, arguments.callee);
   var stack = err.stack;
   Error.prepareStackTrace = orig;
   return stack;
 }
-
 
 // Object.defineProperty(global, '__stack', {
 //   get: function () {
@@ -1573,20 +1700,9 @@ function getStack() {
 //   }
 // });
 
-
-
-
 /*****************************************************************************************************************/
 //*************                                       임시                                           *************
 /*****************************************************************************************************************/
-
-
-
-
-
-
-
-
 
 /*****************************************************************************************************************/
 //*************                                염전 Project 관련                                     *************
@@ -1597,18 +1713,17 @@ function sizeChangeID(data) {
 }
 exports.sizeChangeID = sizeChangeID;
 
-
 function sizeChangeValue(data) {
   var returnvalue = '';
-  if (data == null)
-    return autoFillString(data, '&', 6);
+  if (data == null) return autoFillString(data, '&', 6);
 
   var tempData = data.toString();
 
   if (tempData.indexOf('.') != -1)
-    returnvalue = (Number(tempData).toFixed(5)).toString();
-  else
-    returnvalue = data.toString();
+    returnvalue = Number(tempData)
+      .toFixed(5)
+      .toString();
+  else returnvalue = data.toString();
 
   return autoFillString(returnvalue, '&', 12, 'start');
 }
@@ -1617,11 +1732,9 @@ exports.sizeChangeValue = sizeChangeValue;
 function sizeChangeIsError(Data) {
   var returnvalue = '';
 
-  if (Data == undefined)
-    return returnvalue = '9';
+  if (Data == undefined) return (returnvalue = '9');
 
-  if (Data == '')
-    return returnvalue = '0';
+  if (Data == '') return (returnvalue = '0');
 
   returnvalue = Data;
 
@@ -1645,19 +1758,16 @@ function makeMessage(str) {
 }
 exports.makeMessage = makeMessage;
 
-
-
 // 염전 Map.js SETINFO에서 ID와 일치하는 Name값 추출 ### setJavascript.js 필요  /// <returns type="String" />
 function getFindName(storage, propertyValue) {
   require('./setJavascript.js');
   var returnvalue = '';
-  _.forEach(storage, function (property) {
-    if ((property instanceof Array) && (typeof property !== 'object')) {
+  _.forEach(storage, function(property) {
+    if (property instanceof Array && typeof property !== 'object') {
       var Target = property.findArrayElementById(propertyValue);
       //log(Target)
       //return;
-      if (Target !== null)
-        returnvalue = Target.Name;
+      if (Target !== null) returnvalue = Target.Name;
     }
   });
   return returnvalue;
@@ -1667,42 +1777,46 @@ exports.getFindName = getFindName;
 function requestHttp(url, callback) {
   //CLI("requestHttp",url)
   var http = require('http');
-  http.get(url, function (res) {
-    const statusCode = res.statusCode;
-    const contentType = res.headers['content-type'];
-    var error;
-    if (statusCode !== 200) {
-      error = new Error('Request Failed.\n' +
-        'Status Code:' + statusCode);
-    } else if (!/^application\/json/.test(contentType)) {
-      error = new Error('Invalid content-type.\n' +
-        'Expected application/json but received ' + contentType);
-    }
-    if (error) {
-      //console.log(error.message);
-      // consume response data to free up memory
-      res.resume();
-      return callback(error, parsedData);
-    }
-
-    res.setEncoding('utf8');
-    var rawData = '';
-    res.on('data', function (chunk) {
-      rawData += chunk;
-    });
-    res.on('end', function () {
-      try {
-        var parsedData = JSON.parse(rawData);
-        callback(null, parsedData);
-      } catch (e) {
-        //console.log(e.message);
-        callback(e);
+  http
+    .get(url, function(res) {
+      const statusCode = res.statusCode;
+      const contentType = res.headers['content-type'];
+      var error;
+      if (statusCode !== 200) {
+        error = new Error('Request Failed.\n' + 'Status Code:' + statusCode);
+      } else if (!/^application\/json/.test(contentType)) {
+        error = new Error(
+          'Invalid content-type.\n' +
+            'Expected application/json but received ' +
+            contentType
+        );
       }
+      if (error) {
+        //console.log(error.message);
+        // consume response data to free up memory
+        res.resume();
+        return callback(error, parsedData);
+      }
+
+      res.setEncoding('utf8');
+      var rawData = '';
+      res.on('data', function(chunk) {
+        rawData += chunk;
+      });
+      res.on('end', function() {
+        try {
+          var parsedData = JSON.parse(rawData);
+          callback(null, parsedData);
+        } catch (e) {
+          //console.log(e.message);
+          callback(e);
+        }
+      });
+    })
+    .on('error', function(e) {
+      console.log('Got error:', e);
+      callback(e);
     });
-  }).on('error', function (e) {
-    console.log('Got error:', e);
-    callback(e);
-  });
 }
 exports.requestHttp = requestHttp;
 
@@ -1710,7 +1824,7 @@ exports.requestHttp = requestHttp;
 function makeRequestUrl(findKey, setInfo, callback) {
   var _ = require('underscore');
   var webInfo = setInfo.webServer;
-  var findObj = _.find(webInfo.path, function (value, key) {
+  var findObj = _.find(webInfo.path, function(value, key) {
     return findKey === key;
   });
 
