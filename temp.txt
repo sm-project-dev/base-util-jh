@@ -1,0 +1,56 @@
+-- --------------------------------------------------------
+-- 호스트:                          121.178.249.160
+-- 서버 버전:                        10.3.7-MariaDB - mariadb.org binary distribution
+-- 서버 OS:                        Win64
+-- HeidiSQL 버전:                  9.5.0.5196
+-- --------------------------------------------------------
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+
+
+-- temp_upsas 데이터베이스 구조 내보내기
+CREATE DATABASE IF NOT EXISTS `temp_upsas` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `temp_upsas`;
+
+-- 뷰 temp_upsas.v_member 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_member` (
+	`member_seq` MEDIUMINT(9) NOT NULL COMMENT '회원정보 시퀀스',
+	`main_seq` MEDIUMINT(9) NULL COMMENT 'MAIN 시퀀스',
+	`user_id` VARCHAR(255) NOT NULL COMMENT '아이디' COLLATE 'utf8_general_ci',
+	`pw_salt` VARCHAR(255) NULL COMMENT '암호화소금' COLLATE 'utf8_general_ci',
+	`pw_hash` VARCHAR(255) NULL COMMENT '암호화비밀번호' COLLATE 'utf8_general_ci',
+	`name` VARCHAR(50) NULL COMMENT '이름' COLLATE 'utf8_general_ci',
+	`nick_name` VARCHAR(50) NULL COMMENT '별칭' COLLATE 'utf8_general_ci',
+	`grade` ENUM('admin','manager','owner','guest') NULL COMMENT '회원 등급' COLLATE 'utf8_general_ci',
+	`address` VARCHAR(100) NULL COMMENT '주소' COLLATE 'utf8_general_ci',
+	`tel` VARCHAR(13) NULL COMMENT '전화번호' COLLATE 'utf8_general_ci',
+	`is_deleted` TINYINT(4) NULL COMMENT '삭제여부',
+	`writedate` DATETIME NULL COMMENT '생성일',
+	`updatedate` TIMESTAMP NULL COMMENT '수정일',
+	`weather_location_seq` MEDIUMINT(9) NULL COMMENT '기상청 정보 위치 시퀀스',
+	`uuid` VARCHAR(255) NULL COMMENT 'uuid' COLLATE 'utf8_general_ci',
+	`main_name` VARCHAR(50) NULL COMMENT 'UPSAS 이름' COLLATE 'utf8_general_ci',
+	`main_address` VARCHAR(100) NULL COMMENT '주소' COLLATE 'utf8_general_ci',
+	`main_is_deleted` TINYINT(4) NULL COMMENT '삭제여부',
+	`province` VARCHAR(50) NULL COMMENT '도' COLLATE 'utf8_general_ci',
+	`city` VARCHAR(50) NULL COMMENT '시' COLLATE 'utf8_general_ci',
+	`town` VARCHAR(50) NULL COMMENT '읍' COLLATE 'utf8_general_ci',
+	`latitude` FLOAT NULL COMMENT '위도',
+	`longitude` FLOAT NULL COMMENT '경도',
+	`x` INT(11) NULL COMMENT 'X',
+	`y` INT(11) NULL COMMENT 'Y'
+) ENGINE=MyISAM;
+
+-- 뷰 temp_upsas.v_member 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_member`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`upsas`@`%` SQL SECURITY DEFINER VIEW `v_member` AS select `mem`.`member_seq` AS `member_seq`,`mem`.`main_seq` AS `main_seq`,`mem`.`user_id` AS `user_id`,`mem`.`pw_salt` AS `pw_salt`,`mem`.`pw_hash` AS `pw_hash`,`mem`.`name` AS `name`,`mem`.`nick_name` AS `nick_name`,`mem`.`grade` AS `grade`,`mem`.`address` AS `address`,`mem`.`tel` AS `tel`,`mem`.`is_deleted` AS `is_deleted`,`mem`.`writedate` AS `writedate`,`mem`.`updatedate` AS `updatedate`,`m`.`weather_location_seq` AS `weather_location_seq`,`m`.`uuid` AS `uuid`,`m`.`name` AS `main_name`,`m`.`address` AS `main_address`,`m`.`is_deleted` AS `main_is_deleted`,`wl`.`province` AS `province`,`wl`.`city` AS `city`,`wl`.`town` AS `town`,`wl`.`latitude` AS `latitude`,`wl`.`longitude` AS `longitude`,`wl`.`x` AS `x`,`wl`.`y` AS `y` from ((`member` `mem` join `main` `m` on(`mem`.`main_seq` = `m`.`main_seq`)) join `weather_location` `wl` on(`wl`.`weather_location_seq` = `m`.`weather_location_seq`));
+
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

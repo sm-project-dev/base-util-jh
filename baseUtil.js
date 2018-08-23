@@ -1012,13 +1012,6 @@ exports.getSelected = getSelected;
 //*************                                 Common Util 관련                                     *************
 /*****************************************************************************************************************/
 
-// One Single Quotation --> Two Single Quotation    /// <returns type="String" />
-function MRF(value) {
-  var str_value = value.toString();
-  return str_value.split('\'').join('\'\'');
-}
-exports.MRF = MRF;
-
 // Remove Byte Order Mark. /// <returns type="String" />
 function removeBOM(str, encoding) {
   var returnvalue = '';
@@ -1446,15 +1439,6 @@ function number2Hex(number) {
 }
 exports.number2Hex = number2Hex;
 
-// req.body key 값을 소문자로
-function param2Lowercase(req) {
-  var returnvalue = {};
-  for (param in req.body) {
-    returnvalue[param.toLowerCase()] = req.body[param];
-  }
-  return returnvalue;
-}
-exports.param2Lowercase = param2Lowercase;
 
 /*****************************************************************************************************************/
 //*************                                  Security 관련                                       *************
