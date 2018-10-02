@@ -1,5 +1,5 @@
-'use strict';
-const _ = require('lodash');
+"use strict";
+const _ = require("lodash");
 
 /**
  * 데이터의 평균 값을 산출해주는 클래스
@@ -14,6 +14,8 @@ class AverageStorage {
     this.dataStorage = {};
 
     this.init();
+
+    this.hasCenterAverage = false;
   }
 
   /**
@@ -49,14 +51,13 @@ class AverageStorage {
    * data의 길이가 평균 값 분포군 최대길이에 도달하면 가장 먼저 들어온 리스트 1개 제거
    */
   addData(key, data) {
-    if (data === undefined || data === null || data === '') {
+    if (data === undefined || data === null || data === "") {
       // this.findDataStorage(key).shift();
       return this;
     } else {
       let numData = _.toNumber(data);
       this.dataStorage[key].push(numData);
-      this.dataStorage[key].length > this.maxStorageNumber &&
-        this.findDataStorage(key).shift();
+      this.dataStorage[key].length > this.maxStorageNumber && this.findDataStorage(key).shift();
       return this;
     }
   }
@@ -70,9 +71,17 @@ class AverageStorage {
     let dataStorage = this.findDataStorage(key);
 
     positionNum = _.isNumber(positionNum) ? positionNum : 1;
-    let aver = _.round(_.meanBy(dataStorage), positionNum);
-    // let sum = this.dataStorage[key].reduce((prev, next) => Number(prev) + Number(next));
-    return isNaN(aver) ? null : aver;
+
+    if (this.hasCenterAverage) {
+      let aver = _(dataStorage)
+        .sortBy()
+        .nth(_.floor(_.divide(dataStorage.length, 2)));
+      return isNaN(aver) ? null : aver;
+    } else {
+      let aver = _.round(_.meanBy(dataStorage), positionNum);
+      // let sum = this.dataStorage[key].reduce((prev, next) => Number(prev) + Number(next));
+      return isNaN(aver) ? null : aver;
+    }
   }
 
   getStorage(key) {
@@ -101,6 +110,15 @@ class AverageStorage {
       returnValue[key] = this.getAverage(key);
     });
     return _.clone(returnValue);
+  }
+
+  /**
+   * 데이터에 에러가 발생했다고 판단하여 dataStorage에 있는 값의 표본 1개를 제거하고자 할 경우
+   * @param {string} key 삭제할 key
+   */
+  shiftDataByKey(key) {
+    const foundIt = _.get(this.averageStorage.dataStorage, key, []);
+    Array.isArray(foundIt) && foundIt.length && foundIt.shift();
   }
 
   /**
