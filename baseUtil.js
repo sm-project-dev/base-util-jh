@@ -23,12 +23,8 @@ function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
     // arg 재정의
     //dateTime = dateTime,
     language = charset === undefined || charset === '' ? 'char' : charset,
-    endIndex =
-      wordEndIndex === undefined || wordEndIndex === '' ? 5 : wordEndIndex,
-    startIndex =
-      wordStartIndex === undefined || wordStartIndex === ''
-        ? 0
-        : wordStartIndex,
+    endIndex = wordEndIndex === undefined || wordEndIndex === '' ? 5 : wordEndIndex,
+    startIndex = wordStartIndex === undefined || wordStartIndex === '' ? 0 : wordStartIndex,
     timeTable = [], // date 타임 year ~ sec 순서대로 push
     strTimeTable = [], // 적정 str로 교체
     separates = ''; // 첨가물
@@ -47,12 +43,12 @@ function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
   });
 
   switch (language) {
-  case 'char':
-    separates = ['', '-', '-', ' ', ':', ':'];
-    break;
-  default:
-    separates = ['년', '월', '일', '시', '분', '초'];
-    break;
+    case 'char':
+      separates = ['', '-', '-', ' ', ':', ':'];
+      break;
+    default:
+      separates = ['년', '월', '일', '시', '분', '초'];
+      break;
   }
 
   let hasFirst = true;
@@ -111,15 +107,7 @@ function convertTextToDate(textDate) {
       dateList[index] = Number(dateList[index]);
     }
   });
-  return new Date(
-    dateList[0],
-    dateList[1],
-    dateList[2],
-    dateList[3],
-    dateList[4],
-    dateList[5],
-    0
-  );
+  return new Date(dateList[0], dateList[1], dateList[2], dateList[3], dateList[4], dateList[5], 0);
 }
 exports.convertTextToDate = convertTextToDate;
 
@@ -157,24 +145,14 @@ exports.convert8601TextToDate = convert8601TextToDate;
 // yyyy-mm-dd, yyyy-mmdd, yyyymmdd, yyyymm-dd To yyyy-mm-dd  /// <returns type="String" />
 function convertDateFormat(textDate) {
   try {
-    var frontDate =
-        textDate.split(' ').length === 2 ? textDate.split(' ')[0] : textDate,
+    var frontDate = textDate.split(' ').length === 2 ? textDate.split(' ')[0] : textDate,
       rearDate = textDate.split(' ').length === 2 ? textDate.split(' ')[1] : '',
       year = 0,
       month = 0,
       day = 0,
-      hour =
-        rearDate.split(':')[0] === undefined
-          ? 0
-          : Number(rearDate.split(':')[0]),
-      min =
-        rearDate.split(':')[1] === undefined
-          ? 0
-          : Number(rearDate.split(':')[1]),
-      sec =
-        rearDate.split(':')[2] === undefined
-          ? 0
-          : Number(rearDate.split(':')[2]),
+      hour = rearDate.split(':')[0] === undefined ? 0 : Number(rearDate.split(':')[0]),
+      min = rearDate.split(':')[1] === undefined ? 0 : Number(rearDate.split(':')[1]),
+      sec = rearDate.split(':')[2] === undefined ? 0 : Number(rearDate.split(':')[2]),
       maxDay = 0;
 
     frontDate = frontDate.replace(/-/g, '');
@@ -208,16 +186,14 @@ exports.convertDateFormat = convertDateFormat;
 
 // 두 날짜 사이의 간격 비교 /// <returns type="Object" />
 function calcDateInterval(baseDate, nextDate) {
-  var firstDate =
-      baseDate instanceof Date ? baseDate : convertTextToDate(baseDate),
-    secondDate =
-      nextDate instanceof Date ? nextDate : convertTextToDate(nextDate),
+  var firstDate = baseDate instanceof Date ? baseDate : convertTextToDate(baseDate),
+    secondDate = nextDate instanceof Date ? nextDate : convertTextToDate(nextDate),
     storage = parseInt(firstDate - secondDate) / 1000,
     returnvalue = {
       remainDay: 0,
       remainHour: 0,
       remainMin: 0,
-      remainSec: 0
+      remainSec: 0,
     };
 
   returnvalue.remainDay = parseInt(storage / 60 / 60 / 24);
@@ -256,7 +232,7 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
   // CLI('getBetweenDatePoint', strEndDate, strStartDate, searchType)
   let returnValue = {
     fullTxtPoint: [],
-    shortTxtPoint: []
+    shortTxtPoint: [],
   };
   let endDate = new Date(strEndDate);
   let currDate = new Date(strStartDate);
@@ -269,32 +245,32 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
   let spliceEndIndex = 0;
 
   switch (searchType) {
-  case 'year':
-    spliceEndIndex = spliceStartIndex = 0;
-    currDate.setMonth(0, 1);
-    currDate.setHours(0, 0, 0, 0);
-    break;
-  case 'month':
-    currDate.setDate(1);
-    currDate.setHours(0, 0, 0, 0);
-    spliceEndIndex = spliceStartIndex = 1;
-    break;
-  case 'day':
-    currDate.setHours(0, 0, 0, 0);
-    spliceEndIndex = spliceStartIndex = 2;
-    break;
-  case 'hour':
-    currDate.setHours(5, 0, 0, 0);
-    spliceEndIndex = spliceStartIndex = 3;
-    break;
-  case 'min10':
-  case 'min':
-    currDate.setHours(5, 0, 0, 0);
-    spliceStartIndex = 3;
-    spliceEndIndex = 4;
-    break;
-  default:
-    return false;
+    case 'year':
+      spliceEndIndex = spliceStartIndex = 0;
+      currDate.setMonth(0, 1);
+      currDate.setHours(0, 0, 0, 0);
+      break;
+    case 'month':
+      currDate.setDate(1);
+      currDate.setHours(0, 0, 0, 0);
+      spliceEndIndex = spliceStartIndex = 1;
+      break;
+    case 'day':
+      currDate.setHours(0, 0, 0, 0);
+      spliceEndIndex = spliceStartIndex = 2;
+      break;
+    case 'hour':
+      currDate.setHours(5, 0, 0, 0);
+      spliceEndIndex = spliceStartIndex = 3;
+      break;
+    case 'min10':
+    case 'min':
+      currDate.setHours(5, 0, 0, 0);
+      spliceStartIndex = 3;
+      spliceEndIndex = 4;
+      break;
+    default:
+      return false;
   }
 
   let txtEndDate = convertDateToText(endDate, '', 3, 0);
@@ -327,12 +303,7 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
 
     // 다음 조건 txt 변환
     txtStartDate = convertDateToText(cloneTargetDate, '', spliceEndIndex, 0);
-    txtShortStartDate = convertDateToText(
-      cloneTargetDate,
-      '',
-      spliceEndIndex,
-      spliceStartIndex
-    );
+    txtShortStartDate = convertDateToText(cloneTargetDate, '', spliceEndIndex, spliceStartIndex);
     txtNextDate = convertDateToText(currDate, '', 3, 0);
 
     // BU.CLIS(txtStartDate, txtNextDate, txtEndDate)
@@ -354,45 +325,41 @@ exports.getBetweenDatePoint = getBetweenDatePoint;
 
 function logHeader(traceObj) {
   const occurInfo = `${colorStart(traceObj.fileName)}:${colorHighlight(
-    traceObj.lineNumber
+    traceObj.lineNumber,
   )} ( ${colorFn(traceObj.functionName)} )`;
   const loggerTxt = `${colorStart('-------------')}\t${occurInfo} ${colorStart(
-    convertDateToText(new Date(), 'char', 5, 1)
+    convertDateToText(new Date(), 'char', 5, 1),
   )}`;
   console.log(loggerTxt);
 }
 
 function logOriginalHeader(traceObj) {
-  const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${
-    traceObj.functionName
-  } )`;
+  const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${traceObj.functionName} )`;
   const loggerTxt = `${'-------------'}\t${occurInfo} ${convertDateToText(
     new Date(),
     'char',
     5,
-    1
+    1,
   )}`;
   console.log(loggerTxt);
 }
 
 function logTails(traceObj) {
   const occurInfo = `${colorEnd(traceObj.fileName)}:${colorHighlight(
-    traceObj.lineNumber
+    traceObj.lineNumber,
   )} ( ${colorFn(traceObj.functionName)} )`;
   const loggerTxt = `${colorEnd('=============')}\t${occurInfo} ${colorEnd(
-    convertDateToText(new Date(), 'char', 5, 1)
+    convertDateToText(new Date(), 'char', 5, 1),
   )} `;
   console.log(loggerTxt);
 }
 function logOriginalTails(traceObj) {
-  const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${
-    traceObj.functionName
-  } )`;
+  const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${traceObj.functionName} )`;
   const loggerTxt = `${'============='}\t${occurInfo} ${convertDateToText(
     new Date(),
     'char',
     5,
-    1
+    1,
   )} `;
   console.log(loggerTxt);
 }
@@ -401,9 +368,9 @@ function logOriginalTails(traceObj) {
 function log(...args) {
   var hasFull = process.env.NODE_ENV === 'production' ? false : true;
   var traceObj = traceOccurPosition(hasFull);
-  var occurInfo = `\t${colorStart('-->')} ${colorHighlight(
-    traceObj.fileName
-  )} : ${colorHighlight(traceObj.lineNumber)}`;
+  var occurInfo = `\t${colorStart('-->')} ${colorHighlight(traceObj.fileName)} : ${colorHighlight(
+    traceObj.lineNumber,
+  )}`;
 
   for (let arg of args) {
     process.stdout.write(String(arg));
@@ -456,8 +423,8 @@ function CLINS(inspectDepth, ...args) {
       `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(
         args[argNum],
         true,
-        inspectDepth
-      )}`
+        inspectDepth,
+      )}`,
     );
   }
   logTails(traceObj);
@@ -475,8 +442,8 @@ function CLINSO(inspectDepth, ...args) {
       `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(
         args[argNum],
         true,
-        inspectDepth
-      )}`
+        inspectDepth,
+      )}`,
     );
   }
   logOriginalTails(traceObj);
@@ -491,11 +458,7 @@ function CLIS(...args) {
 
   for (let argNum = 0; argNum < args.length; argNum += 1) {
     console.log(
-      `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(
-        args[argNum],
-        true,
-        10
-      )}`
+      `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, 10)}`,
     );
   }
   logTails(traceObj);
@@ -509,11 +472,7 @@ function CLISO(...args) {
   logOriginalHeader(traceObj);
   for (let argNum = 0; argNum < args.length; argNum += 1) {
     console.log(
-      `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(
-        args[argNum],
-        true,
-        10
-      )}`
+      `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, 10)}`,
     );
   }
   logOriginalTails(traceObj);
@@ -525,11 +484,7 @@ function CLI(...args) {
   var hasFull = process.env.NODE_ENV === 'production' ? false : true;
   var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
-  for (
-    let argNum = 0, argLength = args.length - 1;
-    argNum <= argLength;
-    argNum += 1
-  ) {
+  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
       argNum === argLength
         ? console.log(util.inspect(args[argNum], true, 10))
@@ -547,11 +502,7 @@ function CLIO(...args) {
   var hasFull = process.env.NODE_ENV === 'production' ? false : true;
   var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
-  for (
-    let argNum = 0, argLength = args.length - 1;
-    argNum <= argLength;
-    argNum += 1
-  ) {
+  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
       argNum === argLength
         ? console.log(util.inspect(args[argNum], true, 10))
@@ -568,11 +519,7 @@ exports.CLIO = CLIO;
 function CLIF(...args) {
   var traceObj = traceOccurPosition(true);
   logHeader(traceObj);
-  for (
-    let argNum = 0, argLength = args.length - 1;
-    argNum <= argLength;
-    argNum += 1
-  ) {
+  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
       argNum === argLength
         ? console.log(util.inspect(args[argNum], true, 10))
@@ -589,11 +536,7 @@ exports.CLIF = CLIF;
 function CLIFO(...args) {
   var traceObj = traceOccurPosition(true);
   logOriginalHeader(traceObj);
-  for (
-    let argNum = 0, argLength = args.length - 1;
-    argNum <= argLength;
-    argNum += 1
-  ) {
+  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
       argNum === argLength
         ? console.log(util.inspect(args[argNum], true, 10))
@@ -626,11 +569,7 @@ function traceOccurPosition(hasFileNameFull) {
       index = splitFileName.length - 1;
       var fileName = hasFileNameFull
         ? returnObj.fileName
-        : splitFileName[index - 2] +
-          '/' +
-          splitFileName[index - 1] +
-          '/' +
-          splitFileName[index];
+        : splitFileName[index - 2] + '/' + splitFileName[index - 1] + '/' + splitFileName[index];
       returnObj.fileName = fileName;
     }
     //log(stack.getFunctionName());
@@ -645,11 +584,7 @@ exports.traceOccurPosition = traceOccurPosition;
 // 호출된 위치에서 상위 call Function List 출력. maxCounter Level 이상이 되면 출력하지 않음
 function debugConsole(maxCounter) {
   maxCounter = isNumberic(maxCounter) ? Number(maxCounter) : 4;
-  console.log(
-    `${colorStart('@@@@@@@@@@')}   debugConsole Start    ${colorStart(
-      '@@@@@@@@@@'
-    )}`
-  );
+  console.log(`${colorStart('@@@@@@@@@@')}   debugConsole Start    ${colorStart('@@@@@@@@@@')}`);
 
   getStack().forEach(function(stack, index) {
     var sourceName = '';
@@ -657,22 +592,15 @@ function debugConsole(maxCounter) {
       return;
     }
     // CLI(stack)
-    var fileName =
-      typeof stack.getFileName() === 'string' ? stack.getFileName() : '';
+    var fileName = typeof stack.getFileName() === 'string' ? stack.getFileName() : '';
     // console.log(fileName);
     sourceName = fileName.substr(fileName.lastIndexOf('/'));
     console.log(
-      `(${colorFn(stack.getFunctionName())}) ${fileName}:${colorHighlight(
-        stack.getLineNumber()
-      )}`
+      `(${colorFn(stack.getFunctionName())}) ${fileName}:${colorHighlight(stack.getLineNumber())}`,
     );
   });
 
-  console.log(
-    `${colorEnd('@@@@@@@@@@')}   debugConsole End      ${colorEnd(
-      '@@@@@@@@@@'
-    )}`
-  );
+  console.log(`${colorEnd('@@@@@@@@@@')}   debugConsole End      ${colorEnd('@@@@@@@@@@')}`);
 }
 exports.debugConsole = debugConsole;
 
@@ -718,20 +646,20 @@ function writeFile(path, message, option, callback) {
       path,
       message,
       {
-        flag: option
+        flag: option,
       },
       err => {
         if (err) {
           if (err.errno === -4058) {
             let targetDir = err.path.substr(0, err.path.lastIndexOf('\\'));
             makeDirectory(targetDir, () => {
-              console.error(err);
+              // console.error(err);
               return writeFile(path, message, option, callback);
             });
           }
         }
         if (callback != null) callback(err);
-      }
+      },
     );
   } catch (e) {
     if (callback != null) callback(e);
@@ -807,8 +735,7 @@ exports.deleteDirectory = deleteDirectory;
 
 // 파일 이어쓰기
 function appendFile(path, message) {
-  var convertMessage =
-    '\r\n\r\n' + convertDateToText(new Date()) + '\r\n' + message + '\r\n';
+  var convertMessage = '\r\n\r\n' + convertDateToText(new Date()) + '\r\n' + message + '\r\n';
   writeFile(path, convertMessage, 'a');
 }
 exports.appendFile = appendFile;
@@ -817,8 +744,7 @@ exports.appendFile = appendFile;
 function logFile(message) {
   // CLI(message);
   var path = process.cwd() + '/log/log.txt';
-  var convertMessage =
-    '\r\n\r\n' + convertDateToText(new Date()) + '\r\n' + message + '\r\n';
+  var convertMessage = '\r\n\r\n' + convertDateToText(new Date()) + '\r\n' + message + '\r\n';
   writeFile(path, convertMessage, 'a');
 }
 exports.logFile = logFile;
@@ -832,15 +758,12 @@ function errorLog(errType, msg, exceptionError) {
   if (exceptionError == null) {
     var traceObj = traceOccurPosition(this);
     errInfo =
-      '\t' +
-      traceObj.fileName +
-      ' : ' +
-      traceObj.lineNumber +
-      ' : ' +
-      traceObj.functionName;
+      '\t' + traceObj.fileName + ' : ' + traceObj.lineNumber + ' : ' + traceObj.functionName;
   } else {
     // uncaughtException 발생할 경우 exception 에서 추적
-    errInfo = exceptionError.stack.split(/\n/g)[1];
+    errInfo = _.isString(exceptionError.stack)
+      ? exceptionError.stack.split(/\n/g)[1]
+      : exceptionError;
   }
 
   message = 'Info' + ' : ' + convertDateToText(new Date(), 'char') + '\r\n';
@@ -856,17 +779,10 @@ exports.errorLog = errorLog;
 /*****************************************************************************************************************/
 
 // Page Nation Dom 생성
-function makePagination({
-  page,
-  pathName,
-  querystring,
-  pageCount,
-  totalCount
-}) {
+function makePagination({ page, pathName, querystring, pageCount, totalCount }) {
   var returnvalue = '',
     _paginationMaxCount = 10,
-    firstpage =
-      parseInt((page - 1) / _paginationMaxCount) * _paginationMaxCount + 1,
+    firstpage = parseInt((page - 1) / _paginationMaxCount) * _paginationMaxCount + 1,
     finalpage = parseInt((totalCount - 1) / pageCount + 1),
     // endpage = (firstpage + _paginationMaxCount - 1) > finalpage ? finalpage : firstpage + _paginationMaxCount - 1;
     endpage = firstpage + _paginationMaxCount - 1;
@@ -877,16 +793,15 @@ function makePagination({
 
   if (firstpage > 1) {
     var template = _.template(
-      '<a href="<%= pathName %>?page=<%= firstpage-1 %>&<%= querystring %>"><img src="/images/icon3.jpg" width="17px" height="17px" alt="이전" title="이전" /></a>'
+      '<a href="<%= pathName %>?page=<%= firstpage-1 %>&<%= querystring %>"><img src="/images/icon3.jpg" width="17px" height="17px" alt="이전" title="이전" /></a>',
     );
     returnvalue += template({
       pathName: pathName,
       firstpage: firstpage,
-      querystring: querystring
+      querystring: querystring,
     });
   } else {
-    returnvalue +=
-      '<a><img src="/images/icon.jpg" width="17px" height="17px"  alt="이전" /></a>';
+    returnvalue += '<a><img src="/images/icon.jpg" width="17px" height="17px"  alt="이전" /></a>';
   }
 
   for (var i = firstpage; i <= endpage; i++) {
@@ -894,26 +809,18 @@ function makePagination({
       returnvalue += '<strong><span>' + i + '</span></strong>';
     } else {
       returnvalue +=
-        '<a href=\'' +
-        pathName +
-        '?page=' +
-        i +
-        '&' +
-        querystring +
-        '\'><span>' +
-        i +
-        '</span></a>';
+        "<a href='" + pathName + '?page=' + i + '&' + querystring + "'><span>" + i + '</span></a>';
     }
   }
 
   if (endpage < finalpage) {
     var template = _.template(
-      '<a href="<%= pathName %>?page=<%= endpage + 1 %>&<%= querystring %>"><img src="/images/icon4.jpg" width="17px" height="17px"  alt="다음" /></a>'
+      '<a href="<%= pathName %>?page=<%= endpage + 1 %>&<%= querystring %>"><img src="/images/icon4.jpg" width="17px" height="17px"  alt="다음" /></a>',
     );
     returnvalue += template({
       pathName: pathName,
       endpage: endpage,
-      querystring: querystring
+      querystring: querystring,
     });
   } else {
     returnvalue +=
@@ -936,8 +843,7 @@ function pageNation(page, totalCount, listCount, url, pageField) {
 
   returnvalue += '<div id="pagenation">';
 
-  var firstpage =
-    parseInt((_page - 1) / _paginationMaxCount) * _paginationMaxCount + 1;
+  var firstpage = parseInt((_page - 1) / _paginationMaxCount) * _paginationMaxCount + 1;
   var endpage = firstpage + _paginationMaxCount - 1;
   var finalpage = (_totalCount - 1) / _listCount + 1;
 
@@ -962,15 +868,7 @@ function pageNation(page, totalCount, listCount, url, pageField) {
     if (i == _page) returnvalue += '<strong><span>' + i + '</span></strong>';
     else
       returnvalue +=
-        '<a href=\'' +
-        _url +
-        '?page=' +
-        i +
-        '&' +
-        _pageField +
-        '\'><span>' +
-        i +
-        '</span></a>';
+        "<a href='" + _url + '?page=' + i + '&' + _pageField + "'><span>" + i + '</span></a>';
   }
 
   if (endpage < finalpage) {
@@ -983,8 +881,7 @@ function pageNation(page, totalCount, listCount, url, pageField) {
       _pageField +
       '"><img src="/images/pn_next.gif" alt="다음" /></a>';
   } else {
-    returnvalue +=
-      '<a><img class="page_lst" src="/images/pn_next_off.gif" alt="다음" /></a>';
+    returnvalue += '<a><img class="page_lst" src="/images/pn_next_off.gif" alt="다음" /></a>';
   }
   returnvalue += '</div>';
 
@@ -1018,32 +915,32 @@ function removeBOM(str, encoding) {
   encoding = encoding == null || encoding == '' ? 'UTF-16BE' : encoding;
 
   switch (encoding) {
-  case 'UTF-8':
-    str.replace(/^\uEFBBBF/, '');
-    break;
-  case 'UTF-16BE':
-    str.replace(/^\uFEFF/, '');
-    break;
-  case 'UTF-16LE':
-    str.replace(/^\uFFFE/, '');
-    break;
-  case 'UTF-32BE':
-    str.replace(/^\u0000FEFF/, '');
-    break;
-  case 'UTF-32LE':
-    str.replace(/^\uFFFE0000/, '');
-    break;
-  case 'SCSU':
-    str.replace(/^\u0EFEFF/, '');
-    break;
-  case 'UTF-EBCDIC':
-    str.replace(/^\uDD736673/, '');
-    break;
-  case 'BOCU-1':
-    str.replace(/^\uFBEE28/, '');
-    break;
-  default:
-    break;
+    case 'UTF-8':
+      str.replace(/^\uEFBBBF/, '');
+      break;
+    case 'UTF-16BE':
+      str.replace(/^\uFEFF/, '');
+      break;
+    case 'UTF-16LE':
+      str.replace(/^\uFFFE/, '');
+      break;
+    case 'UTF-32BE':
+      str.replace(/^\u0000FEFF/, '');
+      break;
+    case 'UTF-32LE':
+      str.replace(/^\uFFFE0000/, '');
+      break;
+    case 'SCSU':
+      str.replace(/^\u0EFEFF/, '');
+      break;
+    case 'UTF-EBCDIC':
+      str.replace(/^\uDD736673/, '');
+      break;
+    case 'BOCU-1':
+      str.replace(/^\uFBEE28/, '');
+      break;
+    default:
+      break;
   }
 
   return returnvalue;
@@ -1053,8 +950,7 @@ exports.removeBOM = removeBOM;
 // TransPosition(이항 연산자 Func)   /// <returns type="String" />
 function transPosition(value, trueValue, falseValue) {
   value = value == null ? '' : value;
-  if (typeof value === 'number')
-    trueValue = trueValue == null || trueValue == '' ? 0 : trueValue;
+  if (typeof value === 'number') trueValue = trueValue == null || trueValue == '' ? 0 : trueValue;
   else trueValue = trueValue == null || trueValue == '' ? '' : trueValue;
 
   falseValue = falseValue == null || falseValue == '' ? value : falseValue;
@@ -1197,13 +1093,7 @@ exports.isNumberic = isNumberic;
 /*****************************************************************************************************************/
 
 // Array, Object 리스트를 순회하면서 Property가 동일한 Parents 반환
-function findObjListByKeyAndValue(
-  returnArray,
-  object,
-  key,
-  value,
-  isFindArray
-) {
+function findObjListByKeyAndValue(returnArray, object, key, value, isFindArray) {
   isFindArray = isFindArray == '1' ? '1' : '0';
   // 자료형이 배열(Object 포함)이 아닐 경우 종료
   if (!(object instanceof Array)) return;
@@ -1228,13 +1118,7 @@ function findObjListByKeyAndValue(
     }
 
     if (propertyValue instanceof Array || typeof propertyValue === 'object') {
-      findObjListByKeyAndValue(
-        returnArray,
-        propertyValue,
-        key,
-        value,
-        isFindArray
-      );
+      findObjListByKeyAndValue(returnArray, propertyValue, key, value, isFindArray);
     }
   }
   return returnArray;
@@ -1266,9 +1150,9 @@ var Converter = (function() {
         return {
           to: function(baseTo) {
             return parseInt(num, baseFrom).toString(baseTo);
-          }
+          },
         };
-      }
+      },
     };
   };
 
@@ -1322,25 +1206,25 @@ exports.Converter = Converter;
 function convertSpecialChar2String(str) {
   return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%\_]/g, function(char) {
     switch (char) {
-    case '\0':
-      return '\\0';
-    case '\x08':
-      return '\\b';
-    case '\x09':
-      return '\\t';
-    case '\x1a':
-      return '\\z';
-    case '\n':
-      return '\\n';
-    case '\r':
-      return '\\r';
-    case '"':
-    case '\'':
-    case '\\':
-    case '%':
-      return '\\' + char; // prepends a backslash to backslash, percent,
-    case '_':
-      return '\\' + char; // prepends a backslash to backslash, percent,
+      case '\0':
+        return '\\0';
+      case '\x08':
+        return '\\b';
+      case '\x09':
+        return '\\t';
+      case '\x1a':
+        return '\\z';
+      case '\n':
+        return '\\n';
+      case '\r':
+        return '\\r';
+      case '"':
+      case "'":
+      case '\\':
+      case '%':
+        return '\\' + char; // prepends a backslash to backslash, percent,
+      case '_':
+        return '\\' + char; // prepends a backslash to backslash, percent,
       // and double/single quotes
     }
   });
@@ -1372,17 +1256,17 @@ function roundUp(val, precision, option) {
   //option = option == null || option == "" ? "round" : option;
   var p = Math.pow(10, precision);
   switch (option) {
-  case 'ceil':
-    returnvalue = Math.ceil(val * p);
-    break;
-  case 'round':
-    returnvalue = Math.round(val * p);
-    break;
-  case 'floor':
-    returnvalue = Math.floor(val * p);
-    break;
-  default:
-    returnvalue = Math.round(val * p);
+    case 'ceil':
+      returnvalue = Math.ceil(val * p);
+      break;
+    case 'round':
+      returnvalue = Math.round(val * p);
+      break;
+    case 'floor':
+      returnvalue = Math.floor(val * p);
+      break;
+    default:
+      returnvalue = Math.round(val * p);
   }
 
   return returnvalue / p;
@@ -1438,7 +1322,6 @@ function number2Hex(number) {
   return number.toString(16).toUpperCase();
 }
 exports.number2Hex = number2Hex;
-
 
 /*****************************************************************************************************************/
 //*************                                  Security 관련                                       *************
@@ -1618,16 +1501,12 @@ exports.makeSearchField = makeSearchField;
 function MRF(value) {
   var returnvalue = '';
   // console.log("value",value)
-  if (
-    typeof value !== 'string' &&
-    typeof value !== 'number' &&
-    isEmpty(value)
-  ) {
+  if (typeof value !== 'string' && typeof value !== 'number' && isEmpty(value)) {
     return returnvalue;
   }
   try {
     var str_value = value.toString();
-    returnvalue = str_value.split('\'').join('\'\'');
+    returnvalue = str_value.split("'").join("''");
     return returnvalue.split('\\').join('\\\\');
   } catch (error) {
     return returnvalue;
@@ -1770,9 +1649,7 @@ function requestHttp(url, callback) {
         error = new Error('Request Failed.\n' + 'Status Code:' + statusCode);
       } else if (!/^application\/json/.test(contentType)) {
         error = new Error(
-          'Invalid content-type.\n' +
-            'Expected application/json but received ' +
-            contentType
+          'Invalid content-type.\n' + 'Expected application/json but received ' + contentType,
         );
       }
       if (error) {
