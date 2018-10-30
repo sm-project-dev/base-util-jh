@@ -1,6 +1,6 @@
 -- --------------------------------------------------------
--- 호스트:                          121.178.249.160
--- 서버 버전:                        10.3.7-MariaDB - mariadb.org binary distribution
+-- 호스트:                          sksk.co.vu
+-- 서버 버전:                        10.3.8-MariaDB - mariadb.org binary distribution
 -- 서버 OS:                        Win64
 -- HeidiSQL 버전:                  9.5.0.5196
 -- --------------------------------------------------------
@@ -12,15 +12,200 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 
--- temp_upsas 데이터베이스 구조 내보내기
-CREATE DATABASE IF NOT EXISTS `temp_upsas` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `temp_upsas`;
+-- farm_parallel 데이터베이스 구조 내보내기
+CREATE DATABASE IF NOT EXISTS `farm_parallel` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `farm_parallel`;
 
--- 뷰 temp_upsas.v_member 구조 내보내기
+-- 뷰 farm_parallel.v_dv_data_logger 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_dv_data_logger` (
+	`data_logger_seq` INT(11) NOT NULL COMMENT '데이타 로거 시퀀스',
+	`data_logger_def_seq` INT(11) NOT NULL COMMENT '데이터 로거 개요 시퀀스',
+	`main_seq` INT(11) NULL COMMENT 'MAIN 시퀀스',
+	`dl_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`dl_id` VARCHAR(26) NULL COLLATE 'utf8_general_ci',
+	`dl_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci',
+	`m_name` VARCHAR(50) NULL COMMENT '지역 이름' COLLATE 'utf8_general_ci',
+	`dl_target_code` VARCHAR(10) NULL COMMENT '데이타 로거 식별 번호' COLLATE 'utf8_general_ci',
+	`dld_target_name` VARCHAR(50) NULL COMMENT '데이터 로거를 부를 일반 명칭' COLLATE 'utf8_general_ci',
+	`dld_target_prefix` VARCHAR(15) NULL COMMENT '데이터 로거 접두사(D_WD, D_P, ...)' COLLATE 'utf8_general_ci',
+	`serial_number` VARCHAR(6) NULL COMMENT 'Data Logger에 접속할 수 있는 ID' COLLATE 'utf8_general_ci',
+	`connect_info` LONGTEXT NULL COMMENT '장치 접속 정보' COLLATE 'utf8_general_ci',
+	`protocol_info` LONGTEXT NULL COMMENT '장치 프로토콜 정보' COLLATE 'utf8_general_ci'
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_dv_device_data 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_dv_device_data` (
+	`device_data_seq` INT(11) NOT NULL COMMENT '장치 상태 데이터 시퀀스',
+	`node_seq` INT(11) NOT NULL COMMENT '노드 정보 시퀀스',
+	`str_data` VARCHAR(30) NOT NULL COMMENT 'Open, Close, On, Off ...' COLLATE 'utf8_general_ci',
+	`data_unit` VARCHAR(10) NULL COMMENT 'cm, kWh, m/s, m 등등' COLLATE 'utf8_general_ci',
+	`writedate` DATETIME NOT NULL COMMENT '입력일',
+	`node_id` VARCHAR(26) NOT NULL COLLATE 'utf8_general_ci',
+	`node_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`node_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci',
+	`dl_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`dl_id` VARCHAR(26) NULL COLLATE 'utf8_general_ci',
+	`dl_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci'
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_dv_node 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_dv_node` (
+	`node_seq` INT(11) NOT NULL COMMENT '노드 정보 시퀀스',
+	`node_def_seq` INT(11) NOT NULL COMMENT '노드 개요 정보 시퀀스',
+	`node_class_seq` INT(11) NOT NULL COMMENT '노드 대분류 시퀀스',
+	`data_logger_seq` INT(11) NULL COMMENT '데이타 로거 시퀀스',
+	`main_seq` INT(11) NULL COMMENT 'MAIN 시퀀스',
+	`node_id` VARCHAR(26) NOT NULL COLLATE 'utf8_general_ci',
+	`node_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`node_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci',
+	`dl_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`dl_id` VARCHAR(26) NULL COLLATE 'utf8_general_ci',
+	`dl_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci',
+	`data_unit` VARCHAR(10) NULL COMMENT 'cm, kWh, m/s, m 등등' COLLATE 'utf8_general_ci',
+	`is_sensor` TINYINT(4) NULL COMMENT '센서 여부(0: Device, 1: Sensor)',
+	`data_logger_index` TINYINT(4) NOT NULL COMMENT '해당 센서 데이터의 데이터 로거 인덱스(Default 0)',
+	`n_target_code` VARCHAR(10) NOT NULL COMMENT '노드 ID(001, 002, ...)' COLLATE 'utf8_general_ci',
+	`nd_target_id` VARCHAR(50) NULL COMMENT '사용 목적에 따라 달리 부를 센서 명으로 데이터 Key를 결정' COLLATE 'utf8_general_ci',
+	`nd_target_name` VARCHAR(50) NULL COMMENT '필요시 세부 사용 목적 기술' COLLATE 'utf8_general_ci',
+	`nd_target_prefix` VARCHAR(15) NOT NULL COMMENT '해당 프로젝트에서 쓸 접두사' COLLATE 'utf8_general_ci',
+	`nd_description` VARCHAR(255) NULL COMMENT '노드 데이터 단위에 대한 부연 설명이 필요한 경우' COLLATE 'utf8_general_ci',
+	`nc_target_id` VARCHAR(255) NULL COMMENT '노드를 가르키는 고유 명' COLLATE 'utf8_general_ci',
+	`nc_target_name` VARCHAR(50) NULL COMMENT '장치 명(한글)' COLLATE 'utf8_general_ci',
+	`nc_description` VARCHAR(255) NULL COMMENT '부연 설명이 필요한 경우' COLLATE 'utf8_general_ci'
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_dv_node_profile 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_dv_node_profile` (
+	`node_seq` INT(11) NOT NULL COMMENT '노드 정보 시퀀스',
+	`node_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`node_id` VARCHAR(26) NULL COLLATE 'utf8_general_ci',
+	`node_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci',
+	`target_code` VARCHAR(10) NOT NULL COMMENT '노드 ID(001, 002, ...)' COLLATE 'utf8_general_ci',
+	`data_logger_index` TINYINT(4) NOT NULL COMMENT '해당 센서 데이터의 데이터 로거 인덱스(Default 0)',
+	`dl_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`dl_id` VARCHAR(26) NULL COLLATE 'utf8_general_ci',
+	`nd_target_prefix` VARCHAR(15) NULL COMMENT '해당 프로젝트에서 쓸 접두사' COLLATE 'utf8_general_ci',
+	`nd_target_id` VARCHAR(50) NULL COMMENT '사용 목적에 따라 달리 부를 센서 명으로 데이터 Key를 결정' COLLATE 'utf8_general_ci',
+	`nd_target_name` VARCHAR(50) NULL COMMENT '필요시 세부 사용 목적 기술' COLLATE 'utf8_general_ci',
+	`nc_target_id` VARCHAR(255) NULL COMMENT '노드를 가르키는 고유 명' COLLATE 'utf8_general_ci',
+	`nc_is_sensor` TINYINT(4) NULL COMMENT '센서 여부(0: Device, 1: Sensor)',
+	`nc_target_name` VARCHAR(50) NULL COMMENT '장치 명(한글)' COLLATE 'utf8_general_ci',
+	`nc_data_unit` VARCHAR(10) NULL COMMENT 'cm, kWh, m/s, m 등등' COLLATE 'utf8_general_ci',
+	`nc_description` VARCHAR(255) NULL COMMENT '부연 설명이 필요한 경우' COLLATE 'utf8_general_ci',
+	`m_name` VARCHAR(50) NULL COMMENT '지역 이름' COLLATE 'utf8_general_ci',
+	`node_def_seq` INT(11) NULL COMMENT '노드 개요 정보 시퀀스',
+	`node_class_seq` INT(11) NULL COMMENT '노드 목록 시퀀스',
+	`main_seq` INT(11) NULL COMMENT 'MAIN 시퀀스',
+	`data_logger_seq` INT(11) NULL COMMENT '데이타 로거 시퀀스',
+	`data_logger_def_seq` INT(11) NULL COMMENT '데이터 로거 개요 시퀀스'
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_dv_place 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_dv_place` (
+	`place_seq` INT(11) NOT NULL COMMENT '장소 정보 시퀀스',
+	`place_def_seq` INT(11) NULL COMMENT '장소 개요 정보 시퀀스',
+	`place_class_seq` INT(11) NOT NULL COMMENT '장소 대분류 시퀀스',
+	`main_seq` INT(11) NOT NULL COMMENT 'MAIN 시퀀스',
+	`uuid` VARCHAR(255) NOT NULL COMMENT 'uuid' COLLATE 'utf8_general_ci',
+	`m_name` VARCHAR(50) NULL COMMENT '지역 이름' COLLATE 'utf8_general_ci',
+	`place_id` VARCHAR(26) NULL COLLATE 'utf8_general_ci',
+	`place_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`place_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci',
+	`p_target_code` VARCHAR(10) NULL COMMENT '장소 번호' COLLATE 'utf8_general_ci',
+	`p_target_name` VARCHAR(50) NULL COMMENT '장소 명' COLLATE 'utf8_general_ci',
+	`depth` FLOAT NULL COMMENT '장소 상대적 위치',
+	`place_info` LONGTEXT NULL COMMENT '장소 상세 정보' COLLATE 'utf8_general_ci',
+	`chart_color` VARCHAR(13) NULL COMMENT '차트 색상' COLLATE 'utf8_general_ci',
+	`chart_sort_rank` TINYINT(4) NULL COMMENT '차트 정렬 순위',
+	`pd_target_prefix` VARCHAR(15) NULL COMMENT '장소 접두사' COLLATE 'utf8_general_ci',
+	`pd_target_id` VARCHAR(255) NULL COMMENT '장소 개요 id' COLLATE 'utf8_general_ci',
+	`pd_target_name` VARCHAR(50) NULL COMMENT '이름' COLLATE 'utf8_general_ci',
+	`pc_target_id` VARCHAR(255) NULL COMMENT '장소 id' COLLATE 'utf8_general_ci',
+	`pc_target_name` VARCHAR(50) NULL COMMENT '장소 대분류 명' COLLATE 'utf8_general_ci',
+	`pc_description` VARCHAR(255) NULL COMMENT '장소 분류 설명' COLLATE 'utf8_general_ci'
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_dv_place_relation 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_dv_place_relation` (
+	`place_relation_seq` INT(11) NOT NULL COMMENT '센서 관계 시퀀스',
+	`node_seq` INT(11) NOT NULL COMMENT '노드 정보 시퀀스',
+	`place_seq` INT(11) NOT NULL COMMENT '장소 정보 시퀀스',
+	`node_id` VARCHAR(26) NOT NULL COLLATE 'utf8_general_ci',
+	`node_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`node_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci',
+	`dl_id` VARCHAR(26) NULL COLLATE 'utf8_general_ci',
+	`dl_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci',
+	`place_id` VARCHAR(26) NULL COLLATE 'utf8_general_ci',
+	`place_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`place_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci',
+	`p_target_code` VARCHAR(10) NULL COMMENT '장소 번호' COLLATE 'utf8_general_ci',
+	`p_target_name` VARCHAR(50) NULL COMMENT '장소 명' COLLATE 'utf8_general_ci',
+	`chart_color` VARCHAR(13) NULL COMMENT '차트 색상' COLLATE 'utf8_general_ci',
+	`chart_sort_rank` TINYINT(4) NULL COMMENT '차트 정렬 순위',
+	`pd_target_name` VARCHAR(50) NULL COMMENT '이름' COLLATE 'utf8_general_ci',
+	`nc_target_name` VARCHAR(50) NULL COMMENT '장치 명(한글)' COLLATE 'utf8_general_ci',
+	`nd_target_name` VARCHAR(50) NULL COMMENT '필요시 세부 사용 목적 기술' COLLATE 'utf8_general_ci',
+	`is_sensor` TINYINT(4) NULL COMMENT '센서 여부(0: Device, 1: Sensor)',
+	`nd_target_id` VARCHAR(50) NULL COMMENT '사용 목적에 따라 달리 부를 센서 명으로 데이터 Key를 결정' COLLATE 'utf8_general_ci',
+	`nc_target_id` VARCHAR(255) NULL COMMENT '노드를 가르키는 고유 명' COLLATE 'utf8_general_ci',
+	`serial_number` VARCHAR(6) NULL COMMENT 'Data Logger에 접속할 수 있는 ID' COLLATE 'utf8_general_ci',
+	`main_seq` INT(11) NULL COMMENT 'MAIN 시퀀스',
+	`data_logger_seq` INT(11) NULL COMMENT '데이타 로거 시퀀스'
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_dv_sensor_data 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_dv_sensor_data` (
+	`sensor_data_seq` BIGINT(20) NOT NULL COMMENT '센서 데이터 시퀀스',
+	`node_seq` INT(11) NOT NULL COMMENT '노드 정보 시퀀스',
+	`num_data` FLOAT NOT NULL COMMENT '센서 데이터',
+	`data_unit` VARCHAR(10) NULL COMMENT 'cm, kWh, m/s, m 등등' COLLATE 'utf8_general_ci',
+	`writedate` DATETIME NOT NULL COMMENT '입력일',
+	`node_id` VARCHAR(26) NOT NULL COLLATE 'utf8_general_ci',
+	`node_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`node_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci',
+	`dl_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`dl_id` VARCHAR(26) NULL COLLATE 'utf8_general_ci',
+	`dl_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci'
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_dv_sensor_profile 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_dv_sensor_profile` (
+	`node_seq` INT(11) NOT NULL COMMENT '노드 정보 시퀀스',
+	`node_def_seq` INT(11) NOT NULL COMMENT '노드 개요 정보 시퀀스',
+	`node_class_seq` INT(11) NOT NULL COMMENT '노드 대분류 시퀀스',
+	`data_logger_seq` INT(11) NULL COMMENT '데이타 로거 시퀀스',
+	`main_seq` INT(11) NULL COMMENT 'MAIN 시퀀스',
+	`node_id` VARCHAR(26) NOT NULL COLLATE 'utf8_general_ci',
+	`node_real_id` VARCHAR(38) NULL COLLATE 'utf8_general_ci',
+	`node_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci',
+	`node_data` FLOAT NULL COMMENT '센서 데이터',
+	`writedate` DATETIME NULL COMMENT '입력일',
+	`data_unit` VARCHAR(10) NULL COMMENT 'cm, kWh, m/s, m 등등' COLLATE 'utf8_general_ci',
+	`is_sensor` TINYINT(4) NULL COMMENT '센서 여부(0: Device, 1: Sensor)',
+	`data_logger_index` TINYINT(4) NOT NULL COMMENT '해당 센서 데이터의 데이터 로거 인덱스(Default 0)',
+	`n_target_code` VARCHAR(10) NOT NULL COMMENT '노드 ID(001, 002, ...)' COLLATE 'utf8_general_ci',
+	`nc_target_id` VARCHAR(255) NULL COMMENT '노드를 가르키는 고유 명' COLLATE 'utf8_general_ci',
+	`nc_target_name` VARCHAR(50) NULL COMMENT '장치 명(한글)' COLLATE 'utf8_general_ci',
+	`nc_description` VARCHAR(255) NULL COMMENT '부연 설명이 필요한 경우' COLLATE 'utf8_general_ci',
+	`nd_target_id` VARCHAR(50) NULL COMMENT '사용 목적에 따라 달리 부를 센서 명으로 데이터 Key를 결정' COLLATE 'utf8_general_ci',
+	`nd_target_name` VARCHAR(50) NULL COMMENT '필요시 세부 사용 목적 기술' COLLATE 'utf8_general_ci',
+	`nd_target_prefix` VARCHAR(15) NOT NULL COMMENT '해당 프로젝트에서 쓸 접두사' COLLATE 'utf8_general_ci',
+	`nd_description` VARCHAR(255) NULL COMMENT '노드 데이터 단위에 대한 부연 설명이 필요한 경우' COLLATE 'utf8_general_ci'
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_member 구조 내보내기
 -- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
 CREATE TABLE `v_member` (
-	`member_seq` MEDIUMINT(9) NOT NULL COMMENT '회원정보 시퀀스',
-	`main_seq` MEDIUMINT(9) NULL COMMENT 'MAIN 시퀀스',
+	`member_seq` INT(11) NOT NULL COMMENT '회원정보 시퀀스',
+	`main_seq` INT(11) NULL COMMENT 'MAIN 시퀀스',
 	`user_id` VARCHAR(255) NOT NULL COMMENT '아이디' COLLATE 'utf8_general_ci',
 	`pw_salt` VARCHAR(255) NULL COMMENT '암호화소금' COLLATE 'utf8_general_ci',
 	`pw_hash` VARCHAR(255) NULL COMMENT '암호화비밀번호' COLLATE 'utf8_general_ci',
@@ -32,9 +217,9 @@ CREATE TABLE `v_member` (
 	`is_deleted` TINYINT(4) NULL COMMENT '삭제여부',
 	`writedate` DATETIME NULL COMMENT '생성일',
 	`updatedate` TIMESTAMP NULL COMMENT '수정일',
-	`weather_location_seq` MEDIUMINT(9) NULL COMMENT '기상청 정보 위치 시퀀스',
-	`uuid` VARCHAR(255) NULL COMMENT 'uuid' COLLATE 'utf8_general_ci',
-	`main_name` VARCHAR(50) NULL COMMENT 'UPSAS 이름' COLLATE 'utf8_general_ci',
+	`weather_location_seq` INT(11) NULL COMMENT '기상청 정보 위치 시퀀스',
+	`main_uuid` VARCHAR(255) NOT NULL COMMENT 'uuid' COLLATE 'utf8_general_ci',
+	`main_name` VARCHAR(50) NULL COMMENT '지역 이름' COLLATE 'utf8_general_ci',
 	`main_address` VARCHAR(100) NULL COMMENT '주소' COLLATE 'utf8_general_ci',
 	`main_is_deleted` TINYINT(4) NULL COMMENT '삭제여부',
 	`province` VARCHAR(50) NULL COMMENT '도' COLLATE 'utf8_general_ci',
@@ -46,10 +231,200 @@ CREATE TABLE `v_member` (
 	`y` INT(11) NULL COMMENT 'Y'
 ) ENGINE=MyISAM;
 
--- 뷰 temp_upsas.v_member 구조 내보내기
+-- 뷰 farm_parallel.v_pw_inverter_profile 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_pw_inverter_profile` (
+	`inverter_seq` INT(11) NOT NULL COMMENT '인버터 정보 시퀀스',
+	`target_id` VARCHAR(30) NOT NULL COMMENT '인버터 id' COLLATE 'utf8_general_ci',
+	`target_name` VARCHAR(50) NOT NULL COMMENT '인버터 명' COLLATE 'utf8_general_ci',
+	`target_category` VARCHAR(13) NULL COMMENT '장치 카테고리' COLLATE 'utf8_general_ci',
+	`connect_info` LONGTEXT NULL COMMENT '접속 정보' COLLATE 'utf8_general_ci',
+	`protocol_info` LONGTEXT NULL COMMENT '장치 프로토콜 정보' COLLATE 'utf8_general_ci',
+	`install_place` VARCHAR(50) NULL COMMENT '설치 장소' COLLATE 'utf8_general_ci',
+	`serial_number` VARCHAR(100) NULL COMMENT '고유 코드' COLLATE 'utf8_general_ci',
+	`amount` FLOAT NULL COMMENT '단위: Wh (10:1 Scale)',
+	`director_name` VARCHAR(50) NULL COMMENT '담당자' COLLATE 'utf8_general_ci',
+	`director_tel` VARCHAR(13) NULL COMMENT '연락처' COLLATE 'utf8_general_ci',
+	`chart_color` VARCHAR(13) NULL COMMENT '대시 보드 차트 색상' COLLATE 'utf8_general_ci',
+	`chart_sort_rank` TINYINT(4) NULL COMMENT '대시 보드 차트 정렬 순위',
+	`photovoltaic_seq` INT(11) NULL COMMENT '모듈 세부 정보 시퀀스',
+	`connector_seq` INT(11) NULL COMMENT '접속반 정보 시퀀스',
+	`place_seq` INT(11) NULL COMMENT '장소 정보 시퀀스',
+	`connector_ch` TINYINT(4) NULL COMMENT '접속반 연결 채널',
+	`main_seq` INT(11) NOT NULL COMMENT 'MAIN 시퀀스',
+	`weather_location_seq` INT(11) NULL COMMENT '기상청 정보 위치 시퀀스',
+	`uuid` VARCHAR(255) NOT NULL COMMENT 'uuid' COLLATE 'utf8_general_ci',
+	`name` VARCHAR(50) NULL COMMENT '지역 이름' COLLATE 'utf8_general_ci',
+	`map` LONGTEXT NULL COMMENT '맵 파일 정보' COLLATE 'utf8_general_ci',
+	`address` VARCHAR(100) NULL COMMENT '주소' COLLATE 'utf8_general_ci',
+	`is_deleted` TINYINT(4) NULL COMMENT '삭제여부',
+	`writedate` DATETIME NULL COMMENT '생성일',
+	`updatedate` TIMESTAMP NULL COMMENT '수정일'
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_pw_inverter_status 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_pw_inverter_status` (
+	`place_seq` INT(11) NULL COMMENT '장소 정보 시퀀스',
+	`inverter_data_seq` INT(11) NOT NULL COMMENT '인버터 데이터 시퀀스',
+	`inverter_seq` INT(11) NULL COMMENT '인버터 정보 시퀀스',
+	`pv_v` FLOAT NULL,
+	`pv_a` FLOAT NULL,
+	`pv_kw` FLOAT NULL,
+	`grid_rs_v` FLOAT NULL,
+	`grid_st_v` FLOAT NULL,
+	`grid_tr_v` FLOAT NULL,
+	`grid_r_a` FLOAT NULL,
+	`grid_s_a` FLOAT NULL,
+	`grid_t_a` FLOAT NULL,
+	`line_f` FLOAT NULL COMMENT '라인 주파수',
+	`power_f` FLOAT NULL COMMENT 'Power Factor',
+	`power_kw` FLOAT NULL COMMENT '현재 발전 출력',
+	`power_total_kwh` FLOAT NOT NULL COMMENT '누적 발전량, 단위:kWh',
+	`writedate` DATETIME NOT NULL COMMENT '등록일',
+	`daily_power_kwh` DOUBLE(18,1) NULL,
+	`pv_amount` FLOAT NULL COMMENT '단위: kW (10:1 Scale)',
+	`compose_count` TINYINT(4) NULL COMMENT '직렬구성 개수',
+	`install_place` VARCHAR(50) NULL COMMENT '설치장소' COLLATE 'utf8_general_ci'
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_pw_module_data 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_pw_module_data` (
+	`photovoltaic_seq` INT(11) NOT NULL COMMENT '모듈 세부 정보 시퀀스',
+	`writedate` DATETIME NOT NULL COMMENT '등록일',
+	`avg_amp` DOUBLE(18,1) NULL,
+	`avg_vol` DOUBLE(18,1) NULL,
+	`hour_time` VARCHAR(10) NULL COLLATE 'utf8mb4_general_ci'
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_pw_module_status 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_pw_module_status` (
+	`photovoltaic_seq` INT(11) NOT NULL COMMENT '모듈 세부 정보 시퀀스',
+	`target_id` VARCHAR(6) NOT NULL COMMENT '모듈 id' COLLATE 'utf8_general_ci',
+	`target_name` VARCHAR(50) NOT NULL COMMENT '모듈 명' COLLATE 'utf8_general_ci',
+	`install_place` VARCHAR(50) NOT NULL COMMENT '설치장소' COLLATE 'utf8_general_ci',
+	`module_type` ENUM('단결정','다결정') NOT NULL COMMENT '모듈 타입' COLLATE 'utf8_general_ci',
+	`compose_count` TINYINT(4) NOT NULL COMMENT '직렬구성 개수',
+	`amount` FLOAT NOT NULL COMMENT '단위: kW (10:1 Scale)',
+	`manufacturer` VARCHAR(50) NOT NULL COMMENT '제조사' COLLATE 'utf8_general_ci',
+	`chart_color` VARCHAR(13) NULL COMMENT '대시 보드 차트 색상' COLLATE 'utf8_general_ci',
+	`chart_sort_rank` TINYINT(4) NULL COMMENT '대시 보드 차트 정렬 순위',
+	`connector_ch` TINYINT(4) NULL COMMENT '접속반 연결 채널',
+	`place_seq` INT(11) NULL COMMENT '장소 정보 시퀀스',
+	`amp` FLOAT NULL COMMENT 'A',
+	`vol` FLOAT NULL COMMENT 'V',
+	`writedate` DATETIME NULL COMMENT '등록일'
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_pw_profile 구조 내보내기
+-- VIEW 종속성 오류를 극복하기 위해 임시 테이블을 생성합니다.
+CREATE TABLE `v_pw_profile` (
+	`main_seq` INT(11) NOT NULL COMMENT 'MAIN 시퀀스',
+	`connector_ch` TINYINT(4) NULL COMMENT '접속반 연결 채널',
+	`photovoltaic_seq` INT(11) NULL COMMENT '모듈 세부 정보 시퀀스',
+	`pv_target_id` VARCHAR(6) NULL COMMENT '모듈 id' COLLATE 'utf8_general_ci',
+	`pv_target_name` VARCHAR(50) NULL COMMENT '모듈 명' COLLATE 'utf8_general_ci',
+	`pv_install_place` VARCHAR(50) NULL COMMENT '설치장소' COLLATE 'utf8_general_ci',
+	`pv_module_type` ENUM('단결정','다결정') NULL COMMENT '모듈 타입' COLLATE 'utf8_general_ci',
+	`pv_compose_count` TINYINT(4) NULL COMMENT '직렬구성 개수',
+	`pv_amount` FLOAT NULL COMMENT '단위: kW (10:1 Scale)',
+	`pv_manufacturer` VARCHAR(50) NULL COMMENT '제조사' COLLATE 'utf8_general_ci',
+	`pv_chart_color` VARCHAR(13) NULL COMMENT '대시 보드 차트 색상' COLLATE 'utf8_general_ci',
+	`pv_chart_sort_rank` TINYINT(4) NULL COMMENT '대시 보드 차트 정렬 순위',
+	`connector_seq` INT(11) NULL COMMENT '접속반 정보 시퀀스',
+	`cnt_target_id` VARCHAR(30) NULL COMMENT '접속반 id' COLLATE 'utf8_general_ci',
+	`cnt_target_category` VARCHAR(50) NULL COMMENT '접속반 종류' COLLATE 'utf8_general_ci',
+	`cnt_target_name` VARCHAR(50) NULL COMMENT '접속반 명' COLLATE 'utf8_general_ci',
+	`cnt_connect_info` LONGTEXT NULL COMMENT '장치 접속 정보' COLLATE 'utf8_general_ci',
+	`cnt_protocol_info` LONGTEXT NULL COMMENT '장치 프로토콜 정보' COLLATE 'utf8_general_ci',
+	`cnt_director_name` VARCHAR(50) NULL COMMENT '담당자' COLLATE 'utf8_general_ci',
+	`cnt_director_tel` VARCHAR(13) NULL COMMENT '연락처' COLLATE 'utf8_general_ci',
+	`inverter_seq` INT(11) NULL COMMENT '인버터 정보 시퀀스',
+	`ivt_target_id` VARCHAR(30) NULL COMMENT '인버터 id' COLLATE 'utf8_general_ci',
+	`ivt_target_category` VARCHAR(13) NULL COMMENT '장치 카테고리' COLLATE 'utf8_general_ci',
+	`ivt_target_name` VARCHAR(50) NULL COMMENT '인버터 명' COLLATE 'utf8_general_ci',
+	`ivt_connect_info` LONGTEXT NULL COMMENT '접속 정보' COLLATE 'utf8_general_ci',
+	`ivt_protocol_info` LONGTEXT NULL COMMENT '장치 프로토콜 정보' COLLATE 'utf8_general_ci',
+	`ivt_amount` FLOAT NULL COMMENT '단위: Wh (10:1 Scale)',
+	`ivt_director_name` VARCHAR(50) NULL COMMENT '담당자' COLLATE 'utf8_general_ci',
+	`ivt_director_tel` VARCHAR(13) NULL COMMENT '연락처' COLLATE 'utf8_general_ci',
+	`place_seq` INT(11) NULL COMMENT '장소 정보 시퀀스',
+	`place_id` VARCHAR(26) NULL COLLATE 'utf8_general_ci',
+	`place_name` VARCHAR(61) NULL COLLATE 'utf8_general_ci',
+	`ch_number` BIGINT(21) NULL
+) ENGINE=MyISAM;
+
+-- 뷰 farm_parallel.v_dv_data_logger 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_dv_data_logger`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dv_data_logger` AS select `dl`.`data_logger_seq` AS `data_logger_seq`,`dld`.`data_logger_def_seq` AS `data_logger_def_seq`,`dl`.`main_seq` AS `main_seq`,case when octet_length(`dl`.`target_code`) > 0 then concat(`dld`.`target_prefix`,'_',`dl`.`main_seq`,'_',`dl`.`target_code`) else concat(`dld`.`target_prefix`,'_',`dl`.`main_seq`) end AS `dl_real_id`,case when octet_length(`dl`.`target_code`) > 0 then concat(`dld`.`target_prefix`,'_',`dl`.`target_code`) else concat(`dld`.`target_prefix`) end AS `dl_id`,case when octet_length(`dl`.`target_code`) > 0 then concat(`dld`.`target_name`,' ',`dl`.`target_code`) else concat(`dld`.`target_prefix`) end AS `dl_name`,`m`.`name` AS `m_name`,`dl`.`target_code` AS `dl_target_code`,`dld`.`target_name` AS `dld_target_name`,`dld`.`target_prefix` AS `dld_target_prefix`,`dl`.`serial_number` AS `serial_number`,`dl`.`connect_info` AS `connect_info`,`dl`.`protocol_info` AS `protocol_info` from ((`dv_data_logger` `dl` join `dv_data_logger_def` `dld` on(`dld`.`data_logger_def_seq` = `dl`.`data_logger_def_seq`)) join `main` `m` on(`m`.`main_seq` = `dl`.`main_seq`));
+
+-- 뷰 farm_parallel.v_dv_device_data 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_dv_device_data`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dv_device_data` AS select `dd`.`device_data_seq` AS `device_data_seq`,`dd`.`node_seq` AS `node_seq`,`dd`.`str_data` AS `str_data`,`dn`.`data_unit` AS `data_unit`,`dd`.`writedate` AS `writedate`,`dn`.`node_id` AS `node_id`,`dn`.`node_real_id` AS `node_real_id`,`dn`.`node_name` AS `node_name`,`dn`.`dl_real_id` AS `dl_real_id`,`dn`.`dl_id` AS `dl_id`,`dn`.`dl_name` AS `dl_name` from (`dv_device_data` `dd` join `v_dv_node` `dn` on(`dn`.`node_seq` = `dd`.`node_seq`)) order by `dd`.`device_data_seq` desc;
+
+-- 뷰 farm_parallel.v_dv_node 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_dv_node`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dv_node` AS select `n`.`node_seq` AS `node_seq`,`nd`.`node_def_seq` AS `node_def_seq`,`nc`.`node_class_seq` AS `node_class_seq`,`n`.`data_logger_seq` AS `data_logger_seq`,`dl`.`main_seq` AS `main_seq`,case when octet_length(`n`.`target_code`) > 0 then concat(`nd`.`target_prefix`,'_',`n`.`target_code`) else concat(`nd`.`target_prefix`) end AS `node_id`,case when octet_length(`n`.`target_code`) > 0 then concat(`nd`.`target_prefix`,'_',`dl`.`main_seq`,'_',`n`.`target_code`) else concat(`nd`.`target_prefix`,'_',`dl`.`main_seq`) end AS `node_real_id`,case when octet_length(`n`.`target_code`) > 0 then concat(`nd`.`target_name`,' ',`n`.`target_code`) else concat(`nd`.`target_name`) end AS `node_name`,case when octet_length(`dl`.`target_code`) > 0 then concat(`dld`.`target_prefix`,'_',`dl`.`main_seq`,'_',`dl`.`target_code`) else concat(`dld`.`target_prefix`,'_',`dl`.`main_seq`) end AS `dl_real_id`,case when octet_length(`dl`.`target_code`) > 0 then concat(`dld`.`target_prefix`,'_',`dl`.`target_code`) else concat(`dld`.`target_prefix`) end AS `dl_id`,case when octet_length(`dl`.`target_code`) > 0 then concat(`dld`.`target_name`,' ',`dl`.`target_code`) else concat(`dld`.`target_prefix`) end AS `dl_name`,`nc`.`data_unit` AS `data_unit`,`nc`.`is_sensor` AS `is_sensor`,`n`.`data_logger_index` AS `data_logger_index`,`n`.`target_code` AS `n_target_code`,`nd`.`target_id` AS `nd_target_id`,`nd`.`target_name` AS `nd_target_name`,`nd`.`target_prefix` AS `nd_target_prefix`,`nd`.`description` AS `nd_description`,`nc`.`target_id` AS `nc_target_id`,`nc`.`target_name` AS `nc_target_name`,`nc`.`description` AS `nc_description` from ((((`dv_node` `n` join `dv_node_def` `nd` on(`nd`.`node_def_seq` = `n`.`node_def_seq`)) join `dv_node_class` `nc` on(`nc`.`node_class_seq` = `nd`.`node_class_seq`)) join `dv_data_logger` `dl` on(`dl`.`data_logger_seq` = `n`.`data_logger_seq`)) join `dv_data_logger_def` `dld` on(`dld`.`data_logger_def_seq` = `dl`.`data_logger_def_seq`));
+
+-- 뷰 farm_parallel.v_dv_node_profile 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_dv_node_profile`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dv_node_profile` AS select `n`.`node_seq` AS `node_seq`,case when octet_length(`n`.`target_code`) > 0 then concat(`nd`.`target_prefix`,'_',`vddl`.`main_seq`,'_',`n`.`target_code`) else concat(`nd`.`target_prefix`,'_',`vddl`.`main_seq`) end AS `node_real_id`,case when octet_length(`n`.`target_code`) > 0 then concat(`nd`.`target_prefix`,'_',`n`.`target_code`) else concat(`nd`.`target_prefix`) end AS `node_id`,case when octet_length(`n`.`target_code`) > 0 then concat(`nd`.`target_name`,'_',`n`.`target_code`) else concat(`nd`.`target_name`) end AS `node_name`,`n`.`target_code` AS `target_code`,`n`.`data_logger_index` AS `data_logger_index`,`vddl`.`dl_real_id` AS `dl_real_id`,`vddl`.`dl_id` AS `dl_id`,`nd`.`target_prefix` AS `nd_target_prefix`,`nd`.`target_id` AS `nd_target_id`,`nd`.`target_name` AS `nd_target_name`,`nc`.`target_id` AS `nc_target_id`,`nc`.`is_sensor` AS `nc_is_sensor`,`nc`.`target_name` AS `nc_target_name`,`nc`.`data_unit` AS `nc_data_unit`,`nc`.`description` AS `nc_description`,`vddl`.`m_name` AS `m_name`,`nd`.`node_def_seq` AS `node_def_seq`,`nd`.`node_class_seq` AS `node_class_seq`,`vddl`.`main_seq` AS `main_seq`,`vddl`.`data_logger_seq` AS `data_logger_seq`,`vddl`.`data_logger_def_seq` AS `data_logger_def_seq` from (((`dv_node` `n` left join `dv_node_def` `nd` on(`nd`.`node_def_seq` = `n`.`node_def_seq`)) left join `dv_node_class` `nc` on(`nc`.`node_class_seq` = `nd`.`node_class_seq`)) left join `v_dv_data_logger` `vddl` on(`vddl`.`data_logger_seq` = `n`.`data_logger_seq`));
+
+-- 뷰 farm_parallel.v_dv_place 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_dv_place`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dv_place` AS select `p`.`place_seq` AS `place_seq`,`p`.`place_def_seq` AS `place_def_seq`,`pc`.`place_class_seq` AS `place_class_seq`,`m`.`main_seq` AS `main_seq`,`m`.`uuid` AS `uuid`,`m`.`name` AS `m_name`,case when octet_length(`p`.`target_code`) > 0 then concat(`pd`.`target_prefix`,'_',`p`.`target_code`) else concat(`pd`.`target_prefix`) end AS `place_id`,case when octet_length(`p`.`target_code`) > 0 then concat(`pd`.`target_prefix`,'_',`m`.`main_seq`,'_',`p`.`target_code`) else concat(`pd`.`target_prefix`,'_',`m`.`main_seq`) end AS `place_real_id`,case when octet_length(`p`.`target_code`) > 0 then concat(`pd`.`target_name`,' ',`p`.`target_code`) else concat(`pd`.`target_name`) end AS `place_name`,`p`.`target_code` AS `p_target_code`,`p`.`target_name` AS `p_target_name`,`p`.`depth` AS `depth`,`p`.`place_info` AS `place_info`,`p`.`chart_color` AS `chart_color`,`p`.`chart_sort_rank` AS `chart_sort_rank`,`pd`.`target_prefix` AS `pd_target_prefix`,`pd`.`target_id` AS `pd_target_id`,`pd`.`target_name` AS `pd_target_name`,`pc`.`target_id` AS `pc_target_id`,`pc`.`target_name` AS `pc_target_name`,`pc`.`description` AS `pc_description` from (((`dv_place` `p` join `dv_place_def` `pd` on(`pd`.`place_def_seq` = `p`.`place_def_seq`)) join `dv_place_class` `pc` on(`pc`.`place_class_seq` = `pd`.`place_class_seq`)) join `main` `m` on(`m`.`main_seq` = `p`.`main_seq`));
+
+-- 뷰 farm_parallel.v_dv_place_relation 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_dv_place_relation`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dv_place_relation` AS select `dpr`.`place_relation_seq` AS `place_relation_seq`,`dpr`.`node_seq` AS `node_seq`,`dpr`.`place_seq` AS `place_seq`,`vdn`.`node_id` AS `node_id`,`vdn`.`node_real_id` AS `node_real_id`,`vdn`.`node_name` AS `node_name`,`vddl`.`dl_id` AS `dl_id`,`vddl`.`dl_name` AS `dl_name`,`vdp`.`place_id` AS `place_id`,`vdp`.`place_real_id` AS `place_real_id`,`vdp`.`place_name` AS `place_name`,`vdp`.`p_target_code` AS `p_target_code`,`vdp`.`p_target_name` AS `p_target_name`,`vdp`.`chart_color` AS `chart_color`,`vdp`.`chart_sort_rank` AS `chart_sort_rank`,`vdp`.`pd_target_name` AS `pd_target_name`,`vdn`.`nc_target_name` AS `nc_target_name`,`vdn`.`nd_target_name` AS `nd_target_name`,`vdn`.`is_sensor` AS `is_sensor`,`vdn`.`nd_target_id` AS `nd_target_id`,`vdn`.`nc_target_id` AS `nc_target_id`,`vddl`.`serial_number` AS `serial_number`,`vdn`.`main_seq` AS `main_seq`,`vdn`.`data_logger_seq` AS `data_logger_seq` from (((`dv_place_relation` `dpr` join `v_dv_place` `vdp` on(`vdp`.`place_seq` = `dpr`.`place_seq`)) join `v_dv_node` `vdn` on(`vdn`.`node_seq` = `dpr`.`node_seq`)) join `v_dv_data_logger` `vddl` on(`vddl`.`data_logger_seq` = `vdn`.`data_logger_seq`));
+
+-- 뷰 farm_parallel.v_dv_sensor_data 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_dv_sensor_data`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dv_sensor_data` AS select `sd`.`sensor_data_seq` AS `sensor_data_seq`,`sd`.`node_seq` AS `node_seq`,`sd`.`num_data` AS `num_data`,`dn`.`data_unit` AS `data_unit`,`sd`.`writedate` AS `writedate`,`dn`.`node_id` AS `node_id`,`dn`.`node_real_id` AS `node_real_id`,`dn`.`node_name` AS `node_name`,`dn`.`dl_real_id` AS `dl_real_id`,`dn`.`dl_id` AS `dl_id`,`dn`.`dl_name` AS `dl_name` from (`dv_sensor_data` `sd` join `v_dv_node` `dn` on(`dn`.`node_seq` = `sd`.`node_seq`)) order by `sd`.`sensor_data_seq` desc;
+
+-- 뷰 farm_parallel.v_dv_sensor_profile 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_dv_sensor_profile`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dv_sensor_profile` AS select `n`.`node_seq` AS `node_seq`,`nd`.`node_def_seq` AS `node_def_seq`,`nc`.`node_class_seq` AS `node_class_seq`,`n`.`data_logger_seq` AS `data_logger_seq`,`dl`.`main_seq` AS `main_seq`,case when octet_length(`n`.`target_code`) > 0 then concat(`nd`.`target_prefix`,'_',`n`.`target_code`) else concat(`nd`.`target_prefix`) end AS `node_id`,case when octet_length(`n`.`target_code`) > 0 then concat(`nd`.`target_prefix`,'_',`dl`.`main_seq`,'_',`n`.`target_code`) else concat(`nd`.`target_prefix`,'_',`dl`.`main_seq`) end AS `node_real_id`,case when octet_length(`n`.`target_code`) > 0 then concat(`nd`.`target_name`,' ',`n`.`target_code`) else concat(`nd`.`target_name`) end AS `node_name`,`r_dsd`.`num_data` AS `node_data`,`r_dsd`.`writedate` AS `writedate`,`nc`.`data_unit` AS `data_unit`,`nc`.`is_sensor` AS `is_sensor`,`n`.`data_logger_index` AS `data_logger_index`,`n`.`target_code` AS `n_target_code`,`nc`.`target_id` AS `nc_target_id`,`nc`.`target_name` AS `nc_target_name`,`nc`.`description` AS `nc_description`,`nd`.`target_id` AS `nd_target_id`,`nd`.`target_name` AS `nd_target_name`,`nd`.`target_prefix` AS `nd_target_prefix`,`nd`.`description` AS `nd_description` from ((((`farm_parallel`.`dv_node` `n` join `farm_parallel`.`dv_node_def` `nd` on(`nd`.`node_def_seq` = `n`.`node_def_seq`)) join `farm_parallel`.`dv_node_class` `nc` on(`nc`.`node_class_seq` = `nd`.`node_class_seq`)) join `farm_parallel`.`dv_data_logger` `dl` on(`dl`.`data_logger_seq` = `n`.`data_logger_seq`)) left join (select `dsd`.`node_seq` AS `node_seq`,`dsd`.`num_data` AS `num_data`,`dsd`.`writedate` AS `writedate` from (`farm_parallel`.`dv_sensor_data` `dsd` join (select max(`farm_parallel`.`dv_sensor_data`.`sensor_data_seq`) AS `sensor_data_seq` from `farm_parallel`.`dv_sensor_data` group by `farm_parallel`.`dv_sensor_data`.`node_seq`) `temp` on(`dsd`.`sensor_data_seq` = `temp`.`sensor_data_seq`))) `r_dsd` on(`r_dsd`.`node_seq` = `n`.`node_seq`));
+
+-- 뷰 farm_parallel.v_member 구조 내보내기
 -- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
 DROP TABLE IF EXISTS `v_member`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`upsas`@`%` SQL SECURITY DEFINER VIEW `v_member` AS select `mem`.`member_seq` AS `member_seq`,`mem`.`main_seq` AS `main_seq`,`mem`.`user_id` AS `user_id`,`mem`.`pw_salt` AS `pw_salt`,`mem`.`pw_hash` AS `pw_hash`,`mem`.`name` AS `name`,`mem`.`nick_name` AS `nick_name`,`mem`.`grade` AS `grade`,`mem`.`address` AS `address`,`mem`.`tel` AS `tel`,`mem`.`is_deleted` AS `is_deleted`,`mem`.`writedate` AS `writedate`,`mem`.`updatedate` AS `updatedate`,`m`.`weather_location_seq` AS `weather_location_seq`,`m`.`uuid` AS `uuid`,`m`.`name` AS `main_name`,`m`.`address` AS `main_address`,`m`.`is_deleted` AS `main_is_deleted`,`wl`.`province` AS `province`,`wl`.`city` AS `city`,`wl`.`town` AS `town`,`wl`.`latitude` AS `latitude`,`wl`.`longitude` AS `longitude`,`wl`.`x` AS `x`,`wl`.`y` AS `y` from ((`member` `mem` join `main` `m` on(`mem`.`main_seq` = `m`.`main_seq`)) join `weather_location` `wl` on(`wl`.`weather_location_seq` = `m`.`weather_location_seq`));
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_member` AS select `mem`.`member_seq` AS `member_seq`,`mem`.`main_seq` AS `main_seq`,`mem`.`user_id` AS `user_id`,`mem`.`pw_salt` AS `pw_salt`,`mem`.`pw_hash` AS `pw_hash`,`mem`.`name` AS `name`,`mem`.`nick_name` AS `nick_name`,`mem`.`grade` AS `grade`,`mem`.`address` AS `address`,`mem`.`tel` AS `tel`,`mem`.`is_deleted` AS `is_deleted`,`mem`.`writedate` AS `writedate`,`mem`.`updatedate` AS `updatedate`,`m`.`weather_location_seq` AS `weather_location_seq`,`m`.`uuid` AS `main_uuid`,`m`.`name` AS `main_name`,`m`.`address` AS `main_address`,`m`.`is_deleted` AS `main_is_deleted`,`wl`.`province` AS `province`,`wl`.`city` AS `city`,`wl`.`town` AS `town`,`wl`.`latitude` AS `latitude`,`wl`.`longitude` AS `longitude`,`wl`.`x` AS `x`,`wl`.`y` AS `y` from ((`member` `mem` join `main` `m` on(`mem`.`main_seq` = `m`.`main_seq`)) join `wc_weather_location` `wl` on(`wl`.`weather_location_seq` = `m`.`weather_location_seq`));
+
+-- 뷰 farm_parallel.v_pw_inverter_profile 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_pw_inverter_profile`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_pw_inverter_profile` AS select `ivt`.`inverter_seq` AS `inverter_seq`,`ivt`.`target_id` AS `target_id`,`ivt`.`target_name` AS `target_name`,`ivt`.`target_category` AS `target_category`,`ivt`.`connect_info` AS `connect_info`,`ivt`.`protocol_info` AS `protocol_info`,`ivt`.`install_place` AS `install_place`,`ivt`.`serial_number` AS `serial_number`,`ivt`.`amount` AS `amount`,`ivt`.`director_name` AS `director_name`,`ivt`.`director_tel` AS `director_tel`,`ivt`.`chart_color` AS `chart_color`,`ivt`.`chart_sort_rank` AS `chart_sort_rank`,`rp`.`photovoltaic_seq` AS `photovoltaic_seq`,`rp`.`connector_seq` AS `connector_seq`,`rp`.`place_seq` AS `place_seq`,`rp`.`connector_ch` AS `connector_ch`,`m`.`main_seq` AS `main_seq`,`m`.`weather_location_seq` AS `weather_location_seq`,`m`.`uuid` AS `uuid`,`m`.`name` AS `name`,`m`.`map` AS `map`,`m`.`address` AS `address`,`m`.`is_deleted` AS `is_deleted`,`m`.`writedate` AS `writedate`,`m`.`updatedate` AS `updatedate` from ((`pw_inverter` `ivt` left join `pw_relation_power` `rp` on(`rp`.`inverter_seq` = `ivt`.`inverter_seq`)) join `main` `m` on(`m`.`main_seq` = `rp`.`main_seq`));
+
+-- 뷰 farm_parallel.v_pw_inverter_status 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_pw_inverter_status`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_pw_inverter_status` AS select `rp`.`place_seq` AS `place_seq`,`id`.`inverter_data_seq` AS `inverter_data_seq`,`id`.`inverter_seq` AS `inverter_seq`,`id`.`pv_v` AS `pv_v`,`id`.`pv_a` AS `pv_a`,`id`.`pv_kw` AS `pv_kw`,`id`.`grid_rs_v` AS `grid_rs_v`,`id`.`grid_st_v` AS `grid_st_v`,`id`.`grid_tr_v` AS `grid_tr_v`,`id`.`grid_r_a` AS `grid_r_a`,`id`.`grid_s_a` AS `grid_s_a`,`id`.`grid_t_a` AS `grid_t_a`,`id`.`line_f` AS `line_f`,`id`.`power_f` AS `power_f`,`id`.`power_kw` AS `power_kw`,`id`.`power_total_kwh` AS `power_total_kwh`,`id`.`writedate` AS `writedate`,round(`id`.`power_total_kwh` - (select max(`pw_inverter_data`.`power_total_kwh`) from `pw_inverter_data` where `pw_inverter_data`.`inverter_seq` = `id`.`inverter_seq` and `pw_inverter_data`.`writedate` >= curdate() - 1 and `pw_inverter_data`.`writedate` < curdate()),1) AS `daily_power_kwh`,`pv`.`amount` AS `pv_amount`,`pv`.`compose_count` AS `compose_count`,`pv`.`install_place` AS `install_place` from (((`pw_inverter_data` `id` left join `pw_inverter` on(`pw_inverter`.`inverter_seq` = `id`.`inverter_seq`)) left join `pw_relation_power` `rp` on(`rp`.`inverter_seq` = `id`.`inverter_seq`)) left join `pw_photovoltaic` `pv` on(`pv`.`photovoltaic_seq` = `rp`.`photovoltaic_seq`)) where `id`.`inverter_data_seq` in (select max(`pw_inverter_data`.`inverter_data_seq`) from `pw_inverter_data` group by `pw_inverter_data`.`inverter_seq`) order by `pw_inverter`.`chart_sort_rank`;
+
+-- 뷰 farm_parallel.v_pw_module_data 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_pw_module_data`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_pw_module_data` AS select `md`.`photovoltaic_seq` AS `photovoltaic_seq`,`md`.`writedate` AS `writedate`,round(avg(`md`.`amp`),1) AS `avg_amp`,round(avg(`md`.`vol`),1) AS `avg_vol`,date_format(`md`.`writedate`,'%H-%i') AS `hour_time` from `pw_module_data` `md` group by date_format(`md`.`writedate`,'%Y-%m-%d %H-%i'),`md`.`photovoltaic_seq` order by `md`.`writedate` desc,`md`.`photovoltaic_seq`;
+
+-- 뷰 farm_parallel.v_pw_module_status 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_pw_module_status`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_pw_module_status` AS select `pv`.`photovoltaic_seq` AS `photovoltaic_seq`,`pv`.`target_id` AS `target_id`,`pv`.`target_name` AS `target_name`,`pv`.`install_place` AS `install_place`,`pv`.`module_type` AS `module_type`,`pv`.`compose_count` AS `compose_count`,`pv`.`amount` AS `amount`,`pv`.`manufacturer` AS `manufacturer`,`pv`.`chart_color` AS `chart_color`,`pv`.`chart_sort_rank` AS `chart_sort_rank`,`rp`.`connector_ch` AS `connector_ch`,`rp`.`place_seq` AS `place_seq`,`curr_data`.`amp` AS `amp`,`curr_data`.`vol` AS `vol`,`curr_data`.`writedate` AS `writedate` from (((`farm_parallel`.`pw_photovoltaic` `pv` join `farm_parallel`.`pw_relation_power` `rp` on(`rp`.`photovoltaic_seq` = `pv`.`photovoltaic_seq`)) left join `farm_parallel`.`dv_place` `dp` on(`dp`.`place_seq` = `rp`.`place_seq`)) left join (select `md`.`photovoltaic_seq` AS `photovoltaic_seq`,`md`.`amp` AS `amp`,`md`.`vol` AS `vol`,`md`.`writedate` AS `writedate` from (`farm_parallel`.`pw_module_data` `md` join (select max(`farm_parallel`.`pw_module_data`.`module_data_seq`) AS `module_data_seq` from `farm_parallel`.`pw_module_data` group by `farm_parallel`.`pw_module_data`.`photovoltaic_seq`) `b` on(`md`.`module_data_seq` = `b`.`module_data_seq`))) `curr_data` on(`curr_data`.`photovoltaic_seq` = `pv`.`photovoltaic_seq`)) order by `pv`.`chart_sort_rank`;
+
+-- 뷰 farm_parallel.v_pw_profile 구조 내보내기
+-- 임시 테이블을 제거하고 최종 VIEW 구조를 생성
+DROP TABLE IF EXISTS `v_pw_profile`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_pw_profile` AS select `rp`.`main_seq` AS `main_seq`,`rp`.`connector_ch` AS `connector_ch`,`pv`.`photovoltaic_seq` AS `photovoltaic_seq`,`pv`.`target_id` AS `pv_target_id`,`pv`.`target_name` AS `pv_target_name`,`pv`.`install_place` AS `pv_install_place`,`pv`.`module_type` AS `pv_module_type`,`pv`.`compose_count` AS `pv_compose_count`,`pv`.`amount` AS `pv_amount`,`pv`.`manufacturer` AS `pv_manufacturer`,`pv`.`chart_color` AS `pv_chart_color`,`pv`.`chart_sort_rank` AS `pv_chart_sort_rank`,`cnt`.`connector_seq` AS `connector_seq`,`cnt`.`target_id` AS `cnt_target_id`,`cnt`.`target_category` AS `cnt_target_category`,`cnt`.`target_name` AS `cnt_target_name`,`cnt`.`connect_info` AS `cnt_connect_info`,`cnt`.`protocol_info` AS `cnt_protocol_info`,`cnt`.`director_name` AS `cnt_director_name`,`cnt`.`director_tel` AS `cnt_director_tel`,`ivt`.`inverter_seq` AS `inverter_seq`,`ivt`.`target_id` AS `ivt_target_id`,`ivt`.`target_category` AS `ivt_target_category`,`ivt`.`target_name` AS `ivt_target_name`,`ivt`.`connect_info` AS `ivt_connect_info`,`ivt`.`protocol_info` AS `ivt_protocol_info`,`ivt`.`amount` AS `ivt_amount`,`ivt`.`director_name` AS `ivt_director_name`,`ivt`.`director_tel` AS `ivt_director_tel`,`vdp`.`place_seq` AS `place_seq`,`vdp`.`place_id` AS `place_id`,`vdp`.`place_name` AS `place_name`,(select count(0) from `pw_relation_power` where `cnt`.`connector_seq` = `pw_relation_power`.`connector_seq`) AS `ch_number` from ((((`pw_relation_power` `rp` left join `pw_photovoltaic` `pv` on(`pv`.`photovoltaic_seq` = `rp`.`photovoltaic_seq`)) left join `pw_inverter` `ivt` on(`ivt`.`inverter_seq` = `rp`.`inverter_seq`)) left join `pw_connector` `cnt` on(`cnt`.`connector_seq` = `rp`.`connector_seq`)) left join `v_dv_place` `vdp` on(`vdp`.`place_seq` = `rp`.`place_seq`)) order by `pv`.`chart_sort_rank`;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

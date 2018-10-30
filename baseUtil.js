@@ -2,6 +2,12 @@ const util = require('util');
 const _ = require('lodash');
 const chalk = require('chalk');
 
+const Promise = require('bluebird');
+const path = require('path');
+const fs = require('fs');
+var mkdirp = require('mkdirp');
+const crypto = require('crypto');
+
 const colorTxt = chalk.bold.keyword('purple');
 const colorStart = chalk.bold.green;
 const colorEnd = chalk.bold.hex('#506dff');
@@ -610,7 +616,6 @@ exports.debugConsole = debugConsole;
 
 // 파일 읽기    /// <returns type="callback(Boolean, String)" />
 function readFile(path, encoding, callback) {
-  var fs = require('fs');
   encoding = encoding == null || encoding === '' ? 'utf8' : encoding;
   try {
     fs.readFile(path, encoding, function(err, data) {
@@ -635,41 +640,38 @@ exports.readFile = readFile;
 //encoding <String> | <Null> default = 'utf8'
 //mode <Integer> default = 0o666
 //flag <String> default = 'w'
-function writeFile(path, message, option, callback) {
-  var fs = require('fs');
+/**
+ *
+ * @param {string} path
+ * @param {string} message
+ * @param {*} option
+ * @return {Promise.<boolean>}
+ */
+async function writeFile(path, message, option) {
+  const fsWriteFile = Promise.promisify(fs.writeFile);
   option = option === '' || option == null ? 'a' : option; // 기본 옵션 '이어 쓰기'
   try {
     // console.log("message",typeof message)
     message = typeof message === 'object' ? JSON.stringify(message) : message;
     // CLI(message);
-    fs.writeFile(
-      path,
-      message,
-      {
-        flag: option,
-      },
-      err => {
-        if (err) {
-          if (err.errno === -4058) {
-            let targetDir = err.path.substr(0, err.path.lastIndexOf('\\'));
-            makeDirectory(targetDir, () => {
-              // console.error(err);
-              return writeFile(path, message, option, callback);
-            });
-          }
-        }
-        if (callback != null) callback(err);
-      },
-    );
-  } catch (e) {
-    if (callback != null) callback(e);
+
+    await fsWriteFile(path, message, { flag: option });
+    return true;
+  } catch (err) {
+    if (err.errno === -4058) {
+      let targetDir = err.path.substr(0, err.path.lastIndexOf('\\'));
+      makeDirectory(targetDir, () => {
+        // console.error(err);
+        return writeFile(path, message, option);
+      });
+    }
+    return false;
   }
 }
 exports.writeFile = writeFile;
 
 // 디렉토리 읽기
 function searchDirectory(path, callback) {
-  var fs = require('fs');
   try {
     var returnvalue = [];
     fs.readdir(path, function(err, files) {
@@ -692,8 +694,6 @@ function searchDirectory(path, callback) {
 exports.searchDirectory = searchDirectory;
 
 function getDirectories(srcpath) {
-  var fs = require('fs');
-  var path = require('path');
   return fs
     .readdirSync(srcpath)
     .filter(file => fs.lstatSync(path.join(srcpath, file)).isDirectory());
@@ -702,7 +702,6 @@ exports.getDirectories = getDirectories;
 
 // 디렉토리 생성
 function makeDirectory(path, callback) {
-  var mkdirp = require('mkdirp');
   // CLI(path)
   try {
     mkdirp(path, function(err) {
@@ -718,7 +717,6 @@ exports.makeDirectory = makeDirectory;
 
 // 디렉토리 삭제
 function deleteDirectory(path, callback) {
-  var fs = require('fs');
   try {
     fs.rmdir(path, function(err) {
       if (err) console.error(err);
@@ -734,23 +732,23 @@ exports.deleteDirectory = deleteDirectory;
 // 기본 File Function 사용한 버전
 
 // 파일 이어쓰기
-function appendFile(path, message) {
+async function appendFile(path, message) {
   var convertMessage = '\r\n\r\n' + convertDateToText(new Date()) + '\r\n' + message + '\r\n';
-  writeFile(path, convertMessage, 'a');
+  return await writeFile(path, convertMessage, 'a');
 }
 exports.appendFile = appendFile;
 
 //로그파일에 기록
-function logFile(message) {
+async function logFile(message) {
   // CLI(message);
   var path = process.cwd() + '/log/log.txt';
   var convertMessage = '\r\n\r\n' + convertDateToText(new Date()) + '\r\n' + message + '\r\n';
-  writeFile(path, convertMessage, 'a');
+  return await writeFile(path, convertMessage, 'a');
 }
 exports.logFile = logFile;
 
 // Error Log
-function errorLog(errType, msg, exceptionError) {
+async function errorLog(errType, msg, exceptionError) {
   var errFullPath = process.cwd() + '\\log\\' + errType + '.txt',
     errInfo = '',
     message = '';
@@ -770,7 +768,7 @@ function errorLog(errType, msg, exceptionError) {
   message += errInfo;
   message += '\r\n\t' + 'err Message' + ' : ' + msg + '\r\n\r\n';
 
-  writeFile(errFullPath, message, 'a');
+  return await writeFile(errFullPath, message, 'a');
 }
 exports.errorLog = errorLog;
 
@@ -1346,7 +1344,6 @@ exports.GUID = GUID;
 
 // Sha256 암호화.(Salt 첨가)
 function encryptSha256(text, key) {
-  const crypto = require('crypto');
   const secret = key == null || key === '' ? text : key;
   const hash = crypto
     .createHmac('sha256', secret)
@@ -1363,7 +1360,6 @@ exports.encryptSha256 = encryptSha256;
  * @param {function(String)} cb 완성된 암호화 해시 Password를 callback을 통해 반환
  */
 function encryptPbkdf2(password, salt, callback) {
-  const crypto = require('crypto');
   password = password == null ? '' : password;
   // password, salt, iterations, keylen, digest, callback)
   crypto.pbkdf2(password, salt, 3, 64, 'sha512', (err, key) => {
@@ -1377,14 +1373,12 @@ function encryptPbkdf2(password, salt, callback) {
 exports.encryptPbkdf2 = encryptPbkdf2;
 
 function genCryptoRandomByte(byte) {
-  const crypto = require('crypto');
   return crypto.randomBytes(byte || 16).toString('hex');
 }
 exports.genCryptoRandomByte = genCryptoRandomByte;
 /* Aes 확인 http://aes.online-domain-tools.com/ */
 // Aes 암호화 (양방향 알고리즘)   /// <returns type="String" />
 function encryptAes(text, key) {
-  const crypto = require('crypto');
   const value = typeof text !== 'string' ? text.toString() : text;
   const secret = key == null ? '' : key;
   /* 암호 종류(여기서는 aes-256-cbc 사용) 암호화 key 적용 객체 생성 */
@@ -1402,7 +1396,6 @@ exports.encryptAes = encryptAes;
 // Aes 복호화 /// <returns type="String" />
 function decryptAes(text, key) {
   try {
-    const crypto = require('crypto');
     const value = typeof text !== 'string' ? text.toString() : text;
     const secret = key == null ? '' : key;
 
@@ -1422,7 +1415,6 @@ exports.decryptAes = decryptAes;
 ///////////////////////////////////// 이전 버전에서 사용.
 
 function Sha256En(value) {
-  var crypto = require('crypto');
   var signer = crypto.createHash('sha256', new Buffer(value, 'utf8'));
   var result = signer.update(new Buffer(value, 'utf8')).digest('hex');
   return result;

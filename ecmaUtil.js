@@ -98,63 +98,51 @@ async function schemeToJsdoc(path) {
       return;
     }
 
+    let header = '';
     // \n으로 Split된 array의 정보를 순회하며 typedef 개요를 설정
     _.forEach(splitCreateScheme, str => {
-      // console.log(str);
       // typedef 제목 설정
       if (str.includes('CREATE TABLE')) {
         let firstIndex = str.indexOf('`') + 1;
         let lastIndex = str.lastIndexOf('`');
+
+        let trimHeader = _.trimStart(header, '--');
+        if (trimHeader.includes('VIEW')) {
+          trimHeader = trimHeader.slice(6);
+          typedef += ` * @desc VIEW TABLE\n`;
+        }
+
         typedef += ` * @typedef {Object} ${_.toUpper(
-          str.slice(firstIndex, lastIndex)
-        )}`;
-      }
-
-      if (str.includes(findCommentStr) && str.indexOf(findCommentStr) === 0) {
-        // console.log('!!!', findCommentStr);
-
-        let firstIndex = str.indexOf('\'');
-        let comment = str.slice(firstIndex);
-        typedef += ` ${comment}`;
+          str.slice(firstIndex, lastIndex),
+        )} ${trimHeader}\n`;
+      } else {
+        header = str;
       }
     });
-    typedef += '\n';
 
     // property를 가져오기 위하여 \t 분리 배열 생성
     splitCreateScheme = _.split(sqlStr, '\t');
     splitCreateScheme.forEach(currentItem => {
-      // currentItem = _.replace(currentItem, /\s/g, ' ');
-
-      currentItem = _.head(currentItem.split('\n'));
-
-      currentItem = currentItem.trim().replace(/ +/g, ' ');
-      // comment를 가져옴
-      const firstCommentIndexStr = 'COMMENT \'';
-      let firstIndex = currentItem.indexOf(firstCommentIndexStr);
-      // console.log('??????', firstIndex);
-      let lastIndex = currentItem.lastIndexOf('\'');
-      // 코멘트를 짜름
-      let propertyComment =
-        firstIndex < lastIndex
-          ? currentItem.slice(
-            firstIndex + firstCommentIndexStr.length,
-            lastIndex
-          )
-          : '';
-
+      const splitMsg = currentItem.split("'");
+      const headerMsg = _.head(splitMsg)
+        .trim()
+        .replace(/ +/g, ' ');
       // 스페이스로 배열화
-      let splitList = _.split(currentItem, ' ');
+      let splitList = _.split(headerMsg, ' ');
       // 첫번째 배열은 컬럼 명
       let columnName = _.head(splitList);
+      let dataType = _.nth(splitList, 1);
       // 맞는지 확인
       if (_.startsWith(columnName, '`') && _.endsWith(columnName, '`')) {
-        let propertyType = convertSqlTypeToJavascriptType(_.nth(splitList, 1));
+        let propertyType = convertSqlTypeToJavascriptType(dataType);
         // 백탭 삭제
         const propertyName = _.trim(columnName, '`');
-        propertyComment =
-          propertyComment === null ? '' : _.trim(propertyComment, '\'');
-
-        typedef += ` * @property {${propertyType}} ${propertyName} ${propertyComment} \n`;
+        const foundIndex = _.findIndex(splitMsg, msg => _.includes(msg, 'COMMENT'));
+        let commentMsg = foundIndex >= 0 ? _.nth(splitMsg, foundIndex + 1) : '';
+        if (commentMsg.length) {
+          commentMsg = _.trim(commentMsg, "'");
+        }
+        typedef += ` * @property {${propertyType}} ${propertyName} ${commentMsg} \n`;
       }
     });
 
@@ -186,7 +174,7 @@ function convertSqlTypeToJavascriptType(sqlType) {
     'MEDIUMTEXT',
     'LONGTEXT',
     'JSON',
-    'ENUM'
+    'ENUM',
   ];
   const numberList = [
     'TINYINT',
@@ -197,23 +185,16 @@ function convertSqlTypeToJavascriptType(sqlType) {
     'BIT',
     'FLOAT',
     'DOUBLE',
-    'DECIMAL'
+    'DECIMAL',
   ];
   const DateList = ['DATE', 'TIME', 'YEAR', 'DATETIME', 'TIMESTAMP'];
-  const BufferList = [
-    'BINARY',
-    'VARBINARY',
-    'TINYBLOB',
-    'BLOB',
-    'MEDIUMBLOB',
-    'LONGBLOB'
-  ];
+  const BufferList = ['BINARY', 'VARBINARY', 'TINYBLOB', 'BLOB', 'MEDIUMBLOB', 'LONGBLOB'];
 
   const caseList = {
     string: stringList,
     number: numberList,
     Date: DateList,
-    Buffer: BufferList
+    Buffer: BufferList,
   };
 
   _.find(caseList, (arr, key) => {
@@ -228,9 +209,6 @@ function convertSqlTypeToJavascriptType(sqlType) {
   });
   return returnValue;
 }
-
-
-
 
 /*****************************************************************************************************************/
 //*************                                     File 관련                                        *************
@@ -251,8 +229,8 @@ exports.readFile = readFile;
 
 /**
  * 파일 쓰기. 경로에 폴더가 없다면 생성
- * @param {string} path 
- * @param {*} message 
+ * @param {string} path
+ * @param {*} message
  * @param {string=} option default: 'a'
  * @example
  * 'r' - 읽기로 열기. 파일이 존재하지 않으면 에러발생.
@@ -269,10 +247,9 @@ async function writeFile(path, message, option) {
     const writeFile = Promise.promisify(fs.writeFile);
 
     return await writeFile(path, message, {
-      flag: option
+      flag: option,
     });
-  }
-  catch(err) {
+  } catch (err) {
     if (err.errno === -4058) {
       const targetDir = err.path.substr(0, err.path.lastIndexOf('\\'));
       await makeDirectory(targetDir);
@@ -290,10 +267,10 @@ async function searchDirectory(path) {
   const readdir = Promise.promisify(fs.readdir);
 
   const files = await readdir(path);
-  files.forEach(function (file) {
+  files.forEach(function(file) {
     returnvalue.push(file);
     // console.log(path + file);
-    fs.stat(path + file, function (err, stats) {
+    fs.stat(path + file, function(err, stats) {
       console.log(stats);
     });
   });
@@ -301,7 +278,6 @@ async function searchDirectory(path) {
   return returnvalue;
 }
 exports.searchDirectory = searchDirectory;
-
 
 // 디렉토리 생성
 async function makeDirectory(path) {
@@ -318,11 +294,6 @@ async function deleteDirectory(path) {
 }
 exports.deleteDirectory = deleteDirectory;
 
-
-
-
-
-
 /*****************************************************************************************************************/
 //*************                                  Security 관련                                       *************
 /*****************************************************************************************************************/
@@ -336,7 +307,7 @@ exports.deleteDirectory = deleteDirectory;
  */
 async function encryptPbkdf2(password, salt) {
   // BU.CLIS(password, salt);
-  
+
   password = password == null ? '' : password;
 
   const pbkdf2 = Promise.promisify(crypto.pbkdf2);
