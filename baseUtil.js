@@ -1,6 +1,7 @@
 const util = require('util');
 const _ = require('lodash');
 const chalk = require('chalk');
+const moment = require('moment');
 
 const Promise = require('bluebird');
 const path = require('path');
@@ -21,6 +22,17 @@ const colorWarning = chalk.keyword('orange');
 /*****************************************************************************************************************/
 
 // (Date) Date To yyyy-MM-ss HH:mm:ss /// <returns type="String" />
+
+/**
+ *
+ * @param {string=} viewFormat 보일 개수, default: YYYY-MM-DD HH:mm:ss
+ * @param {Date=} date 반환하고자 할 경우 date. default: current Date
+ * @return {string}
+ */
+function getTextTime(viewFormat = 'YYYY-MM-DD HH:mm:ss', date) {
+  return moment(date).format(viewFormat);
+}
+exports.getTextTime = getTextTime;
 
 function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
   // debugConsole();
@@ -334,19 +346,14 @@ function logHeader(traceObj) {
     traceObj.lineNumber,
   )} ( ${colorFn(traceObj.functionName)} )`;
   const loggerTxt = `${colorStart('-------------')}\t${occurInfo} ${colorStart(
-    convertDateToText(new Date(), 'char', 5, 1),
+    getTextTime('MM-DD HH:mm:ss.SSS'),
   )}`;
   console.log(loggerTxt);
 }
 
 function logOriginalHeader(traceObj) {
   const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${traceObj.functionName} )`;
-  const loggerTxt = `${'-------------'}\t${occurInfo} ${convertDateToText(
-    new Date(),
-    'char',
-    5,
-    1,
-  )}`;
+  const loggerTxt = `${'-------------'}\t${occurInfo} ${getTextTime('MM-DD HH:mm:ss.SSS')}`;
   console.log(loggerTxt);
 }
 
@@ -355,18 +362,13 @@ function logTails(traceObj) {
     traceObj.lineNumber,
   )} ( ${colorFn(traceObj.functionName)} )`;
   const loggerTxt = `${colorEnd('=============')}\t${occurInfo} ${colorEnd(
-    convertDateToText(new Date(), 'char', 5, 1),
+    getTextTime('MM-DD HH:mm:ss.SSS'),
   )} `;
   console.log(loggerTxt);
 }
 function logOriginalTails(traceObj) {
   const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${traceObj.functionName} )`;
-  const loggerTxt = `${'============='}\t${occurInfo} ${convertDateToText(
-    new Date(),
-    'char',
-    5,
-    1,
-  )} `;
+  const loggerTxt = `${'============='}\t${occurInfo} ${getTextTime('MM-DD HH:mm:ss.SSS')} `;
   console.log(loggerTxt);
 }
 
@@ -733,7 +735,8 @@ exports.deleteDirectory = deleteDirectory;
 
 // 파일 이어쓰기
 async function appendFile(path, message) {
-  var convertMessage = '\r\n\r\n' + convertDateToText(new Date()) + '\r\n' + message + '\r\n';
+  var convertMessage =
+    '\r\n\r\n' + getTextTime('YYYY-MM-DD HH:mm:ss.SSS') + '\r\n' + message + '\r\n';
   return await writeFile(path, convertMessage, 'a');
 }
 exports.appendFile = appendFile;
@@ -742,7 +745,8 @@ exports.appendFile = appendFile;
 async function logFile(message) {
   // CLI(message);
   var path = process.cwd() + '/log/log.txt';
-  var convertMessage = '\r\n\r\n' + convertDateToText(new Date()) + '\r\n' + message + '\r\n';
+  var convertMessage =
+    '\r\n\r\n' + getTextTime('YYYY-MM-DD HH:mm:ss.SSS') + '\r\n' + message + '\r\n';
   return await writeFile(path, convertMessage, 'a');
 }
 exports.logFile = logFile;
@@ -764,7 +768,7 @@ async function errorLog(errType, msg, exceptionError) {
       : exceptionError;
   }
 
-  message = 'Info' + ' : ' + convertDateToText(new Date(), 'char') + '\r\n';
+  message = 'Info' + ' : ' + getTextTime('YYYY-MM-DD HH:mm:ss.SSS') + '\r\n';
   message += errInfo;
   message += '\r\n\t' + 'err Message' + ' : ' + msg + '\r\n\r\n';
 
