@@ -337,6 +337,34 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
 }
 exports.getBetweenDatePoint = getBetweenDatePoint;
 
+/**
+ * 풍향 0~7 (북, 북동, 동, 남동, 남, 남서, 서, 북서)
+ * @param {number} windDirection
+ */
+function getWindDirection(windDirection) {
+  switch (windDirection) {
+    case 0:
+      return '북';
+    case 1:
+      return '북동';
+    case 2:
+      return '동';
+    case 3:
+      return '남동';
+    case 4:
+      return '남';
+    case 5:
+      return '남서';
+    case 6:
+      return '서';
+    case 7:
+      return '북서';
+    default:
+      return '';
+  }
+}
+exports.getWindDirection = getWindDirection;
+
 /*****************************************************************************************************************/
 //*************                                    Debuging 관련                                     *************
 /*****************************************************************************************************************/
