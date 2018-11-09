@@ -34,6 +34,31 @@ function getTextTime(viewFormat = 'YYYY-MM-DD HH:mm:ss', date) {
 }
 exports.getTextTime = getTextTime;
 
+/**
+ * 엑셀 Date값을 Js Date 형태로 반환
+ * @param {number} excelDate 
+ */
+function convertExcelDateToJSDate(excelDate) {
+  var utc_days  = Math.floor(excelDate - 25569);
+  var utc_value = utc_days * 86400;                                        
+  var date_info = new Date(utc_value * 1000);
+
+  var fractional_day = excelDate - Math.floor(excelDate) + 0.0000001;
+
+  var total_seconds = Math.floor(86400 * fractional_day);
+
+  var seconds = total_seconds % 60;
+
+  total_seconds -= seconds;
+
+  var hours = Math.floor(total_seconds / (60 * 60));
+  var minutes = Math.floor(total_seconds / 60) % 60;
+
+  return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds);
+}
+exports.convertExcelDateToJSDate = convertExcelDateToJSDate;
+
+
 function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
   // debugConsole();
   // console.log('convertDateToText', dateTime, language, endIndex, startIndex);
