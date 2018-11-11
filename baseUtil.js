@@ -36,11 +36,11 @@ exports.getTextTime = getTextTime;
 
 /**
  * 엑셀 Date값을 Js Date 형태로 반환
- * @param {number} excelDate 
+ * @param {number} excelDate
  */
 function convertExcelDateToJSDate(excelDate) {
-  var utc_days  = Math.floor(excelDate - 25569);
-  var utc_value = utc_days * 86400;                                        
+  var utc_days = Math.floor(excelDate - 25569);
+  var utc_value = utc_days * 86400;
   var date_info = new Date(utc_value * 1000);
 
   var fractional_day = excelDate - Math.floor(excelDate) + 0.0000001;
@@ -54,10 +54,16 @@ function convertExcelDateToJSDate(excelDate) {
   var hours = Math.floor(total_seconds / (60 * 60));
   var minutes = Math.floor(total_seconds / 60) % 60;
 
-  return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds);
+  return new Date(
+    date_info.getFullYear(),
+    date_info.getMonth(),
+    date_info.getDate(),
+    hours,
+    minutes,
+    seconds,
+  );
 }
 exports.convertExcelDateToJSDate = convertExcelDateToJSDate;
-
 
 function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
   // debugConsole();
@@ -269,10 +275,12 @@ exports.splitStrDate = splitStrDate;
  * @param {String} strEndDate
  * @param {String} strStartDate
  * @param {String} searchType year, month, day, hour
- * @return {Array}
+ * @param {{startHour: number, endHour: number}} rangeInfo
+ * @return {{fullTxtPoint: string[], shortTxtPoint: string[]}}
  */
-function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
+function getBetweenDatePoint(strEndDate, strStartDate, searchType, rangeInfo) {
   // CLI('getBetweenDatePoint', strEndDate, strStartDate, searchType)
+  const { startHour = 5, endHour = 19 } = rangeInfo;
   let returnValue = {
     fullTxtPoint: [],
     shortTxtPoint: [],
@@ -303,12 +311,12 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
       spliceEndIndex = spliceStartIndex = 2;
       break;
     case 'hour':
-      currDate.setHours(5, 0, 0, 0);
+      currDate.setHours(startHour, 0, 0, 0);
       spliceEndIndex = spliceStartIndex = 3;
       break;
     case 'min10':
     case 'min':
-      currDate.setHours(5, 0, 0, 0);
+      currDate.setHours(startHour, 0, 0, 0);
       spliceStartIndex = 3;
       spliceEndIndex = 4;
       break;
@@ -332,7 +340,7 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
     } else if (searchType === 'day') {
       currDate.addDays(1);
     } else {
-      if (currDate.getHours() > 19) {
+      if (currDate.getHours() > endHour) {
         hasBreak = true;
       }
       if (searchType === 'hour') {
@@ -361,7 +369,6 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType) {
   return returnValue;
 }
 exports.getBetweenDatePoint = getBetweenDatePoint;
-
 /**
  * 풍향 0~7 (북, 북동, 동, 남동, 남, 남서, 서, 북서)
  * @param {number} windDirection
