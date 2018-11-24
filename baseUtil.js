@@ -804,7 +804,7 @@ exports.appendFile = appendFile;
 //로그파일에 기록
 async function logFile(message) {
   // CLI(message);
-  var path = process.cwd() + '/log/log.txt';
+  var path = process.cwd() + '/log/log.log';
   var convertMessage =
     '\r\n\r\n' + getTextTime('YYYY-MM-DD HH:mm:ss.SSS') + '\r\n' + message + '\r\n';
   return await writeFile(path, convertMessage, 'a');
@@ -813,7 +813,7 @@ exports.logFile = logFile;
 
 // Error Log
 async function errorLog(errType, msg, exceptionError) {
-  var errFullPath = process.cwd() + '\\log\\' + errType + '.txt',
+  var errFullPath = process.cwd() + '\\log\\' + errType + '.log',
     errInfo = '',
     message = '';
   // uncaughtException 예외 발생이 아닐 경우. function 추적 가능
