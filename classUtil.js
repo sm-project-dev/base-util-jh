@@ -1,5 +1,4 @@
-"use strict";
-const _ = require("lodash");
+const _ = require('lodash');
 
 /**
  * 데이터의 평균 값을 산출해주는 클래스
@@ -32,7 +31,7 @@ class AverageStorage {
    * @return {Array} key
    */
   findDataStorage(key) {
-    return _.get(this.dataStorage, key, undefined);
+    return _.get(this.dataStorage, key, []);
   }
 
   /**
@@ -47,12 +46,12 @@ class AverageStorage {
    * 저장소에 관리 중인 Key에 data를 추가
    * @param {string} key Object Key
    * @param {number} data 실제 데이터
-   * data가 undefined, null, '' 일 경우 추가하지 않음
+   * data가 undefined, null, '' 일 경우 해당 key 배열 첫번째 인자 삭제
    * data의 길이가 평균 값 분포군 최대길이에 도달하면 가장 먼저 들어온 리스트 1개 제거
    */
   addData(key, data) {
-    if (data === undefined || data === null || data === "") {
-      // this.findDataStorage(key).shift();
+    if (data === undefined || data === null || data === '') {
+      this.findDataStorage(key).shift();
       return this;
     } else {
       let numData = _.toNumber(data);
@@ -135,8 +134,7 @@ class AverageStorage {
     } else {
       for (const key in dataObj) {
         if (dataObj.hasOwnProperty(key) && this.hasTarget(key)) {
-          let dataStorage = this.findDataStorage(key);
-          dataStorage !== undefined && dataStorage.shift();
+          this.findDataStorage(key).shift();
         }
       }
       return this.getAverageStorage();
