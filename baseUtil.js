@@ -986,6 +986,42 @@ exports.getSelected = getSelected;
 /*****************************************************************************************************************/
 //*************                                 Common Util 관련                                     *************
 /*****************************************************************************************************************/
+/**
+ * JSON or JSONArray 숫자 데이터를 쉼표 기호 첨부
+ * @param {Object|Object[]} target 
+ * @param {number=} fixed 소수점 이하 강제 여부
+ */
+function toLocaleString(target, fixed) {
+  if (_.isArray(target)) {
+    return target.forEach(ele => toLocaleString(ele));
+  }
+  _.forEach(target, (value, key) => {
+    // 0이 아닌 수이고만약 숫자라면
+    if ((value !== 0 && _.isNumber(value)) || (isNumberic(value) && !_.isEmpty(value))) {
+      // 쉼표 기호 삽입
+      let localeString = value.toLocaleString();
+      // 소수점 이하가 존재하지 않는다면 소수점 삽입
+
+      // 소수점 이하를 강제할 경우
+      if (_.isNumber(fixed)) {
+        const localeStringArr = localeString.split('.');
+        // 1개라면 소수점 이하가 없는 것으로 판단
+        if (localeStringArr.length === 1) {
+          localeString = _.padEnd(localeString.concat('.'), localeString.length + 1 + fixed, '0');
+        } else {
+          localeString = `${_.head(localeStringArr)}.${_.padEnd(
+            _.last(localeStringArr),
+            fixed,
+            '0',
+          )}`;
+        }
+      }
+
+      _.set(target, key, localeString);
+    }
+  });
+}
+exports.toLocaleString = toLocaleString;
 
 // Remove Byte Order Mark. /// <returns type="String" />
 function removeBOM(str, encoding) {
