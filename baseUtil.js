@@ -405,8 +405,8 @@ exports.getWindDirection = getWindDirection;
 function logHeader(traceObj) {
   const occurInfo = `${colorStart(traceObj.fileName)}:${colorHighlight(
     traceObj.lineNumber,
-  )} ( ${colorFn(traceObj.functionName)} )`;
-  const loggerTxt = `${colorStart('-------------')}\t${occurInfo} ${colorStart(
+  )} ${colorFn(traceObj.functionName)}`;
+  const loggerTxt = `${colorStart('---')} ${occurInfo} ${colorStart(
     getTextTime('MM-DD HH:mm:ss.SSS'),
   )}`;
   console.log(loggerTxt);
@@ -414,43 +414,55 @@ function logHeader(traceObj) {
 
 function logOriginalHeader(traceObj) {
   const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${traceObj.functionName} )`;
-  const loggerTxt = `${'-------------'}\t${occurInfo} ${getTextTime('MM-DD HH:mm:ss.SSS')}`;
+  const loggerTxt = `${'---'}\t${occurInfo} ${getTextTime('MM-DD HH:mm:ss.SSS')}`;
   console.log(loggerTxt);
 }
 
 function logTails(traceObj) {
   const occurInfo = `${colorEnd(traceObj.fileName)}:${colorHighlight(
     traceObj.lineNumber,
-  )} ( ${colorFn(traceObj.functionName)} )`;
-  const loggerTxt = `${colorEnd('=============')}\t${occurInfo} ${colorEnd(
+  )} ${colorFn(traceObj.functionName)}`;
+  const loggerTxt = `${colorEnd('===')} ${occurInfo} ${colorEnd(
     getTextTime('MM-DD HH:mm:ss.SSS'),
   )} `;
   console.log(loggerTxt);
 }
 function logOriginalTails(traceObj) {
   const occurInfo = `${traceObj.fileName}:${traceObj.lineNumber} ( ${traceObj.functionName} )`;
-  const loggerTxt = `${'============='}\t${occurInfo} ${getTextTime('MM-DD HH:mm:ss.SSS')} `;
+  const loggerTxt = `${'==='}\t${occurInfo} ${getTextTime('MM-DD HH:mm:ss.SSS')} `;
   console.log(loggerTxt);
 }
 
 // console.log 개발자 버젼
 function log(...args) {
-  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
   var traceObj = traceOccurPosition(hasFull);
-  var occurInfo = `\t${colorStart('-->')} ${colorHighlight(traceObj.fileName)} : ${colorHighlight(
+  var occurInfo = `${colorHighlight('---')} ${colorHighlight(traceObj.fileName)}:${colorHighlight(
     traceObj.lineNumber,
-  )}`;
+  )} ${colorFn(traceObj.functionName)}`;
 
-  for (let arg of args) {
-    process.stdout.write(String(arg));
+  console.log(occurInfo)
+
+  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
+    if (argNum % 2 === 0) {
+      argNum === argLength
+        ? console.log(util.inspect(args[argNum], true, 10))
+        : process.stdout.write(String(args[argNum]));
+    } else {
+      console.log(colorTxt(' --> ') + util.inspect(args[argNum], true, 10));
+    }
   }
-  console.log(occurInfo);
+  
+  // for (let arg of args) {
+  //   process.stdout.write(String(arg));
+  // }
+  // console.log(occurInfo);
 }
 exports.log = log;
 
 // console.log 개발자 버젼
 function logO(...args) {
-  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
   var traceObj = traceOccurPosition(hasFull);
   var occurInfo = `\t${'-->'} ${traceObj.fileName} : ${traceObj.lineNumber}`;
 
@@ -463,7 +475,7 @@ exports.logO = logO;
 
 // Console.Log by Option
 function CLIN(pOjbect, num) {
-  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
   var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
   console.log(util.inspect(pOjbect, true, num));
@@ -473,7 +485,7 @@ exports.CLIN = CLIN;
 
 // Console.Log by Option
 function CLINO(pOjbect, num) {
-  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
   var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   console.log(util.inspect(pOjbect, true, num));
@@ -483,7 +495,7 @@ exports.CLINO = CLINO;
 
 // Console Log Inspect by Number Multi
 function CLINS(inspectDepth, ...args) {
-  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
   var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
 
@@ -502,7 +514,7 @@ exports.CLINS = CLINS;
 
 // Console Log Inspect by Number Multi
 function CLINSO(inspectDepth, ...args) {
-  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
   var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
 
@@ -521,7 +533,7 @@ exports.CLINSO = CLINSO;
 
 // Console.Log InspectS
 function CLIS(...args) {
-  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
   var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
 
@@ -536,7 +548,7 @@ exports.CLIS = CLIS;
 
 /** Console.Log Original: (Default) Inspect Depth 10 */
 function CLISO(...args) {
-  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
   var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   for (let argNum = 0; argNum < args.length; argNum += 1) {
@@ -550,7 +562,7 @@ exports.CLISO = CLISO;
 
 /** Console.Log: (Default) Inspect Depth 10 */
 function CLI(...args) {
-  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
   var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
   for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
@@ -568,7 +580,7 @@ exports.CLI = CLI;
 
 /** Console.Log Original: (Default) Inspect Depth 10 */
 function CLIO(...args) {
-  var hasFull = process.env.NODE_ENV === 'production' ? false : true;
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
   var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
@@ -586,7 +598,8 @@ exports.CLIO = CLIO;
 
 /** Console Log: Full File Path */
 function CLIF(...args) {
-  var traceObj = traceOccurPosition(true);
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
+  var traceObj = traceOccurPosition(hasFull);
   logHeader(traceObj);
   for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
@@ -603,7 +616,8 @@ exports.CLIF = CLIF;
 
 /** Console Log: Full File Path */
 function CLIFO(...args) {
-  var traceObj = traceOccurPosition(true);
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
+  var traceObj = traceOccurPosition(hasFull);
   logOriginalHeader(traceObj);
   for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
@@ -624,29 +638,19 @@ exports.CLIFO = CLIFO;
  * @return {{functionName: string, lineNumber: string, fileName: string}}
  */
 function traceOccurPosition(hasFileNameFull) {
-  var returnObj = {};
+  var stackInfo = {};
 
   getStack().forEach(function(stack, index) {
     if (index == 2) {
-      returnObj.functionName = stack.getFunctionName();
-      returnObj.lineNumber = `${stack.getLineNumber()}:${stack.getColumnNumber()}`;
+      stackInfo.functionName = stack.getFunctionName();
+      stackInfo.lineNumber = `${stack.getLineNumber()}:${stack.getColumnNumber()}`;
 
-      returnObj.fileName = stack.getFileName();
+      var fileName = stack.getFileName();
 
-      var splitFileName = returnObj.fileName.split('\\');
-
-      index = splitFileName.length - 1;
-      var fileName = hasFileNameFull
-        ? returnObj.fileName
-        : splitFileName[index - 2] + '/' + splitFileName[index - 1] + '/' + splitFileName[index];
-      returnObj.fileName = fileName;
+      stackInfo.fileName = hasFileNameFull ? fileName : fileName.slice(process.cwd().length);
     }
-    //log(stack.getFunctionName());
-    //log(stack.getLineNumber())
-    // console.log(stack.getFileName())
-    // console.log(stack.getColumnNumber())
   });
-  return returnObj;
+  return stackInfo;
 }
 exports.traceOccurPosition = traceOccurPosition;
 
@@ -829,12 +833,13 @@ exports.logFile = logFile;
  * @param {Date=} date 작성일
  */
 async function errorLog(errType, msg, exceptionError, date = new Date()) {
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
   var errFullPath = process.cwd() + '\\log\\' + errType + '.log',
     errInfo = '',
     message = '';
   // uncaughtException 예외 발생이 아닐 경우. function 추적 가능
   if (_.isNil(exceptionError)) {
-    var traceObj = traceOccurPosition(this);
+    var traceObj = traceOccurPosition(hasFull);
     errInfo =
       '\t' + traceObj.fileName + ' : ' + traceObj.lineNumber + ' : ' + traceObj.functionName;
   } else {
@@ -986,42 +991,6 @@ exports.getSelected = getSelected;
 /*****************************************************************************************************************/
 //*************                                 Common Util 관련                                     *************
 /*****************************************************************************************************************/
-/**
- * JSON or JSONArray 숫자 데이터를 쉼표 기호 첨부
- * @param {Object|Object[]} target 
- * @param {number=} fixed 소수점 이하 강제 여부
- */
-function toLocaleString(target, fixed) {
-  if (_.isArray(target)) {
-    return target.forEach(ele => toLocaleString(ele));
-  }
-  _.forEach(target, (value, key) => {
-    // 0이 아닌 수이고만약 숫자라면
-    if ((value !== 0 && _.isNumber(value)) || (isNumberic(value) && !_.isEmpty(value))) {
-      // 쉼표 기호 삽입
-      let localeString = value.toLocaleString();
-      // 소수점 이하가 존재하지 않는다면 소수점 삽입
-
-      // 소수점 이하를 강제할 경우
-      if (_.isNumber(fixed)) {
-        const localeStringArr = localeString.split('.');
-        // 1개라면 소수점 이하가 없는 것으로 판단
-        if (localeStringArr.length === 1) {
-          localeString = _.padEnd(localeString.concat('.'), localeString.length + 1 + fixed, '0');
-        } else {
-          localeString = `${_.head(localeStringArr)}.${_.padEnd(
-            _.last(localeStringArr),
-            fixed,
-            '0',
-          )}`;
-        }
-      }
-
-      _.set(target, key, localeString);
-    }
-  });
-}
-exports.toLocaleString = toLocaleString;
 
 // Remove Byte Order Mark. /// <returns type="String" />
 function removeBOM(str, encoding) {
