@@ -460,6 +460,32 @@ function log(...args) {
 }
 exports.log = log;
 
+function error(...args) {
+  var hasFull = process.env.NODE_ENV === 'production' ? true : false;
+  var traceObj = traceOccurPosition(hasFull);
+  var occurInfo = `${colorFn('---')} ${colorFn(traceObj.fileName)}:${colorFn(
+    traceObj.lineNumber,
+  )} ${colorFn(traceObj.functionName)}`;
+
+  console.log(occurInfo)
+
+  for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
+    if (argNum % 2 === 0) {
+      argNum === argLength
+        ? console.log(util.inspect(args[argNum], true, 10))
+        : process.stdout.write(String(args[argNum]));
+    } else {
+      console.log(colorTxt(' --> ') + util.inspect(args[argNum], true, 10));
+    }
+  }
+  
+  // for (let arg of args) {
+  //   process.stdout.write(String(arg));
+  // }
+  // console.log(occurInfo);
+}
+exports.error = error;
+
 // console.log 개발자 버젼
 function logO(...args) {
   var hasFull = process.env.NODE_ENV === 'production' ? true : false;
