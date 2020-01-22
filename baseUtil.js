@@ -1189,7 +1189,7 @@ exports.renameObj = renameObj;
  */
 function isNumberic(targetValue) {
   if (
-    (typeof targetValue === 'number' || typeof targetValue === 'string') &&
+    (typeof targetValue === 'number' || (typeof targetValue === 'string' && targetValue.length )) &&
     !Number.isNaN(Number(targetValue))
   ) {
     return true;
