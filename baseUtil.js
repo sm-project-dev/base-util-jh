@@ -85,7 +85,7 @@ function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
   timeTable.push(dateTime.getMinutes());
   timeTable.push(dateTime.getSeconds());
 
-  timeTable.forEach(function(time) {
+  timeTable.forEach(function (time) {
     String(time).length == 1
       ? strTimeTable.push('0' + String(time))
       : strTimeTable.push(String(time));
@@ -441,7 +441,7 @@ function log(...args) {
     traceObj.lineNumber,
   )} ${colorFn(traceObj.functionName)}`;
 
-  console.log(occurInfo)
+  console.log(occurInfo);
 
   for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
@@ -452,7 +452,7 @@ function log(...args) {
       console.log(colorTxt(' --> ') + util.inspect(args[argNum], true, 10));
     }
   }
-  
+
   // for (let arg of args) {
   //   process.stdout.write(String(arg));
   // }
@@ -467,7 +467,7 @@ function error(...args) {
     traceObj.lineNumber,
   )} ${colorFn(traceObj.functionName)}`;
 
-  console.log(occurInfo)
+  console.log(occurInfo);
 
   for (let argNum = 0, argLength = args.length - 1; argNum <= argLength; argNum += 1) {
     if (argNum % 2 === 0) {
@@ -478,7 +478,7 @@ function error(...args) {
       console.log(colorTxt(' --> ') + util.inspect(args[argNum], true, 10));
     }
   }
-  
+
   // for (let arg of args) {
   //   process.stdout.write(String(arg));
   // }
@@ -666,7 +666,7 @@ exports.CLIFO = CLIFO;
 function traceOccurPosition(hasFileNameFull) {
   var stackInfo = {};
 
-  getStack().forEach(function(stack, index) {
+  getStack().forEach(function (stack, index) {
     if (index == 2) {
       stackInfo.functionName = stack.getFunctionName();
       stackInfo.lineNumber = `${stack.getLineNumber()}:${stack.getColumnNumber()}`;
@@ -685,7 +685,7 @@ function debugConsole(maxCounter) {
   maxCounter = isNumberic(maxCounter) ? Number(maxCounter) : 4;
   console.log(`${colorStart('@@@@@@@@@@')}   debugConsole Start    ${colorStart('@@@@@@@@@@')}`);
 
-  getStack().forEach(function(stack, index) {
+  getStack().forEach(function (stack, index) {
     var sourceName = '';
     if (maxCounter < index || index == 0) {
       return;
@@ -711,7 +711,7 @@ exports.debugConsole = debugConsole;
 function readFile(path, encoding, callback) {
   encoding = encoding == null || encoding === '' ? 'utf8' : encoding;
   try {
-    fs.readFile(path, encoding, function(err, data) {
+    fs.readFile(path, encoding, function (err, data) {
       if (err) return callback(err);
       if (callback != null) return callback(err, data);
     });
@@ -741,7 +741,7 @@ exports.readFile = readFile;
  * @return {Promise.<boolean>}
  */
 async function writeFile(path, message, option) {
-  const fsWriteFile = Promise.promisify(fs.writeFile);
+  const fsWriteFile = Promise.promisify(fs.writeFileSync);
   option = option === '' || option == null ? 'a' : option; // 기본 옵션 '이어 쓰기'
   try {
     // console.log("message",typeof message)
@@ -754,7 +754,7 @@ async function writeFile(path, message, option) {
     if (err.errno === -4058) {
       let targetDir = err.path.substr(0, err.path.lastIndexOf('\\'));
       makeDirectory(targetDir, () => {
-        // console.error(err);
+        console.error(err);
         return writeFile(path, message, option);
       });
     }
@@ -767,14 +767,14 @@ exports.writeFile = writeFile;
 function searchDirectory(path, callback) {
   try {
     var returnvalue = [];
-    fs.readdir(path, function(err, files) {
+    fs.readdir(path, function (err, files) {
       if (err) return callback(err);
       if (callback != null) return callback(err, files);
       // console.log('여긴 안오지');
-      files.forEach(function(file) {
+      files.forEach(function (file) {
         returnvalue.push(file);
         // console.log(path + file);
-        fs.stat(path + file, function(err, stats) {
+        fs.stat(path + file, function (err, stats) {
           console.log(stats);
         });
       });
@@ -789,7 +789,7 @@ exports.searchDirectory = searchDirectory;
 function getDirectories(srcpath) {
   return fs
     .readdirSync(srcpath)
-    .filter(file => fs.lstatSync(path.join(srcpath, file)).isDirectory());
+    .filter((file) => fs.lstatSync(path.join(srcpath, file)).isDirectory());
 }
 exports.getDirectories = getDirectories;
 
@@ -797,7 +797,7 @@ exports.getDirectories = getDirectories;
 function makeDirectory(path, callback) {
   // CLI(path)
   try {
-    mkdirp(path, function(err) {
+    mkdirp(path, function (err) {
       if (err) console.error(err);
       if (callback != null) callback(err);
       console.log('Created newdir', path);
@@ -811,7 +811,7 @@ exports.makeDirectory = makeDirectory;
 // 디렉토리 삭제
 function deleteDirectory(path, callback) {
   try {
-    fs.rmdir(path, function(err) {
+    fs.rmdir(path, function (err) {
       if (err) console.error(err);
       if (callback != null) callback(err);
       console.log('Removed newdir');
@@ -823,7 +823,6 @@ function deleteDirectory(path, callback) {
 exports.deleteDirectory = deleteDirectory;
 
 // 기본 File Function 사용한 버전
-
 /**
  * 파일 이어쓰기
  * @param {string} path log/ 경로
@@ -832,7 +831,7 @@ exports.deleteDirectory = deleteDirectory;
  */
 async function appendFile(path, message, date = new Date()) {
   var convertMessage =
-    '\r\n\r\n' + getTextTime('YYYY-MM-DD HH:mm:ss.SSS', date) + '\r\n' + message + '\r\n';
+    '\r\n' + getTextTime('YYYY-MM-DD HH:mm:ss.SSS', date) + '\r\n' + message + '\r\n';
   return await writeFile(path, convertMessage, 'a');
 }
 exports.appendFile = appendFile;
@@ -846,7 +845,7 @@ async function logFile(message, date = new Date()) {
   // CLI(message);
   var path = process.cwd() + '/log/log.log';
   var convertMessage =
-    '\r\n\r\n' + getTextTime('YYYY-MM-DD HH:mm:ss.SSS', date) + '\r\n' + message + '\r\n';
+    '\r\n' + getTextTime('YYYY-MM-DD HH:mm:ss.SSS', date) + '\r\n' + message + '\r\n';
   return await writeFile(path, convertMessage, 'a');
 }
 exports.logFile = logFile;
@@ -877,7 +876,7 @@ async function errorLog(errType, msg, exceptionError, date = new Date()) {
 
   message = 'Info' + ' : ' + getTextTime('YYYY-MM-DD HH:mm:ss.SSS', date) + '\r\n';
   message += errInfo;
-  message += '\r\n\t' + 'err Message' + ' : ' + msg + '\r\n\r\n';
+  message += '\r\n\t' + 'err Message' + ' : ' + msg + '\r\n';
 
   return await writeFile(errFullPath, message, 'a');
 }
@@ -1157,7 +1156,7 @@ function checkJSONArrNumber(arrData) {
   if (!_.isArray(arrData) || _.isEmpty(arrData)) {
     return false;
   }
-  _.forEach(arrData, function(data) {
+  _.forEach(arrData, function (data) {
     if (!_.isNumber(data)) {
       returnvalue = false;
     }
@@ -1189,7 +1188,7 @@ exports.renameObj = renameObj;
  */
 function isNumberic(targetValue) {
   if (
-    (typeof targetValue === 'number' || (typeof targetValue === 'string' && targetValue.length )) &&
+    (typeof targetValue === 'number' || typeof targetValue === 'string') &&
     !Number.isNaN(Number(targetValue))
   ) {
     return true;
@@ -1252,12 +1251,12 @@ function IsJsonString(str) {
 }
 exports.IsJsonString = IsJsonString;
 
-var Converter = (function() {
-  var ConvertBase = function(num) {
+var Converter = (function () {
+  var ConvertBase = function (num) {
     return {
-      from: function(baseFrom) {
+      from: function (baseFrom) {
         return {
-          to: function(baseTo) {
+          to: function (baseTo) {
             return parseInt(num, baseFrom).toString(baseTo);
           },
         };
@@ -1266,45 +1265,33 @@ var Converter = (function() {
   };
 
   // binary to decimal
-  ConvertBase.bin2dec = function(num) {
-    return ConvertBase(num)
-      .from(2)
-      .to(10);
+  ConvertBase.bin2dec = function (num) {
+    return ConvertBase(num).from(2).to(10);
   };
 
   // binary to hexadecimal
-  ConvertBase.bin2hex = function(num) {
-    return ConvertBase(num)
-      .from(2)
-      .to(16);
+  ConvertBase.bin2hex = function (num) {
+    return ConvertBase(num).from(2).to(16);
   };
 
   // decimal to binary
-  ConvertBase.dec2bin = function(num) {
-    return ConvertBase(num)
-      .from(10)
-      .to(2);
+  ConvertBase.dec2bin = function (num) {
+    return ConvertBase(num).from(10).to(2);
   };
 
   // decimal to hexadecimal
-  ConvertBase.dec2hex = function(num) {
-    return ConvertBase(num)
-      .from(10)
-      .to(16);
+  ConvertBase.dec2hex = function (num) {
+    return ConvertBase(num).from(10).to(16);
   };
 
   // hexadecimal to binary
-  ConvertBase.hex2bin = function(num) {
-    return ConvertBase(num)
-      .from(16)
-      .to(2);
+  ConvertBase.hex2bin = function (num) {
+    return ConvertBase(num).from(16).to(2);
   };
 
   // hexadecimal to decimal
-  ConvertBase.hex2dec = function(num) {
-    return ConvertBase(num)
-      .from(16)
-      .to(10);
+  ConvertBase.hex2dec = function (num) {
+    return ConvertBase(num).from(16).to(10);
   };
 
   //this.ConvertBase = ConvertBase;
@@ -1313,7 +1300,7 @@ var Converter = (function() {
 exports.Converter = Converter;
 
 function convertSpecialChar2String(str) {
-  return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%\_]/g, function(char) {
+  return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%\_]/g, function (char) {
     switch (char) {
       case '\0':
         return '\\0';
@@ -1562,10 +1549,7 @@ exports.GUID = GUID;
 // Sha256 암호화.(Salt 첨가)
 function encryptSha256(text, key) {
   const secret = key == null || key === '' ? text : key;
-  const hash = crypto
-    .createHmac('sha256', secret)
-    .update(text)
-    .digest('hex');
+  const hash = crypto.createHmac('sha256', secret).update(text).digest('hex');
   return hash;
 }
 exports.encryptSha256 = encryptSha256;
@@ -1674,7 +1658,7 @@ function connectMysqlContinue(dbinfo, callback) {
   returnvalue = mysql.createConnection(dbinfo); // Recreate the connection, since
   // the old one cannot be reused.
 
-  returnvalue.connect(function(err) {
+  returnvalue.connect(function (err) {
     // The server is either down
     if (err) {
       // or restarting (takes a while sometimes).
@@ -1684,7 +1668,7 @@ function connectMysqlContinue(dbinfo, callback) {
     callback(null, returnvalue);
   }); // process asynchronous requests in the meantime.
   // If you're also serving http, display a 503 error.
-  returnvalue.on('error', function(err) {
+  returnvalue.on('error', function (err) {
     log('db error', err);
     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
       // Connection to the MySQL server is usually
@@ -1729,7 +1713,7 @@ exports.MRF = MRF;
 
 function getStack() {
   var orig = Error.prepareStackTrace;
-  Error.prepareStackTrace = function(_, stack) {
+  Error.prepareStackTrace = function (_, stack) {
     return stack;
   };
   var err = new Error();
@@ -1791,10 +1775,7 @@ function sizeChangeValue(data) {
 
   var tempData = data.toString();
 
-  if (tempData.indexOf('.') != -1)
-    returnvalue = Number(tempData)
-      .toFixed(5)
-      .toString();
+  if (tempData.indexOf('.') != -1) returnvalue = Number(tempData).toFixed(5).toString();
   else returnvalue = data.toString();
 
   return autoFillString(returnvalue, '&', 12, 'start');
@@ -1834,7 +1815,7 @@ exports.makeMessage = makeMessage;
 function getFindName(storage, propertyValue) {
   require('./setJavascript.js');
   var returnvalue = '';
-  _.forEach(storage, function(property) {
+  _.forEach(storage, function (property) {
     if (property instanceof Array && typeof property !== 'object') {
       var Target = property.findArrayElementById(propertyValue);
       //log(Target)
@@ -1850,7 +1831,7 @@ function requestHttp(url, callback) {
   //CLI("requestHttp",url)
   var http = require('http');
   http
-    .get(url, function(res) {
+    .get(url, function (res) {
       const statusCode = res.statusCode;
       const contentType = res.headers['content-type'];
       var error;
@@ -1870,10 +1851,10 @@ function requestHttp(url, callback) {
 
       res.setEncoding('utf8');
       var rawData = '';
-      res.on('data', function(chunk) {
+      res.on('data', function (chunk) {
         rawData += chunk;
       });
-      res.on('end', function() {
+      res.on('end', function () {
         try {
           var parsedData = JSON.parse(rawData);
           callback(null, parsedData);
@@ -1883,7 +1864,7 @@ function requestHttp(url, callback) {
         }
       });
     })
-    .on('error', function(e) {
+    .on('error', function (e) {
       console.log('Got error:', e);
       callback(e);
     });
@@ -1894,7 +1875,7 @@ exports.requestHttp = requestHttp;
 function makeRequestUrl(findKey, setInfo, callback) {
   var _ = require('underscore');
   var webInfo = setInfo.webServer;
-  var findObj = _.find(webInfo.path, function(value, key) {
+  var findObj = _.find(webInfo.path, function (value, key) {
     return findKey === key;
   });
 
