@@ -753,7 +753,7 @@ async function writeFile(path, message, option) {
   } catch (err) {
     if (err.errno === -4058) {
       let targetDir = err.path.substr(0, err.path.lastIndexOf('\\'));
-      makeDirectory(targetDir, () => {
+      makeDirectory(targetDir === '' ? err.path : targetDir, () => {
         console.error(err);
         return writeFile(path, message, option);
       });
