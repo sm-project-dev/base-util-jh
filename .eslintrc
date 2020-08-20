@@ -2,17 +2,18 @@
   "extends": ["airbnb", "prettier"],
   "plugins": ["prettier"],
   "rules": {
-    "camelcase": "warn",
     "linebreak-style": "off",
     "quotes": "error",
     "no-console": "off",
     "max-len": "off",
     "no-unused-expressions": "off",
+    "no-unused-vars": "warn",
     "no-param-reassign": "off",
     "class-methods-use-this": "off",
     "consistent-return": "off",
-    "no-unused-vars": "warn",
+    "prefer-arrow-callback": "off",
     "func-names": "off",
+    "no-bitwise": ["error", { "allow": ["^"] }],
     "prettier/prettier": "error"
   }
 }

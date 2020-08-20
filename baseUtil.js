@@ -3,10 +3,9 @@ const _ = require('lodash');
 const chalk = require('chalk');
 const moment = require('moment');
 
-const Promise = require('bluebird');
 const path = require('path');
 const fs = require('fs');
-var mkdirp = require('mkdirp');
+const mkdirp = require('mkdirp');
 const crypto = require('crypto');
 
 const colorTxt = chalk.bold.keyword('purple');
@@ -708,10 +707,10 @@ exports.debugConsole = debugConsole;
 /*****************************************************************************************************************/
 
 // 파일 읽기    /// <returns type="callback(Boolean, String)" />
-function readFile(path, encoding, callback) {
+function readFile(filePath, encoding, callback) {
   encoding = encoding == null || encoding === '' ? 'utf8' : encoding;
   try {
-    fs.readFile(path, encoding, function (err, data) {
+    fs.readFile(filePath, encoding, function (err, data) {
       if (err) return callback(err);
       if (callback != null) return callback(err, data);
     });
@@ -735,28 +734,24 @@ exports.readFile = readFile;
 //flag <String> default = 'w'
 /**
  *
- * @param {string} path
+ * @param {string} filePath
  * @param {string} message
  * @param {*} option
  * @return {Promise.<boolean>}
  */
-async function writeFile(path, message, option) {
-  const fsWriteFile = Promise.promisify(fs.writeFileSync);
+async function writeFile(filePath, message, option) {
   option = option === '' || option == null ? 'a' : option; // 기본 옵션 '이어 쓰기'
   try {
     // console.log("message",typeof message)
     message = typeof message === 'object' ? JSON.stringify(message) : message;
     // CLI(message);
-
-    await fsWriteFile(path, message, { flag: option });
+    await fs.writeFileSync(filePath, message, { flag: option });
     return true;
   } catch (err) {
     if (err.errno === -4058) {
-      let targetDir = err.path.substr(0, err.path.lastIndexOf('\\'));
-      makeDirectory(targetDir === '' ? err.path : targetDir, () => {
-        console.error(err);
-        return writeFile(path, message, option);
-      });
+      await makeDirectory(path.dirname(err.path));
+
+      return writeFile(filePath, message, option);
     }
     return false;
   }
@@ -764,17 +759,17 @@ async function writeFile(path, message, option) {
 exports.writeFile = writeFile;
 
 // 디렉토리 읽기
-function searchDirectory(path, callback) {
+function searchDirectory(dirPath, callback) {
   try {
     var returnvalue = [];
-    fs.readdir(path, function (err, files) {
+    fs.readdir(dirPath, function (err, files) {
       if (err) return callback(err);
       if (callback != null) return callback(err, files);
       // console.log('여긴 안오지');
       files.forEach(function (file) {
         returnvalue.push(file);
         // console.log(path + file);
-        fs.stat(path + file, function (err, stats) {
+        fs.stat(dirPath + file, function (err, stats) {
           console.log(stats);
         });
       });
@@ -789,19 +784,18 @@ exports.searchDirectory = searchDirectory;
 function getDirectories(srcpath) {
   return fs
     .readdirSync(srcpath)
-    .filter((file) => fs.lstatSync(path.join(srcpath, file)).isDirectory());
+    .filter(file => fs.lstatSync(path.join(srcpath, file)).isDirectory());
 }
 exports.getDirectories = getDirectories;
 
 // 디렉토리 생성
-function makeDirectory(path, callback) {
-  // CLI(path)
+async function makeDirectory(dirPath, callback) {
   try {
-    mkdirp(path, function (err) {
-      if (err) console.error(err);
-      if (callback != null) callback(err);
-      console.log('Created newdir', path);
-    });
+    await mkdirp.sync(dirPath);
+
+    console.log('Created newdir', dirPath);
+
+    if (callback != null) callback();
   } catch (e) {
     if (callback != null) callback(e);
   }
@@ -809,9 +803,9 @@ function makeDirectory(path, callback) {
 exports.makeDirectory = makeDirectory;
 
 // 디렉토리 삭제
-function deleteDirectory(path, callback) {
+function deleteDirectory(dirPath, callback) {
   try {
-    fs.rmdir(path, function (err) {
+    fs.rmdir(dirPath, function (err) {
       if (err) console.error(err);
       if (callback != null) callback(err);
       console.log('Removed newdir');

@@ -1,6 +1,6 @@
 {
   "name": "base-util-jh",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "npm publish test",
   "main": "index.js",
   "scripts": {
@@ -21,10 +21,10 @@
   },
   "homepage": "https://github.com/hyuk-jang/base-util-jh#readme",
   "dependencies": {
-    "bluebird": "^3.5.1",
-    "chalk": "^2.4.1",
-    "lodash": "^4.17.10",
-    "mkdirp": "^0.5.1",
-    "moment": "^2.22.2"
+    "bluebird": "^3.7.2",
+    "chalk": "^4.1.0",
+    "lodash": "^4.17.20",
+    "mkdirp": "^1.0.4",
+    "moment": "^2.27.0"
   }
 }
