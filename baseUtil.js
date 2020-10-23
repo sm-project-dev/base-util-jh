@@ -1230,6 +1230,47 @@ exports.findObjListByKeyAndValue = findObjListByKeyAndValue;
 /*****************************************************************************************************************/
 //*************                               Type Conversion 관련                                   *************
 /*****************************************************************************************************************/
+/**
+ * @param {*} item
+ * @return {boolean}
+ */
+function isJson(item, isGetJson = false) {
+  item = typeof item !== 'string' ? item.toString() : item;
+
+  try {
+    item = JSON.parse(item);
+  } catch (e) {
+    return false;
+  }
+
+  if (typeof item === 'object' && item !== null) {
+    return isGetJson ? item : true;
+  }
+
+  return false;
+}
+exports.isJson = isJson;
+
+/**
+ * @param {*} item
+ * @return {boolean}
+ */
+function toJson(item) {
+  item = typeof item !== 'string' ? item.toString() : item;
+
+  try {
+    item = JSON.parse(item);
+  } catch (e) {
+    return false;
+  }
+
+  if (typeof item === 'object' && item !== null) {
+    return item;
+  }
+
+  return false;
+}
+exports.toJson = toJson;
 
 /**
  * @param {string} str
