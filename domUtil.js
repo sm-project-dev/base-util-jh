@@ -1,23 +1,19 @@
 const _ = require('lodash');
+const sanitizeHtml = require('sanitize-html');
+
 const BU = require('./baseUtil');
 
 function locationAlertBack(message) {
   message =
-    process.env.NODE_ENV === 'development'
-      ? BU.MRF(message)
-      : '알 수 없는 오류가 발생하였습니다.';
+    process.env.NODE_ENV === 'development' ? BU.MRF(message) : '알 수 없는 오류가 발생하였습니다.';
   return '<script>alert("' + message + '");history.back(-1);</script>';
 }
 exports.locationAlertBack = locationAlertBack;
 
 function locationAlertGo(message, page) {
   message =
-    process.env.NODE_ENV === 'development'
-      ? BU.MRF(message)
-      : '알 수 없는 오류가 발생하였습니다.';
-  return (
-    '<script>alert("' + message + '");location.href ="' + page + '";</script>'
-  );
+    process.env.NODE_ENV === 'development' ? BU.MRF(message) : '알 수 없는 오류가 발생하였습니다.';
+  return '<script>alert("' + message + '");location.href ="' + page + '";</script>';
 }
 exports.locationAlertGo = locationAlertGo;
 
@@ -33,7 +29,7 @@ exports.locationJustGo = locationJustGo;
  */
 function makeBaseHtml(req, menuNum) {
   return {
-    menuNum
+    menuNum,
   };
 }
 exports.makeBaseHtml = makeBaseHtml;
@@ -51,7 +47,7 @@ function makeResObj(req, sidebarNum, pageCount) {
     pathName: req._parsedOriginalUrl.pathname,
     querystring: querystring,
     sidebarNum: sidebarNum,
-    err: null
+    err: null,
   };
 }
 exports.makeResObj = makeResObj;
@@ -75,8 +71,7 @@ function makeBsPagination(page, totalCount, href, queryString, pageListCount) {
   let _paginationCount = 10; // Pagination Number
 
   // pagination 시작 번호
-  let startPage =
-    Math.floor((page - 1) / _paginationCount) * _paginationCount + 1;
+  let startPage = Math.floor((page - 1) / _paginationCount) * _paginationCount + 1;
   // pagination 끝 번호
   let endPage = startPage + _paginationCount - 1;
   // pagination 최대 번호
@@ -89,8 +84,7 @@ function makeBsPagination(page, totalCount, href, queryString, pageListCount) {
   });
 
   let prevHref = startPage > 1 ? `href="${pageHref}page=${startPage - 1}"` : '';
-  let nextHref =
-    maxPage > endPage ? `href="${pageHref}page=${endPage + 1}"` : '';
+  let nextHref = maxPage > endPage ? `href="${pageHref}page=${endPage + 1}"` : '';
 
   paginationDom += `
   <ul class="pagination">
@@ -118,7 +112,7 @@ function makeBsPagination(page, totalCount, href, queryString, pageListCount) {
     href,
     queryString,
     paginationDom,
-    pageListCount: _pageListCount
+    pageListCount: _pageListCount,
   };
 }
 exports.makeBsPagination = makeBsPagination;
