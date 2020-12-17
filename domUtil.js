@@ -60,6 +60,11 @@ exports.makeResObj = makeResObj;
  * @return {Dom}
  */
 function makeBsPagination(page, totalCount, href, queryString, pageListCount) {
+  const newQueryString = {};
+  _.forEach(queryString, (value, name) => {
+    newQueryString[sanitizeHtml(name)] = sanitizeHtml(value);
+  });
+
   let paginationDom = '';
   let maxPage = 0;
   // list 총 개수
@@ -79,8 +84,8 @@ function makeBsPagination(page, totalCount, href, queryString, pageListCount) {
   endPage = endPage > maxPage ? maxPage : endPage;
 
   let pageHref = href + '?';
-  _.forEach(queryString, (value, name) => {
-    pageHref += `${name}=${value}&`;
+  _.forEach(newQueryString, (value, name) => {
+    pageHref += `${encodeURI(name)}=${encodeURI(value)}&`;
   });
 
   let prevHref = startPage > 1 ? `href="${pageHref}page=${startPage - 1}"` : '';
@@ -110,7 +115,7 @@ function makeBsPagination(page, totalCount, href, queryString, pageListCount) {
     maxPage,
     totalCount,
     href,
-    queryString,
+    queryString: newQueryString,
     paginationDom,
     pageListCount: _pageListCount,
   };
