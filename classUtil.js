@@ -12,13 +12,13 @@ class AverageStorage {
    */
   constructor(averConfig) {
     const { keyList = [], maxStorageNumber, isCenterAvg = 0 } = averConfig;
-    this.keyList = averConfig.keyList;
-    this.maxStorageNumber = averConfig.maxStorageNumber;
+    this.keyList = keyList;
+    this.maxStorageNumber = maxStorageNumber;
+    this.hasCenterAverage = isCenterAvg;
+
     this.dataStorage = {};
 
     this.init();
-
-    this.hasCenterAverage = isCenterAvg;
   }
 
   /**
