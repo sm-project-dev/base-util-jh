@@ -1,6 +1,6 @@
 {
   "name": "base-util-jh",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "npm publish test",
   "main": "index.js",
   "scripts": {

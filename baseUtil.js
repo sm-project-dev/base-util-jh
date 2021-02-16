@@ -72,7 +72,8 @@ function convertDateToText(dateTime, charset, wordEndIndex, wordStartIndex) {
     //dateTime = dateTime,
     language = charset === undefined || charset === '' ? 'char' : charset,
     endIndex = wordEndIndex === undefined || wordEndIndex === '' ? 5 : wordEndIndex,
-    startIndex = wordStartIndex === undefined || wordStartIndex === '' ? 0 : wordStartIndex,
+    startIndex =
+      wordStartIndex === undefined || wordStartIndex === '' ? 0 : wordStartIndex,
     timeTable = [], // date 타임 year ~ sec 순서대로 push
     strTimeTable = [], // 적정 str로 교체
     separates = ''; // 첨가물
@@ -155,7 +156,15 @@ function convertTextToDate(textDate) {
       dateList[index] = Number(dateList[index]);
     }
   });
-  return new Date(dateList[0], dateList[1], dateList[2], dateList[3], dateList[4], dateList[5], 0);
+  return new Date(
+    dateList[0],
+    dateList[1],
+    dateList[2],
+    dateList[3],
+    dateList[4],
+    dateList[5],
+    0,
+  );
 }
 exports.convertTextToDate = convertTextToDate;
 
@@ -353,7 +362,12 @@ function getBetweenDatePoint(strEndDate, strStartDate, searchType, rangeInfo = {
 
     // 다음 조건 txt 변환
     txtStartDate = convertDateToText(cloneTargetDate, '', spliceEndIndex, 0);
-    txtShortStartDate = convertDateToText(cloneTargetDate, '', spliceEndIndex, spliceStartIndex);
+    txtShortStartDate = convertDateToText(
+      cloneTargetDate,
+      '',
+      spliceEndIndex,
+      spliceStartIndex,
+    );
     txtNextDate = convertDateToText(currDate, '', 3, 0);
 
     // BU.CLIS(txtStartDate, txtNextDate, txtEndDate)
@@ -436,9 +450,9 @@ function logOriginalTails(traceObj) {
 function log(...args) {
   var hasFull = process.env.NODE_ENV === 'production' ? true : false;
   var traceObj = traceOccurPosition(hasFull);
-  var occurInfo = `${colorHighlight('---')} ${colorHighlight(traceObj.fileName)}:${colorHighlight(
-    traceObj.lineNumber,
-  )} ${colorFn(traceObj.functionName)}`;
+  var occurInfo = `${colorHighlight('---')} ${colorHighlight(
+    traceObj.fileName,
+  )}:${colorHighlight(traceObj.lineNumber)} ${colorFn(traceObj.functionName)}`;
 
   console.log(occurInfo);
 
@@ -564,7 +578,11 @@ function CLIS(...args) {
 
   for (let argNum = 0; argNum < args.length; argNum += 1) {
     console.log(
-      `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, 10)}`,
+      `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(
+        args[argNum],
+        true,
+        10,
+      )}`,
     );
   }
   logTails(traceObj);
@@ -578,7 +596,11 @@ function CLISO(...args) {
   logOriginalHeader(traceObj);
   for (let argNum = 0; argNum < args.length; argNum += 1) {
     console.log(
-      `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(args[argNum], true, 10)}`,
+      `${colorTxt('pOjbect' + (argNum + 1) + '-->')} ${util.inspect(
+        args[argNum],
+        true,
+        10,
+      )}`,
     );
   }
   logOriginalTails(traceObj);
@@ -672,7 +694,9 @@ function traceOccurPosition(hasFileNameFull) {
 
       var fileName = stack.getFileName();
 
-      stackInfo.fileName = hasFileNameFull ? fileName : fileName.slice(process.cwd().length);
+      stackInfo.fileName = hasFileNameFull
+        ? fileName
+        : fileName.slice(process.cwd().length);
     }
   });
   return stackInfo;
@@ -682,7 +706,9 @@ exports.traceOccurPosition = traceOccurPosition;
 // 호출된 위치에서 상위 call Function List 출력. maxCounter Level 이상이 되면 출력하지 않음
 function debugConsole(maxCounter) {
   maxCounter = isNumberic(maxCounter) ? Number(maxCounter) : 4;
-  console.log(`${colorStart('@@@@@@@@@@')}   debugConsole Start    ${colorStart('@@@@@@@@@@')}`);
+  console.log(
+    `${colorStart('@@@@@@@@@@')}   debugConsole Start    ${colorStart('@@@@@@@@@@')}`,
+  );
 
   getStack().forEach(function (stack, index) {
     var sourceName = '';
@@ -694,11 +720,15 @@ function debugConsole(maxCounter) {
     // console.log(fileName);
     sourceName = fileName.substr(fileName.lastIndexOf('/'));
     console.log(
-      `(${colorFn(stack.getFunctionName())}) ${fileName}:${colorHighlight(stack.getLineNumber())}`,
+      `(${colorFn(stack.getFunctionName())}) ${fileName}:${colorHighlight(
+        stack.getLineNumber(),
+      )}`,
     );
   });
 
-  console.log(`${colorEnd('@@@@@@@@@@')}   debugConsole End      ${colorEnd('@@@@@@@@@@')}`);
+  console.log(
+    `${colorEnd('@@@@@@@@@@')}   debugConsole End      ${colorEnd('@@@@@@@@@@')}`,
+  );
 }
 exports.debugConsole = debugConsole;
 
@@ -748,7 +778,7 @@ async function writeFile(filePath, message, option) {
     await fs.writeFileSync(filePath, message, { flag: option });
     return true;
   } catch (err) {
-    if (err.errno === -4058) {
+    if (err.errno === -4058 || err.errno === -2) {
       await makeDirectory(path.dirname(err.path));
 
       return writeFile(filePath, message, option);
@@ -860,7 +890,12 @@ async function errorLog(errType, msg, exceptionError, date = new Date()) {
   if (_.isNil(exceptionError)) {
     var traceObj = traceOccurPosition(hasFull);
     errInfo =
-      '\t' + traceObj.fileName + ' : ' + traceObj.lineNumber + ' : ' + traceObj.functionName;
+      '\t' +
+      traceObj.fileName +
+      ' : ' +
+      traceObj.lineNumber +
+      ' : ' +
+      traceObj.functionName;
   } else {
     // uncaughtException 발생할 경우 exception 에서 추적
     errInfo = _.isString(exceptionError.stack)
@@ -903,7 +938,8 @@ function makePagination({ page, pathName, querystring, pageCount, totalCount }) 
       querystring: querystring,
     });
   } else {
-    returnvalue += '<a><img src="/images/icon.jpg" width="17px" height="17px"  alt="이전" /></a>';
+    returnvalue +=
+      '<a><img src="/images/icon.jpg" width="17px" height="17px"  alt="이전" /></a>';
   }
 
   for (var i = firstpage; i <= endpage; i++) {
@@ -911,7 +947,15 @@ function makePagination({ page, pathName, querystring, pageCount, totalCount }) 
       returnvalue += '<strong><span>' + i + '</span></strong>';
     } else {
       returnvalue +=
-        "<a href='" + pathName + '?page=' + i + '&' + querystring + "'><span>" + i + '</span></a>';
+        "<a href='" +
+        pathName +
+        '?page=' +
+        i +
+        '&' +
+        querystring +
+        "'><span>" +
+        i +
+        '</span></a>';
     }
   }
 
@@ -970,7 +1014,15 @@ function pageNation(page, totalCount, listCount, url, pageField) {
     if (i == _page) returnvalue += '<strong><span>' + i + '</span></strong>';
     else
       returnvalue +=
-        "<a href='" + _url + '?page=' + i + '&' + _pageField + "'><span>" + i + '</span></a>';
+        "<a href='" +
+        _url +
+        '?page=' +
+        i +
+        '&' +
+        _pageField +
+        "'><span>" +
+        i +
+        '</span></a>';
   }
 
   if (endpage < finalpage) {
@@ -983,7 +1035,8 @@ function pageNation(page, totalCount, listCount, url, pageField) {
       _pageField +
       '"><img src="/images/pn_next.gif" alt="다음" /></a>';
   } else {
-    returnvalue += '<a><img class="page_lst" src="/images/pn_next_off.gif" alt="다음" /></a>';
+    returnvalue +=
+      '<a><img class="page_lst" src="/images/pn_next_off.gif" alt="다음" /></a>';
   }
   returnvalue += '</div>';
 
@@ -1052,7 +1105,8 @@ exports.removeBOM = removeBOM;
 // TransPosition(이항 연산자 Func)   /// <returns type="String" />
 function transPosition(value, trueValue, falseValue) {
   value = value == null ? '' : value;
-  if (typeof value === 'number') trueValue = trueValue == null || trueValue == '' ? 0 : trueValue;
+  if (typeof value === 'number')
+    trueValue = trueValue == null || trueValue == '' ? 0 : trueValue;
   else trueValue = trueValue == null || trueValue == '' ? '' : trueValue;
 
   falseValue = falseValue == null || falseValue == '' ? value : falseValue;
@@ -1494,7 +1548,8 @@ function blendColors(color1, color2, percentage) {
   if (color2.length !== 4 && color2.length !== 7)
     throw new Error('colors must be provided as hexes');
 
-  if (percentage > 1 || percentage < 0) throw new Error('percentage must be between 0 and 1');
+  if (percentage > 1 || percentage < 0)
+    throw new Error('percentage must be between 0 and 1');
 
   // output to canvas for proof
   // const cvs = document.createElement('canvas');
@@ -1874,7 +1929,9 @@ function requestHttp(url, callback) {
         error = new Error('Request Failed.\n' + 'Status Code:' + statusCode);
       } else if (!/^application\/json/.test(contentType)) {
         error = new Error(
-          'Invalid content-type.\n' + 'Expected application/json but received ' + contentType,
+          'Invalid content-type.\n' +
+            'Expected application/json but received ' +
+            contentType,
         );
       }
       if (error) {
